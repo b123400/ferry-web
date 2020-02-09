@@ -16,12 +16,33 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     Lib
+                     , Timetable
+                     , Scraping.Utility
+                     , Scraping.Islands.CheungChau
+                     , Render.Html
+  other-modules:       Render.Template.Wrapper
+                     , Render.Template.Route
+                     , Render.Template.Timetable
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , servant-server
                      , wai
                      , warp
+                     , regex-tdfa
+                     , xml-conduit
+                     , time
+                     , text
+                     , bytestring
+                     , html-conduit
+                     , http-conduit
+                     , lucid
+                     , http-media
+                     , raw-strings-qq
   default-language:    Haskell2010
+  default-extensions: TemplateHaskell
+                    , OverloadedStrings
+                    , FlexibleInstances
+                    , MultiParamTypeClasses
 
 executable ferry-web-exe
   hs-source-dirs:      app
