@@ -10,8 +10,8 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Aeson
 import Data.Aeson.TH
 import Data.ByteString.Lazy.Char8 (pack)
-import Data.Time.Clock (getCurrentTime)
-import Data.Time.LocalTime (LocalTime, TimeOfDay)
+import Data.Time.Clock (NominalDiffTime, getCurrentTime)
+import Data.Time.LocalTime (LocalTime)
 import Network.HTTP.Conduit (simpleHttp)
 import Network.Wai
 import Network.Wai.Handler.Warp
@@ -62,7 +62,7 @@ index = liftIO $ do
     let localised = fmap (localise now) <$> routes
     return localised
 
-findTimetables :: Cursor -> IO [Route TimeOfDay]
+findTimetables :: Cursor -> IO [Route NominalDiffTime]
 findTimetables cursor =
     getCurrentTime >>= \time->
     (return $ [Scraping.Islands.CheungChau.route cursor])

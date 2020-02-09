@@ -9,17 +9,17 @@ import Text.Regex.TDFA ((=~))
 import Timetable hiding (timetables)
 import Scraping.Utility
 import Data.Maybe
-import Data.Time.LocalTime (TimeOfDay(..))
+import Data.Time.Clock (NominalDiffTime)
 import Debug.Trace
 
-timetables :: Cursor -> [Timetable TimeOfDay]
+timetables :: Cursor -> [Timetable NominalDiffTime]
 timetables cursor = do
     c <- findCheungChau cursor
     ct <- findTimetableCursors c
     cursorToTimetables ct
 
 
-route :: Cursor -> Route TimeOfDay
+route :: Cursor -> Route NominalDiffTime
 route cursor = Route CheungChau $ timetables cursor
 
 findCheungChau :: Cursor -> [Cursor]
@@ -32,14 +32,14 @@ findTimetableCursors =
 findTableElements :: Cursor -> [Cursor]
 findTableElements c = c $// (makeElement "table")
 
-cursorToTimetables :: Cursor -> [Timetable TimeOfDay]
+cursorToTimetables :: Cursor -> [Timetable NominalDiffTime]
 cursorToTimetables timeTable =
     catMaybes $
     [Weekday, Saturday, Holiday] >>= \day ->
     [ToIsland, FromIsland]       >>= \direction ->
     return $ findTimetable day direction timeTable
 
-findTimetable :: Day -> Direction -> Cursor -> Maybe (Timetable TimeOfDay)
+findTimetable :: Day -> Direction -> Cursor -> Maybe (Timetable NominalDiffTime)
 findTimetable day direction timeTable
     | not $ hasDay timeTable day = Nothing
     | otherwise =
@@ -63,7 +63,7 @@ textForDirection :: Direction -> Text
 textForDirection FromIsland = pack "From Cheung Chau"
 textForDirection ToIsland   = pack "From Central"
 
-tableToTimetables :: Day -> Direction -> [Text] -> Timetable TimeOfDay
+tableToTimetables :: Day -> Direction -> [Text] -> Timetable NominalDiffTime
 tableToTimetables day direction body =
     Timetable { ferries   = catMaybes $ map (toFerry (isDay day)) $ findDirection (textForDirection direction) body
               , day       = day
@@ -94,7 +94,7 @@ splitCapture timeString
     | otherwise             = error ("regex error " ++ timeString)
     where matches = (cleanHTMLEntity timeString =~ regexPattern)
 
-toFerry :: ([String] -> Bool) -> Text -> Maybe (Ferry TimeOfDay)
+toFerry :: ([String] -> Bool) -> Text -> Maybe (Ferry NominalDiffTime)
 toFerry cond text =
     let captures = splitCapture $ unpack text
     in if cond captures
@@ -107,13 +107,9 @@ isDay Holiday  _        = True
 isDay Weekday  captures = (captures !! 6) /= "@"
 isDay Saturday captures = (captures !! 7) /= "#"
 
-capturesToFerry :: [String] -> (Ferry TimeOfDay)
+capturesToFerry :: [String] -> (Ferry NominalDiffTime)
 capturesToFerry captures =
-    Ferry { time      = TimeOfDay { todHour = (if isAm then hours else hours + 12)
-                                  , todMin = minutes
-                                  , todSec = 0
-                                  }
-
+    Ferry { time      = fromInteger $ ((if isAm then hours else hours + 12) * 60 + minutes) * 60
           , ferryType = if   isSlow
                         then SlowFerry
                         else FastFerry

@@ -5,8 +5,8 @@ module Timetable where
 import Data.Aeson.TH
 import Data.Text (Text, pack, unpack, isInfixOf)
 import Data.Maybe
-import Data.Time.Clock (UTCTime)
-import Data.Time.LocalTime (TimeOfDay, LocalTime(..), hoursToTimeZone, utcToLocalTime)
+import Data.Time.Clock (UTCTime, NominalDiffTime, addUTCTime)
+import Data.Time.LocalTime (LocalTime(..), hoursToTimeZone, utcToLocalTime, localTimeToUTC, midnight, utc)
 
 data Timetable t = Timetable { ferries :: [Ferry t]
                              , day :: Day
@@ -47,7 +47,10 @@ instance Functor Timetable where
 instance Functor Ferry where
     fmap fn (Ferry time t) = Ferry (fn time) t
 
-localise :: UTCTime -> TimeOfDay -> LocalTime
-localise now inDay = LocalTime localDay inDay
+localise :: UTCTime -> NominalDiffTime -> LocalTime
+localise now offset = addLocalTime offset $ LocalTime localDay midnight
     where (LocalTime localDay _) = utcToLocalTime hongkongTimeZone now
           hongkongTimeZone = hoursToTimeZone 8
+
+          addLocalTime :: NominalDiffTime -> LocalTime -> LocalTime
+          addLocalTime x = utcToLocalTime utc . addUTCTime x . localTimeToUTC utc
