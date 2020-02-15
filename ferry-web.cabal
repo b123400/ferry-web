@@ -23,6 +23,8 @@ library
   other-modules:       Render.Template.Wrapper
                      , Render.Template.Route
                      , Render.Template.Timetable
+                     , Schedule.Calendar
+                     , Schedule.Finder
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , servant-server
