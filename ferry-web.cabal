@@ -40,11 +40,13 @@ library
                      , lucid
                      , http-media
                      , raw-strings-qq
+                     , parsec
   default-language:    Haskell2010
   default-extensions: TemplateHaskell
                     , OverloadedStrings
                     , FlexibleInstances
                     , MultiParamTypeClasses
+                    , FlexibleContexts
 
 executable ferry-web-exe
   hs-source-dirs:      app

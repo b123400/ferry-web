@@ -22,6 +22,8 @@ import Text.XML hiding (parseLBS)
 import Timetable (Route, localise, Direction(..))
 import Render.Html (HTMLLucid)
 
+import Schedule.Calendar
+
 import Schedule.Finder
 import Debug.Trace
 
@@ -67,13 +69,14 @@ index = liftIO $ do
 
 findTimetables :: Cursor -> IO [Route NominalDiffTime]
 findTimetables cursor = do
+    holidays <- fetchHolidayICal
     now <- getCurrentTime
     let route = Scraping.Islands.CheungChau.route cursor
 
     -- ferriesForRouteAtTime :: HolidayCalendar -> T.Route NominalDiffTime -> LocalTime -> T.Direction -> [T.Ferry LocalTime]
     let localised = localise now (60*60*8)
-    let finderResult = take 200 $ ferriesForRouteAtTime () route localised ToIsland
+    let finderResult = take 200 $ ferriesForRouteAtTime holidays route localised ToIsland
     trace (show localised) $ pure ()
-    trace (show finderResult) $ pure ()
+    -- trace (show finderResult) $ pure ()
 
     return [route]
