@@ -1,6 +1,9 @@
+{-# LANGUAGE TemplateHaskell #-}
 module Schedule.Calendar (HolidayCalendar, isHoliday, fetchHolidayICal) where
 
+import Data.Aeson.TH
 import Data.ByteString.Lazy (ByteString)
+import Data.Cache (Cache(..))
 import Data.Maybe (mapMaybe)
 import Data.Time.Calendar (Day, fromGregorian)
 import Network.HTTP.Conduit (simpleHttp)
@@ -13,6 +16,12 @@ type HolidayCalendar = [Holiday]
 
 data EventEntry = Date Integer Int Int | Summary String | Other deriving (Show)
 data Holiday = Holiday Day String deriving (Show)
+
+$(deriveJSON defaultOptions ''EventEntry)
+$(deriveJSON defaultOptions ''Holiday)
+
+instance Cache HolidayCalendar where
+    cacheFilename _ = "HolidayCalendar"
 
 isHoliday :: HolidayCalendar -> Day -> Bool
 isHoliday holidays day = any (\(Holiday d _)-> d == day) holidays

@@ -1,0 +1,27 @@
+module Scraping.Gov where
+
+import Control.Monad.Catch (MonadCatch)
+import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.Trans.State (StateT, runStateT)
+import Data.Cache (Cache, withCache)
+import Data.Proxy (Proxy(..))
+import Data.Time.Clock (NominalDiffTime)
+import Network.HTTP.Conduit (simpleHttp)
+import Text.HTML.DOM (parseLBS)
+import Text.XML.Cursor (Cursor, fromDocument)
+
+import Scraping.Class (Scrap, route, shared)
+import Scraping.Islands.CheungChau ()
+import Timetable (Island(..), Route)
+
+
+cheungChau :: MonadIO m => MonadCatch m => StateT (m Cursor) m (Route NominalDiffTime)
+cheungChau = island (Proxy :: Proxy CheungChau)
+
+fetchCursor :: IO Cursor
+fetchCursor = do
+    res <- simpleHttp "https://www.td.gov.hk/en/transport_in_hong_kong/public_transport/ferries/service_details/"
+    pure $ fromDocument $ parseLBS res
+
+island :: Cache i => Scrap i => MonadIO m => MonadCatch m => Proxy i -> StateT (m Cursor) m (Route NominalDiffTime)
+island p = withCache p $ shared $ route p

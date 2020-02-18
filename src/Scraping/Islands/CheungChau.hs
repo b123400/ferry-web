@@ -4,13 +4,18 @@ module Scraping.Islands.CheungChau
 
 import Text.XML.Cursor (Cursor, attributeIs, child, following,
                         ($.//), ($//), (>=>))
+import Data.Cache (Cache(..))
 import Data.Text (Text, pack, unpack, isInfixOf)
 import Text.Regex.TDFA ((=~))
 import Timetable hiding (timetables)
+import Scraping.Class (Scrap(..))
 import Scraping.Utility
 import Data.Maybe
 import Data.Time.Clock (NominalDiffTime)
 import Debug.Trace
+
+instance Cache CheungChau where
+    cacheFilename _ = "CheungChau"
 
 timetables :: Cursor -> [Timetable NominalDiffTime]
 timetables cursor = do
@@ -18,9 +23,8 @@ timetables cursor = do
     ct <- findTimetableCursors c
     cursorToTimetables ct
 
-
-route :: Cursor -> Route NominalDiffTime
-route cursor = Route CheungChau $ timetables cursor
+instance Scrap CheungChau where
+    route _ cursor = Route CheungChau $ timetables cursor
 
 findCheungChau :: Cursor -> [Cursor]
 findCheungChau cursor = cursor $.// (makeElement "a") >=> attributeIs (makeName "name") (Data.Text.pack "o01")

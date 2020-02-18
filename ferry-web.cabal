@@ -17,7 +17,6 @@ library
   hs-source-dirs:      src
   exposed-modules:     Lib
                      , Timetable
-                     , Scraping.Utility
                      , Scraping.Islands.CheungChau
                      , Render.Html
   other-modules:       Render.Template.Wrapper
@@ -25,6 +24,13 @@ library
                      , Render.Template.Timetable
                      , Schedule.Calendar
                      , Schedule.Finder
+                     , Data.Cache
+                     , Scraping.Utility
+                     , Scraping.Class
+                     , Scraping.Calendar
+                     , Scraping.Gov
+                     , Timetable.Local
+                     , Timetable.Raw
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , servant-server
@@ -41,12 +47,18 @@ library
                      , http-media
                      , raw-strings-qq
                      , parsec
+                     , transformers
+                     , exceptions
   default-language:    Haskell2010
   default-extensions: TemplateHaskell
                     , OverloadedStrings
                     , FlexibleInstances
                     , MultiParamTypeClasses
                     , FlexibleContexts
+                    , DataKinds
+                    , KindSignatures
+                    , ScopedTypeVariables
+                    , PolyKinds
 
 executable ferry-web-exe
   hs-source-dirs:      app
