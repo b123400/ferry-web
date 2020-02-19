@@ -9,7 +9,7 @@ timetable_ :: Monad m => (Timetable LocalTime) -> HtmlT m ()
 timetable_ (Timetable ferries day direction) = do
     h2_ directionName
     ol_ $ do
-        forM_ (take 10 ferries) $ \(Ferry time ferryType)-> do
+        forM_ ferries $ \(Ferry time ferryType)-> do
             li_ [class_ "timeslot"] $ do
                 div_ [class_ (ferryClassName ferryType), alt_ (ferryAlt ferryType)] ""
                 time_ (toHtml $ timeString time)

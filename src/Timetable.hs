@@ -42,3 +42,8 @@ instance Functor Timetable where
 
 instance Functor Ferry where
     fmap fn (Ferry time t) = Ferry (fn time) t
+
+limit :: Int -> Route t -> Route t
+limit count (Route island timetables) = (Route island $ limit' <$> timetables)
+    where
+        limit' (Timetable fs day direction) = Timetable (take count fs) day direction

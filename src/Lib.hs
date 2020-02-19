@@ -10,17 +10,15 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Aeson
 import Data.Aeson.TH
 import Data.ByteString.Lazy.Char8 (pack)
+import Data.Maybe (fromMaybe)
 import Data.Time.Clock (NominalDiffTime, getCurrentTime)
 import Data.Time.LocalTime (LocalTime, utcToLocalTime, hoursToTimeZone)
 import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
-import Timetable (Route)
+import Timetable (Route, limit)
 import Timetable.Local (allIslandsAtTime)
 import Render.Html (HTMLLucid)
-
--- import Schedule.Calendar
--- import Schedule.Finder
 
 import Debug.Trace
 
@@ -35,7 +33,7 @@ data User = User
 $(deriveJSON defaultOptions ''User)
 
 type API = "users" :> Get '[JSON] [User]
-      :<|> Get '[JSON, HTMLLucid] [Route LocalTime]
+      :<|> QueryParam "count" Int :> Get '[JSON, HTMLLucid] [Route LocalTime]
 
 startApp :: IO ()
 startApp = run 8080 app
@@ -55,9 +53,11 @@ users = [ User 1 "Isaac" "Newton"
         , User 2 "Albert" "Einstein"
         ]
 
-index :: Handler [Route LocalTime]
-index = liftIO $ do
+index :: Maybe Int -> Handler [Route LocalTime]
+index count = liftIO $ do
     now <- getCurrentTime
-    let hongkongTimeZone = hoursToTimeZone 9
+    let hongkongTimeZone = hoursToTimeZone 8
         lt = utcToLocalTime hongkongTimeZone now
-    allIslandsAtTime lt -- TODO: take 10 of ferries
+        c = min 50 $ fromMaybe 10 count
+    routes <- allIslandsAtTime lt
+    pure $ limit c <$> routes
