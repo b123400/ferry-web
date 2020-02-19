@@ -49,6 +49,7 @@ library
                      , parsec
                      , transformers
                      , exceptions
+                     , directory
   default-language:    Haskell2010
   default-extensions: TemplateHaskell
                     , OverloadedStrings

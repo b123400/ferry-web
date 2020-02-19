@@ -7,8 +7,11 @@ import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Aeson (FromJSON, ToJSON, eitherDecode, encodeFile)
 import Data.ByteString.Lazy (readFile)
 import Data.Proxy (Proxy(..))
+import Data.Time.Clock (getCurrentTime, diffUTCTime)
+import System.Directory (getModificationTime)
 
 data CacheException = CannotDecodeCache String
+                    | CacheExpired
     deriving Show
 
 instance Exception CacheException
@@ -22,6 +25,11 @@ withCacheFile filePath op = handleAll run readCache
             pure r
 
         readCache = do
+            lastModified <- liftIO $ getModificationTime filePath
+            now <- liftIO $ getCurrentTime
+            if diffUTCTime now lastModified > 60*60*24*7
+                then throwM CacheExpired
+                else pure ()
             c <- liftIO $ readFile filePath
             case eitherDecode c of
                 Left a -> throwM $ CannotDecodeCache a
