@@ -31,6 +31,7 @@ library
                      , Scraping.Gov
                      , Timetable.Local
                      , Timetable.Raw
+                     , Scraping.Islands.MuiWo
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , servant-server

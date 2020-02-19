@@ -20,6 +20,7 @@ data Day = Weekday | Saturday | SundayAndHoliday deriving (Show, Eq)
 data Direction = ToIsland | FromIsland deriving (Show, Eq)
 
 data Island = CheungChau
+            | MuiWo
               deriving (Show)
 
 data Route t = Route { island :: Island
