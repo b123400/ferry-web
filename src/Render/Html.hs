@@ -9,6 +9,7 @@ import Timetable (Route)
 
 import Render.Template.Wrapper (wrapper_)
 import Render.Template.Route (route_)
+import Render.Template.Timetable (DisplayTime)
 
 data HTMLLucid
 
@@ -25,18 +26,18 @@ instance MimeRender HTMLLucid (Html a) where
 
 
 -- HTML serialization of a single person
-instance ToHtml (Route LocalTime) where
-    toHtml route =
-        tr_ $ do
-            td_ "wow1"
-            td_ "wow2"
-      -- td_ (toHtml $ firstName person)
-      -- td_ (toHtml $ lastName person)
+-- instance ToHtml (Route LocalTime) where
+--     toHtml route =
+--         tr_ $ do
+--             td_ "wow1"
+--             td_ "wow2"
+--       -- td_ (toHtml $ firstName person)
+--       -- td_ (toHtml $ lastName person)
 
-  -- do not worry too much about this
-    toHtmlRaw = toHtml
+--   -- do not worry too much about this
+--     toHtmlRaw = toHtml
 
-instance ToHtml [Route LocalTime] where
+instance DisplayTime t => ToHtml [Route t] where
     toHtml routes = wrapper_ $ do
         forM_ routes route_
 

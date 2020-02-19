@@ -1,7 +1,8 @@
 module Timetable.Local where
 
 import Control.Monad.IO.Class (MonadIO)
-import Data.Time.LocalTime (LocalTime)
+import Data.Time.Clock (NominalDiffTime, diffUTCTime)
+import Data.Time.LocalTime (LocalTime, localTimeToUTC, utc)
 import Data.Traversable (for)
 import Scraping.Calendar (holidayCalendar)
 import Schedule.Finder (ferriesForRouteAtTime)
@@ -26,3 +27,9 @@ allIslandsAtTime time = do
 
 -- TODO
 -- islandAtTime :: Proxy i -> LocalTime -> IO [Timetable LocalTime]
+
+addDiff :: LocalTime -> LocalTime -> (LocalTime, NominalDiffTime)
+addDiff now lt = (lt, diffLocalTime lt now)
+    where
+        diffLocalTime :: LocalTime -> LocalTime -> NominalDiffTime
+        diffLocalTime a b = diffUTCTime (localTimeToUTC utc a) (localTimeToUTC utc b)

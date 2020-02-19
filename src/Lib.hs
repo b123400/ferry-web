@@ -17,7 +17,7 @@ import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
 import Timetable (Route, limit)
-import Timetable.Local (allIslandsAtTime)
+import Timetable.Local (allIslandsAtTime, addDiff)
 import Render.Html (HTMLLucid)
 
 import Debug.Trace
@@ -33,7 +33,7 @@ data User = User
 $(deriveJSON defaultOptions ''User)
 
 type API = "users" :> Get '[JSON] [User]
-      :<|> QueryParam "count" Int :> Get '[JSON, HTMLLucid] [Route LocalTime]
+      :<|> QueryParam "count" Int :> Get '[JSON, HTMLLucid] [Route (LocalTime, NominalDiffTime)]
 
 startApp :: IO ()
 startApp = run 8080 app
@@ -53,11 +53,12 @@ users = [ User 1 "Isaac" "Newton"
         , User 2 "Albert" "Einstein"
         ]
 
-index :: Maybe Int -> Handler [Route LocalTime]
+index :: Maybe Int -> Handler [Route (LocalTime, NominalDiffTime)]
 index count = liftIO $ do
     now <- getCurrentTime
     let hongkongTimeZone = hoursToTimeZone 8
         lt = utcToLocalTime hongkongTimeZone now
         c = min 50 $ fromMaybe 10 count
     routes <- allIslandsAtTime lt
-    pure $ limit c <$> routes
+    let withDiff = fmap (addDiff lt) <$> routes
+    pure $ limit c <$> withDiff
