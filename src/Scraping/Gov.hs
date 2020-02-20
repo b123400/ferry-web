@@ -13,6 +13,7 @@ import Text.XML.Cursor (Cursor, fromDocument)
 import Scraping.Class (Scrap, route, shared)
 import Scraping.Islands.CheungChau ()
 import Scraping.Islands.MuiWo ()
+import Scraping.Islands.PengChau ()
 import Timetable (Island(..), Route)
 
 
@@ -21,6 +22,9 @@ cheungChau = island (Proxy :: Proxy CheungChau)
 
 muiWo :: MonadIO m => MonadCatch m => StateT (m Cursor) m (Route NominalDiffTime)
 muiWo = island (Proxy :: Proxy MuiWo)
+
+pengChau :: MonadIO m => MonadCatch m => StateT (m Cursor) m (Route NominalDiffTime)
+pengChau = island (Proxy :: Proxy PengChau)
 
 fetchCursor :: IO Cursor
 fetchCursor = do

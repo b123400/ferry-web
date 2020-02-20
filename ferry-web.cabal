@@ -17,7 +17,6 @@ library
   hs-source-dirs:      src
   exposed-modules:     Lib
                      , Timetable
-                     , Scraping.Islands.CheungChau
                      , Render.Html
   other-modules:       Render.Template.Wrapper
                      , Render.Template.Route
@@ -31,7 +30,9 @@ library
                      , Scraping.Gov
                      , Timetable.Local
                      , Timetable.Raw
+                     , Scraping.Islands.CheungChau
                      , Scraping.Islands.MuiWo
+                     , Scraping.Islands.PengChau
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , servant-server

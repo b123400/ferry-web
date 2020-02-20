@@ -14,7 +14,7 @@ import qualified Scraping.Gov as Gov
 
 allIslandsRaw :: IO [Route NominalDiffTime]
 allIslandsRaw =
-    flip evalStateT Gov.fetchCursor $ sequence [Gov.cheungChau, Gov.muiWo]
+    flip evalStateT Gov.fetchCursor $ sequence [Gov.cheungChau, Gov.muiWo, Gov.pengChau]
         -- TODO: More islands here
 
 islandRaw :: Cache i => Scrap i => Proxy i -> IO (Route NominalDiffTime)

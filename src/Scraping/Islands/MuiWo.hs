@@ -13,7 +13,6 @@ import Data.Cache (Cache(..))
 import Scraping.Class (Scrap(..))
 import Timetable hiding (timetables)
 import Scraping.Utility
-import Debug.Trace
 
 
 instance Cache MuiWo where
@@ -26,9 +25,7 @@ instance Scrap MuiWo where
 timetables :: Cursor -> [Timetable NominalDiffTime]
 timetables cursor = do
     c <- findMuiWo cursor
-    trace ("c:" <> show c) $ pure ()
     ct <- findTimetableCursors c
-    trace ("ct:" <> show ct) $ pure ()
     cursorToTimetables ct
 
 findMuiWo :: Cursor -> [Cursor]

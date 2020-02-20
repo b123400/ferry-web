@@ -21,6 +21,7 @@ data Direction = ToIsland | FromIsland deriving (Show, Eq)
 
 data Island = CheungChau
             | MuiWo
+            | PengChau
               deriving (Show)
 
 data Route t = Route { island :: Island
