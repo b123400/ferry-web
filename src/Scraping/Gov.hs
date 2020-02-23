@@ -14,6 +14,7 @@ import Scraping.Class (Scrap, route, shared)
 import Scraping.Islands.CheungChau ()
 import Scraping.Islands.MuiWo ()
 import Scraping.Islands.PengChau ()
+import Scraping.Islands.SokKwuWan ()
 import Timetable (Island(..), Route)
 
 
@@ -25,6 +26,9 @@ muiWo = island (Proxy :: Proxy MuiWo)
 
 pengChau :: MonadIO m => MonadCatch m => StateT (m Cursor) m (Route NominalDiffTime)
 pengChau = island (Proxy :: Proxy PengChau)
+
+sokKwuWan :: MonadIO m => MonadCatch m => StateT (m Cursor) m (Route NominalDiffTime)
+sokKwuWan = island (Proxy :: Proxy SokKwuWan)
 
 fetchCursor :: IO Cursor
 fetchCursor = do
