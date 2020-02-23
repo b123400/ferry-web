@@ -7,7 +7,7 @@ import Data.Maybe (catMaybes)
 import Data.Text (Text, pack, unpack, isInfixOf)
 import Data.Time.Clock (NominalDiffTime)
 import Text.Regex.TDFA ((=~))
-import Text.XML.Cursor (Cursor, attributeIs, child, following,
+import Text.XML.Cursor (Cursor, attributeIs, following,
                         ($.//), ($//), (>=>))
 import Scraping.Class (Scrap(..))
 import Scraping.Utility
@@ -47,7 +47,7 @@ findTimetable day direction timeTable
     | not $ hasDay timeTable day = Nothing
     | otherwise                  =
         let trs = timeTable $// (makeElement "tr")
-        in Just $ tableToTimetables day direction $ flatContent <$> (child =<< getTDs =<< filter hasTwoTd trs)
+        in Just $ tableToTimetables day direction $ flatContent <$> (getTDs =<< filter hasTwoTd trs)
 
 hasDay :: Cursor -> Day -> Bool
 hasDay cursor day = textHasDay day $ flatContent $ head $ cursor $// (makeElement "td")

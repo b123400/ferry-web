@@ -22,6 +22,7 @@ data Direction = ToIsland | FromIsland deriving (Show, Eq)
 data Island = CheungChau
             | MuiWo
             | PengChau
+            | YungShueWan
             | SokKwuWan
               deriving (Show)
 

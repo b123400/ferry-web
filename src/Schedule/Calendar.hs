@@ -10,7 +10,6 @@ import Network.HTTP.Conduit (simpleHttp)
 import Text.Parsec
 import Text.Parsec.Combinator
 
-import Debug.Trace
 
 type HolidayCalendar = [Holiday]
 

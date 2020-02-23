@@ -28,11 +28,14 @@ library
                      , Scraping.Class
                      , Scraping.Calendar
                      , Scraping.Gov
+                     , Scraping.EmailDecode
                      , Timetable.Local
                      , Timetable.Raw
                      , Scraping.Islands.CheungChau
                      , Scraping.Islands.MuiWo
                      , Scraping.Islands.PengChau
+                     , Scraping.Islands.SokKwuWan
+                     , Scraping.Islands.YungShueWan
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , servant-server
@@ -52,6 +55,7 @@ library
                      , transformers
                      , exceptions
                      , directory
+                     , containers
   default-language:    Haskell2010
   default-extensions: TemplateHaskell
                     , OverloadedStrings

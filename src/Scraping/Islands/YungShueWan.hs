@@ -1,36 +1,35 @@
-module Scraping.Islands.CheungChau
-( timetables, route
+module Scraping.Islands.YungShueWan
+( timetables
 ) where
 
-import Text.XML.Cursor (Cursor, attributeIs, following,
-                        ($.//), ($//), (>=>))
+import Text.XML.Cursor (Cursor, attributeIs, child, following,
+                        ($.//), ($//), ($/), (>=>))
 import Data.Cache (Cache(..))
+import Data.Maybe (catMaybes)
 import Data.Text (Text, pack, unpack, isInfixOf)
+import Data.Time.Clock (NominalDiffTime)
+import Scraping.Class (Scrap(..))
 import Text.Regex.TDFA ((=~))
 import Timetable hiding (timetables)
-import Scraping.Class (Scrap(..))
 import Scraping.Utility
-import Data.Maybe
-import Data.Time.Clock (NominalDiffTime)
 
-instance Cache CheungChau where
-    cacheFilename _ = "CheungChau"
+instance Cache YungShueWan where
+    cacheFilename _ = "YungShueWan"
 
-instance Scrap CheungChau where
-    route _ cursor = Route CheungChau $ timetables cursor
+instance Scrap YungShueWan where
+    route _ cursor = Route YungShueWan $ timetables cursor
 
 timetables :: Cursor -> [Timetable NominalDiffTime]
 timetables cursor = do
-    c <- findCheungChau cursor
+    c <- findYungShueWan cursor
     ct <- findTimetableCursors c
     cursorToTimetables ct
 
-findCheungChau :: Cursor -> [Cursor]
-findCheungChau cursor = cursor $.// (makeElement "a") >=> attributeIs (makeName "name") (Data.Text.pack "o01")
+findYungShueWan :: Cursor -> [Cursor]
+findYungShueWan cursor = cursor $.// (makeElement "a") >=> attributeIs (makeName "name") (Data.Text.pack "o04")
 
 findTimetableCursors :: Cursor -> [Cursor]
-findTimetableCursors =
-    findTableElements . nthMatch 5 (matchName "table") . following
+findTimetableCursors = findTableElements . nthMatch 3 (matchName "table") . following
 
 findTableElements :: Cursor -> [Cursor]
 findTableElements c = c $// (makeElement "table")
@@ -44,25 +43,23 @@ cursorToTimetables timeTable = catMaybes $ do
 findTimetable :: Day -> Direction -> Cursor -> Maybe (Timetable NominalDiffTime)
 findTimetable day direction timeTable
     | not $ hasDay timeTable day = Nothing
-    | otherwise =
+    | otherwise                  =
         let trs = timeTable $// (makeElement "tr")
-        in Just $ tableToTimetables day direction (flatContent <$> (getTDs =<< filter hasTwoTd trs))
+        in Just $ tableToTimetables day direction $ flatContent <$> (getTDs =<< filter hasTwoTd trs)
 
 hasDay :: Cursor -> Day -> Bool
-hasDay cursor day =
-    case cursor $// (makeElement "td") of
-        (x:_) -> textHasDay day $ flatContent x
-        _ -> False
-    where
-        textHasDay :: Day -> Text -> Bool
-        textHasDay day text =
-            case day of
-                Weekday          -> isInfixOf (pack "Mondays") text
-                Saturday         -> isInfixOf (pack "Saturdays") text
-                SundayAndHoliday -> isInfixOf (pack "Sundays") text
+hasDay cursor day = textHasDay day $ flatContent $ head $ cursor $// (makeElement "td")
+
+textHasDay :: Day -> Text -> Bool
+textHasDay day text = isInfixOf (pack(
+    case day of
+        Weekday  -> "Mondays"
+        Saturday -> "Saturdays"
+        SundayAndHoliday  -> "Sundays"
+    )) text
 
 textForDirection :: Direction -> Text
-textForDirection FromIsland = pack "From Cheung Chau"
+textForDirection FromIsland = pack "From Yung Shue Wan"
 textForDirection ToIsland   = pack "From Central"
 
 tableToTimetables :: Day -> Direction -> [Text] -> Timetable NominalDiffTime
@@ -83,12 +80,10 @@ Match
 1.20 a.m.
 12.30 p.m.
 12.00 noon
-13.30 p.m.*
-14.30 p.m.*@
-15.30 p.m.#
+13.30 p.m.@
 -}
 regexPattern :: String
-regexPattern = "([0-9]{1,2})\\.([0-9]{1,2}) ((a|p)\\.m\\.|noon)(\\*)?(@)?(#)?"
+regexPattern = "([0-9]{1,2})\\.([0-9]{1,2}) ((a|p)\\.m\\.|noon)(@)?"
 
 splitCapture :: String -> [String]
 splitCapture timeString
@@ -103,15 +98,15 @@ toFerry cond text =
        then Just (capturesToFerry captures)
        else Nothing
 
-
 isDay :: Day -> [String] -> Bool
-isDay SundayAndHoliday  _ = True
-isDay Weekday  captures   = (captures !! 6) /= "@"
-isDay Saturday captures   = (captures !! 7) /= "#"
+isDay SundayAndHoliday  _        = True
+isDay Weekday  captures = (captures !! 5) /= "@"
+isDay Saturday _        = True
 
-capturesToFerry :: [String] -> (Ferry NominalDiffTime)
+capturesToFerry :: [String] -> Ferry NominalDiffTime
 capturesToFerry captures =
     Ferry { time      = fromInteger $ ((if isAm then hours else hours + 12) * 60 + minutes) * 60
+
           , ferryType = if   isSlow
                         then SlowFerry
                         else FastFerry
@@ -119,4 +114,4 @@ capturesToFerry captures =
     where hours   = read (captures !! 1) `mod` 12
           minutes = read (captures !! 2)
           isAm    = (captures !! 3) == "a.m."
-          isSlow  = (captures !! 5) == "*"
+          isSlow  = True

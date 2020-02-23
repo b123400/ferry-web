@@ -3,10 +3,11 @@ module Scraping.Utility where
 import Text.XML.Cursor (Cursor, attributeIs, content, element, fromDocument, child, following, node,
                         ($.//), ($//), (&|), ($/), (&/), (&//), (>=>))
 import Data.Text (Text, pack, unpack)
+import Scraping.EmailDecode (decodeCloudFlareEmail)
 import Text.XML
+import qualified Data.Map as M
 import qualified Data.Text as T
 import qualified Data.ByteString.Lazy.Char8 (pack)
-import Control.Arrow
 
 makeName :: String -> Text.XML.Name
 makeName name = Text.XML.Name (T.pack name) Nothing Nothing
@@ -25,20 +26,19 @@ flatContent cursor =
     in case cursorNode of
         (NodeContent cursorNode) -> T.concat $ content cursor
         {-
-            Ususally the table looks like this:
-            <td>11.30</td>
-            <td>12.30</td>
-            But there is a fucking line looks like this:
-            <td>11.30</td>
-            <td><p>12.30</p></td>
-            So we have to handle that case
+            Cloudflare's email protection is enabled and it messes with any element with the '@' character.
+            e.g. <td>2.30 @</td> becomes <td>2.30 <a ... data-cfemail=...>email protection</a></td>
         -}
+        (NodeElement (Element (Name "a" _ _) attrs _))
+            | Just encodedEmail <- M.lookup "data-cfemail" attrs
+            , Right parsed <- decodeCloudFlareEmail $ T.unpack encodedEmail
+            -> T.pack parsed
         (NodeElement cursorNode) -> T.concat $ map flatContent $ child cursor
-        _                        -> error "not supported element type"
+        _                        -> error $ "not supported element: " <> (show cursorNode)
 
 nthMatch :: Int -> (Node -> Bool) -> [Cursor] -> Cursor
 nthMatch nth _ [] = error ("not found in empty list")
-nthMatch nth matcher (x:xs) 
+nthMatch nth matcher (x:xs)
     | matches && (nth == 1) = x
     | matches && (nth >  1) = nthMatch (nth - 1) matcher xs
     | otherwise             = nthMatch nth matcher xs

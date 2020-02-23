@@ -19,6 +19,7 @@ allIslandsRaw =
         , Gov.muiWo
         , Gov.pengChau
         , Gov.sokKwuWan
+        , Gov.yungShueWan
         ]
         -- TODO: More islands here
 
