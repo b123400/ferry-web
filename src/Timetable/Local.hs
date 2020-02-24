@@ -1,6 +1,7 @@
 module Timetable.Local where
 
 import Control.Monad.IO.Class (MonadIO)
+import Data.Cache (Cache)
 import Data.Time.Clock (NominalDiffTime, diffUTCTime)
 import Data.Time.LocalTime (LocalTime, localTimeToUTC, utc)
 import Data.Traversable (for)
@@ -9,9 +10,9 @@ import Schedule.Finder (ferriesForRouteAtTime)
 import Timetable (Route(..), Timetable(..), Day(..), Direction(..))
 import Timetable.Raw (allIslandsRaw)
 
-allIslandsAtTime :: LocalTime -> IO [Route LocalTime]
-allIslandsAtTime time = do
-    routes <- allIslandsRaw
+allIslandsAtTime :: Cache String (Route NominalDiffTime) -> LocalTime -> IO [Route LocalTime]
+allIslandsAtTime cache time = do
+    routes <- allIslandsRaw cache
     calendar <- holidayCalendar
     for routes $ \route@(Route island timetable)-> do
         pure $ Route island
