@@ -3,7 +3,7 @@ module Schedule.Calendar (HolidayCalendar, isHoliday, fetchHolidayICal) where
 
 import Data.Aeson.TH
 import Data.ByteString.Lazy (ByteString)
-import Data.Cache (Cache(..))
+import Data.LocalCache (Cache(..))
 import Data.Maybe (mapMaybe)
 import Data.Time.Calendar (Day, fromGregorian)
 import Network.HTTP.Conduit (simpleHttp)

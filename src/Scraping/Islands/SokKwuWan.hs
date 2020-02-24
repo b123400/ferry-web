@@ -4,7 +4,7 @@ module Scraping.Islands.SokKwuWan
 
 import Text.XML.Cursor (Cursor, attributeIs, following,
                         ($.//), ($//), ($/), (>=>))
-import Data.Cache (Cache(..))
+import Data.LocalCache (Cache(..))
 import Data.Maybe (catMaybes)
 import Data.Text (Text, pack, unpack, isInfixOf)
 import Data.Time.Clock (NominalDiffTime)

@@ -3,7 +3,7 @@ module Scraping.Gov where
 import Control.Monad.Catch (MonadCatch)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Trans.State (StateT, runStateT)
-import Data.Cache (Cache, withCache)
+import Data.LocalCache (Cache, withLocalCache)
 import Data.Proxy (Proxy(..))
 import Data.Time.Clock (NominalDiffTime)
 import Network.HTTP.Conduit (simpleHttp)

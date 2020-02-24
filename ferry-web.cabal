@@ -23,7 +23,7 @@ library
                      , Render.Template.Timetable
                      , Schedule.Calendar
                      , Schedule.Finder
-                     , Data.Cache
+                     , Data.LocalCache
                      , Scraping.Utility
                      , Scraping.Class
                      , Scraping.Calendar

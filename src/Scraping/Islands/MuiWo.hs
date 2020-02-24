@@ -9,7 +9,7 @@ import Text.Regex.TDFA ((=~))
 import Data.Time.Clock (NominalDiffTime)
 import Data.Maybe (catMaybes)
 
-import Data.Cache (Cache(..))
+import Data.LocalCache (Cache(..))
 import Scraping.Class (Scrap(..))
 import Timetable hiding (timetables)
 import Scraping.Utility

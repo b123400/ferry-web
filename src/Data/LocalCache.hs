@@ -1,4 +1,4 @@
-module Data.Cache where
+module Data.LocalCache where
 
 import Prelude hiding (readFile)
 
@@ -16,8 +16,8 @@ data CacheException = CannotDecodeCache String
 
 instance Exception CacheException
 
-withCacheFile :: ToJSON a => FromJSON a => MonadIO m => MonadCatch m => FilePath -> m a -> m a
-withCacheFile filePath op = handleAll run readCache
+withLocalCacheFile :: ToJSON a => FromJSON a => MonadIO m => MonadCatch m => FilePath -> m a -> m a
+withLocalCacheFile filePath op = handleAll run readCache
     where
         run _ = do
             r <- op
@@ -37,11 +37,11 @@ withCacheFile filePath op = handleAll run readCache
 
         writeCache = liftIO . encodeFile filePath
 
-withCache :: ToJSON a => FromJSON a => MonadIO m => MonadCatch m => Cache i => Proxy i -> m a -> m a
-withCache p = withCacheFile $ cacheFilename p
+withLocalCache :: ToJSON a => FromJSON a => MonadIO m => MonadCatch m => Cache i => Proxy i -> m a -> m a
+withLocalCache p = withLocalCacheFile $ cacheFilename p
 
-withCache' :: forall a m. ToJSON a => FromJSON a => Cache a => MonadIO m => MonadCatch m => m a -> m a
-withCache' = withCache (Proxy :: Proxy a)
+withLocalCache' :: forall a m. ToJSON a => FromJSON a => Cache a => MonadIO m => MonadCatch m => m a -> m a
+withLocalCache' = withLocalCache (Proxy :: Proxy a)
 
 class Cache (a :: k) where
     cacheFilename :: Proxy a -> FilePath

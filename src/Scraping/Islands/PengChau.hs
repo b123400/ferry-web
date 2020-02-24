@@ -2,7 +2,7 @@ module Scraping.Islands.PengChau
 ( timetables
 ) where
 
-import Data.Cache (Cache(..))
+import Data.LocalCache (Cache(..))
 import Data.Maybe (catMaybes)
 import Data.Text (Text, pack, unpack, isInfixOf)
 import Data.Time.Clock (NominalDiffTime)

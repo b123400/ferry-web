@@ -4,7 +4,7 @@ module Scraping.Islands.CheungChau
 
 import Text.XML.Cursor (Cursor, attributeIs, following,
                         ($.//), ($//), (>=>))
-import Data.Cache (Cache(..))
+import Data.LocalCache (Cache(..))
 import Data.Text (Text, pack, unpack, isInfixOf)
 import Text.Regex.TDFA ((=~))
 import Timetable hiding (timetables)
