@@ -21,6 +21,7 @@ library
   other-modules:       Render.Template.Wrapper
                      , Render.Template.Route
                      , Render.Template.Timetable
+                     , Render.Template.Ferry
                      , Schedule.Calendar
                      , Schedule.Finder
                      , Data.LocalCache
@@ -60,6 +61,7 @@ library
                      , lens
                      , cache
                      , clock
+                     , http-api-data
   default-language:    Haskell2010
   default-extensions: TemplateHaskell
                     , OverloadedStrings

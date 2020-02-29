@@ -1,0 +1,86 @@
+body {
+    padding-left: 15%;
+    margin: 0 auto;
+    font-family: -apple-system, Helvetica, sans-serif;
+}
+.island {
+    margin-bottom: 60px;
+}
+.island.--detail {
+    max-width: none;
+    float: none;
+    width: 70%;
+}
+h1 {
+    font-weight: 200;
+}
+h2 {
+    font-weight: 600;
+    font-size: 1em;
+}
+ol {
+    list-style: none;
+    border-left: solid 1px black;
+    padding-left: 10px;
+    margin-left: 10px;
+}
+.island.--detail .direction {
+    width: 50%;
+    min-width: 250px;
+    float: left;
+}
+.timeslot {
+    padding: 5px 10px;
+    position: relative;
+}
+time {
+    font-size: 2em;
+}
+.fast-ferry {
+    background: red;
+    height: 70%;
+    width: 5px;
+    display: block;
+    position: absolute;
+    top: 15%;
+    left: 0;
+}
+.slow-ferry {
+    background: green;
+    height: 70%;
+    width: 5px;
+    display: block;
+    position: absolute;
+    top: 15%;
+    left: 0;
+}
+.reminder {
+    color: gray;
+}
+.sidebar {
+    font-size: 12px;
+    position: fixed;
+    top: 130px;
+    left: 70%;
+    margin-bottom: 50px;
+}
+.clearfix {
+    clear: both;
+}
+@media (min-width: 700px) {
+    .island {
+        float: left;
+        width: 50%;
+        max-width: 350px;
+        min-width: 250px;
+    }
+
+}
+@media (max-width: 500px) {
+    .sidebar {
+        position: relative;
+        top: auto;
+        left: auto;
+    }
+
+}

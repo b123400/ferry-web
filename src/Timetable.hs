@@ -3,6 +3,7 @@
 module Timetable where
 
 import Data.Aeson.TH
+import Web.HttpApiData (FromHttpApiData(..))
 
 data Timetable t = Timetable { ferries :: [Ferry t]
                              , day :: Day
@@ -46,6 +47,23 @@ instance Functor Timetable where
 
 instance Functor Ferry where
     fmap fn (Ferry time t) = Ferry (fn time) t
+
+instance FromHttpApiData Island where
+    parseUrlPiece "cheungchau" = Right CheungChau
+    parseUrlPiece "muiwo" = Right MuiWo
+    parseUrlPiece "pengchau" = Right PengChau
+    parseUrlPiece "yungshuewan" = Right YungShueWan
+    parseUrlPiece "sokkwuwan" = Right SokKwuWan
+    parseUrlPiece _ = Left "Invalid island"
+
+islandName :: Island -> String
+islandName i =
+    case i of
+        CheungChau -> "Cheung Chau"
+        MuiWo -> "Mui Wo"
+        PengChau -> "Peng Chau"
+        YungShueWan -> "Yung Shue Wan"
+        SokKwuWan -> "Sok Kwu Wan"
 
 limit :: Int -> Route t -> Route t
 limit count (Route island timetables) = (Route island $ limit' <$> timetables)

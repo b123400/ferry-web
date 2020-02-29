@@ -8,8 +8,8 @@ import Network.HTTP.Media ((//), (/:))
 import Timetable (Route)
 
 import Render.Template.Wrapper (wrapper_)
-import Render.Template.Route (route_)
-import Render.Template.Timetable (DisplayTime)
+import Render.Template.Route (route_, detailRoute_)
+import Render.Template.Ferry (DisplayTime)
 
 data HTMLLucid
 
@@ -24,28 +24,12 @@ instance ToHtml a => MimeRender HTMLLucid a where
 instance MimeRender HTMLLucid (Html a) where
     mimeRender _ = renderBS
 
-
--- HTML serialization of a single person
--- instance ToHtml (Route LocalTime) where
---     toHtml route =
---         tr_ $ do
---             td_ "wow1"
---             td_ "wow2"
---       -- td_ (toHtml $ firstName person)
---       -- td_ (toHtml $ lastName person)
-
---   -- do not worry too much about this
---     toHtmlRaw = toHtml
-
 instance DisplayTime t => ToHtml [Route t] where
     toHtml routes = wrapper_ $ do
         forM_ routes route_
+    toHtmlRaw = toHtml
 
-    -- table_ $ do
-    -- tr_ $ do
-    --   th_ "hello"
-    --   th_ "world"
-
-    -- foldMap toHtml routes
-
+instance DisplayTime t => ToHtml (Route t) where
+    toHtml route = wrapper_ $ do
+        detailRoute_ route
     toHtmlRaw = toHtml

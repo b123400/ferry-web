@@ -10,7 +10,7 @@ import Data.Time.Clock (NominalDiffTime)
 import Text.XML.Cursor (Cursor)
 
 import Scraping.Class (Scrap, HasCursor(..), route)
-import Timetable (Route, Island)
+import Timetable (Route, Island(..))
 
 import qualified Data.LocalCache as LC (Cache)
 import qualified Scraping.Gov as Gov
@@ -36,3 +36,11 @@ allIslandsRaw cache =
 
 islandRaw :: LC.Cache i => Scrap i => Cache String (Route NominalDiffTime) -> Proxy i -> IO (Route NominalDiffTime)
 islandRaw cache = flip evalStateT (cache, Gov.fetchCursor) . Gov.island
+
+islandRaw' :: Cache String (Route NominalDiffTime) -> Island -> IO (Route NominalDiffTime)
+islandRaw' cache island = case island of
+    CheungChau -> islandRaw cache (Proxy :: Proxy CheungChau)
+    MuiWo -> islandRaw cache (Proxy :: Proxy MuiWo)
+    PengChau -> islandRaw cache (Proxy :: Proxy PengChau)
+    SokKwuWan -> islandRaw cache (Proxy :: Proxy SokKwuWan)
+    YungShueWan -> islandRaw cache (Proxy :: Proxy YungShueWan)
