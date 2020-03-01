@@ -7,20 +7,21 @@ module Lib
     ) where
 
 import Control.Monad.IO.Class (liftIO)
-import Data.Aeson
-import Data.Aeson.TH
-import Data.ByteString.Lazy.Char8 (pack)
 import Data.Cache (Cache, newCache)
 import Data.Maybe (fromMaybe)
+import Data.Text (Text)
+import Data.Time.Calendar (Day)
 import Data.Time.Clock (NominalDiffTime, getCurrentTime)
-import Data.Time.LocalTime (LocalTime, TimeZone, utcToLocalTime, hoursToTimeZone)
+import Data.Time.LocalTime (LocalTime(..), TimeZone, utcToLocalTime, hoursToTimeZone, midnight)
 import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
 import System.Clock (TimeSpec(..))
-import Timetable (Island, Route, limit)
+import Timetable (Island, Route, limit, hongkongTimeZone)
 import Timetable.Local (allIslandsAtTime, addDiff, islandAtTime)
 import Render.Html (HTMLLucid)
+import Render.Page.Index (Index(..))
+import Render.Page.Detail (Detail(..))
 
 import Debug.Trace
 
@@ -28,8 +29,8 @@ import qualified Scraping.Islands.CheungChau (route)
 
 
 type API = "static" :> Raw
-      :<|> Capture "island" Island :> QueryParam "count" Int :> Get '[JSON, HTMLLucid] (Route (LocalTime, NominalDiffTime))
-      :<|> QueryParam "count" Int :> Get '[JSON, HTMLLucid] [Route (LocalTime, NominalDiffTime)]
+      :<|> Capture "island" Island :> QueryParam "count" Int :> QueryParam "date" Text :> Get '[JSON, HTMLLucid] Detail
+      :<|> QueryParam "count" Int :> Get '[JSON, HTMLLucid] Index
 
 startApp :: IO ()
 startApp = do
@@ -47,23 +48,22 @@ server c = (serveDirectoryWebApp "static")
       :<|> (detail c)
       :<|> (index c)
 
-index :: Cache String (Route NominalDiffTime) -> Maybe Int -> Handler [Route (LocalTime, NominalDiffTime)]
+index :: Cache String (Route NominalDiffTime) -> Maybe Int -> Handler Index
 index cache count = liftIO $ do
     now <- getCurrentTime
     let lt = utcToLocalTime hongkongTimeZone now
         c = min 50 $ fromMaybe 4 count
     routes <- allIslandsAtTime cache lt
-    let withDiff = fmap (addDiff lt) <$> routes
-    pure $ limit c <$> withDiff
+    pure $ Index lt (limit c <$> routes)
 
-detail :: Cache String (Route NominalDiffTime) -> Island -> Maybe Int -> Handler (Route (LocalTime, NominalDiffTime))
-detail cache island mcount = liftIO $ do
+detail :: Cache String (Route NominalDiffTime) -> Island -> Maybe Int -> Maybe Text -> Handler Detail
+detail cache island mcount mday = liftIO $ do
     now <- getCurrentTime
-    let lt = utcToLocalTime hongkongTimeZone now
-        c = min 50 $ fromMaybe 10 mcount
-    route <- islandAtTime cache island lt
-    let withDiff = addDiff lt <$> route
-    pure $ limit c withDiff
-
-hongkongTimeZone :: TimeZone
-hongkongTimeZone = hoursToTimeZone 8
+    let localNow = utcToLocalTime hongkongTimeZone now
+        queriedDate@(LocalTime queriedDay _) =
+            case (parseQueryParam <$> mday) of
+                Just (Right day) -> LocalTime day midnight
+                _ -> localNow
+        count = min 50 $ fromMaybe 20 mcount
+    route <- islandAtTime cache island queriedDate
+    pure $ Detail localNow (limit count route) queriedDay count

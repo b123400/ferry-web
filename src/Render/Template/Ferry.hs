@@ -2,6 +2,7 @@ module Render.Template.Ferry where
 
 import Lucid
 import Control.Monad (forM_)
+import Data.Time.Calendar (showGregorian)
 import Data.Time.LocalTime (LocalTime(..), TimeOfDay(..))
 import Data.Time.Clock (NominalDiffTime)
 import Timetable (Timetable(..), Direction(..), FerryType(..), Ferry(..))
@@ -21,8 +22,14 @@ instance DisplayTime (LocalTime, NominalDiffTime) where
 ferries_ :: DisplayTime t => Monad m => [Ferry t] -> HtmlT m ()
 ferries_ ferries = do
     ol_ $ do
-        forM_ ferries ferry_
-        li_ [class_ "more"] "More..."
+        forM_ (zip [0..] ferries) $ \(index, f) -> do
+            let mPrev = if index == 0 then Nothing else Just $ ferries !! (index - 1)
+                today = localDay $ local $ time f
+            case mPrev of
+                Just prev | (localDay $ local $ time prev) /= today ->
+                    div_ [class_ "date-separator"] (toHtml $ showGregorian today)
+                _ -> pure ()
+            ferry_ f
 
 ferry_ :: DisplayTime t => Monad m => Ferry t -> HtmlT m ()
 ferry_ (Ferry time ferryType) = do

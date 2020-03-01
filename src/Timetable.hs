@@ -3,7 +3,8 @@
 module Timetable where
 
 import Data.Aeson.TH
-import Web.HttpApiData (FromHttpApiData(..))
+import Data.Time.LocalTime (TimeZone, hoursToTimeZone)
+import Web.HttpApiData (FromHttpApiData(..), ToHttpApiData(..))
 
 data Timetable t = Timetable { ferries :: [Ferry t]
                              , day :: Day
@@ -56,6 +57,13 @@ instance FromHttpApiData Island where
     parseUrlPiece "sokkwuwan" = Right SokKwuWan
     parseUrlPiece _ = Left "Invalid island"
 
+instance ToHttpApiData Island where
+    toUrlPiece CheungChau = "cheungchau"
+    toUrlPiece MuiWo = "muiwo"
+    toUrlPiece PengChau = "pengchau"
+    toUrlPiece YungShueWan = "yungshuewan"
+    toUrlPiece SokKwuWan = "sokkwuwan"
+
 islandName :: Island -> String
 islandName i =
     case i of
@@ -69,3 +77,6 @@ limit :: Int -> Route t -> Route t
 limit count (Route island timetables) = (Route island $ limit' <$> timetables)
     where
         limit' (Timetable fs day direction) = Timetable (take count fs) day direction
+
+hongkongTimeZone :: TimeZone
+hongkongTimeZone = hoursToTimeZone 8

@@ -8,7 +8,7 @@ import Network.HTTP.Media ((//), (/:))
 import Timetable (Route)
 
 import Render.Template.Wrapper (wrapper_)
-import Render.Template.Route (route_, detailRoute_)
+import Render.Template.Route (route_)
 import Render.Template.Ferry (DisplayTime)
 
 data HTMLLucid
@@ -23,13 +23,3 @@ instance ToHtml a => MimeRender HTMLLucid a where
 -- 'Html' wrapper.
 instance MimeRender HTMLLucid (Html a) where
     mimeRender _ = renderBS
-
-instance DisplayTime t => ToHtml [Route t] where
-    toHtml routes = wrapper_ $ do
-        forM_ routes route_
-    toHtmlRaw = toHtml
-
-instance DisplayTime t => ToHtml (Route t) where
-    toHtml route = wrapper_ $ do
-        detailRoute_ route
-    toHtmlRaw = toHtml

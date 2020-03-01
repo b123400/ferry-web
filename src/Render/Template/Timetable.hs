@@ -12,7 +12,6 @@ timetable_ :: DisplayTime t => Monad m => Timetable t -> HtmlT m ()
 timetable_ (Timetable ferries day direction) = do
     h2_ directionName
     ferries_ ferries
-
     where
         directionName = case direction of
             ToIsland -> "To"

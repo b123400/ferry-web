@@ -22,6 +22,8 @@ library
                      , Render.Template.Route
                      , Render.Template.Timetable
                      , Render.Template.Ferry
+                     , Render.Page.Index
+                     , Render.Page.Detail
                      , Schedule.Calendar
                      , Schedule.Finder
                      , Data.LocalCache
@@ -73,6 +75,7 @@ library
                     , ScopedTypeVariables
                     , PolyKinds
                     , FunctionalDependencies
+                    , AllowAmbiguousTypes
 
 executable ferry-web-exe
   hs-source-dirs:      app
