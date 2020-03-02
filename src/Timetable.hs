@@ -9,13 +9,13 @@ import Web.HttpApiData (FromHttpApiData(..), ToHttpApiData(..))
 data Timetable t = Timetable { ferries :: [Ferry t]
                              , day :: Day
                              , direction :: Direction
-                             } deriving (Show)
+                             } deriving (Eq, Show)
 
 data Ferry t = Ferry { time :: t
                      , ferryType :: FerryType
-                     } deriving (Show)
+                     } deriving (Eq, Show)
 
-data FerryType = FastFerry | SlowFerry | OptionalFerry deriving (Show)
+data FerryType = FastFerry | SlowFerry | OptionalFerry deriving (Eq, Show)
 
 data Day = Weekday | Saturday | SundayAndHoliday deriving (Show, Eq)
 
@@ -26,7 +26,7 @@ data Island = CheungChau
             | PengChau
             | YungShueWan
             | SokKwuWan
-              deriving (Show)
+              deriving (Eq, Show)
 
 data Route t = Route { island :: Island
                      , timetables :: [Timetable t]
@@ -35,7 +35,7 @@ data Route t = Route { island :: Island
 $(deriveJSON defaultOptions ''FerryType)
 $(deriveJSON defaultOptions ''Ferry)
 $(deriveJSON defaultOptions ''Day)
-$(deriveJSON defaultOptions ''Timetable)
+$(deriveJSON defaultOptions ''Timetable) -- TODO: diff json for local time / nominal diff time
 $(deriveJSON defaultOptions ''Direction)
 $(deriveJSON defaultOptions ''Island)
 $(deriveJSON defaultOptions ''Route)

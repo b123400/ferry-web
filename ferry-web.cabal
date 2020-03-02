@@ -22,8 +22,10 @@ library
                      , Render.Template.Route
                      , Render.Template.Timetable
                      , Render.Template.Ferry
+                     , Render.Template.RawTimetable
                      , Render.Page.Index
                      , Render.Page.Detail
+                     , Render.Page.RawTimetable
                      , Schedule.Calendar
                      , Schedule.Finder
                      , Data.LocalCache
