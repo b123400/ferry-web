@@ -5,8 +5,7 @@ module Timetable where
 import Data.Aeson (ToJSON(..), FromJSON(..), (.=), (.:), object, withObject)
 import Data.Aeson.TH
 import Data.Time.Clock (NominalDiffTime)
-import Data.Time.LocalTime (TimeZone, hoursToTimeZone)
-import Data.Time.LocalTime (LocalTime(..))
+import Data.Time.LocalTime (LocalTime(..), ZonedTime(..), TimeZone, hoursToTimeZone)
 import Web.HttpApiData (FromHttpApiData(..), ToHttpApiData(..))
 
 data Timetable t = Timetable { ferries :: [Ferry t]
@@ -43,9 +42,11 @@ $(deriveJSON defaultOptions ''Island)
 
 instance ToJSON (Timetable LocalTime) where
     toJSON (Timetable ferries _ direction) = object
-        [ "ferries" .= ferries
+        [ "ferries" .= (fmap zoned <$> ferries)
         , "direction" .= direction
         ]
+        where zoned = flip ZonedTime hongkongTimeZone
+
 
 instance ToJSON (Timetable NominalDiffTime) where
     toJSON (Timetable ferries day direction) = object
