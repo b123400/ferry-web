@@ -14,6 +14,9 @@ body {
     float: none;
     width: 70%;
 }
+.island.--raw {
+    width: 100%;
+}
 a .island {
     color: black;
 }
@@ -39,9 +42,19 @@ ol {
     min-width: 250px;
     float: left;
 }
+.island.--raw .direction {
+    float: left;
+    width: 30%;
+    min-width: 120px;
+}
 .island.--main .direction ol::after {
     content: 'More...';
     font-size: 80%;
+}
+.day {
+    float: left;
+    min-width: 300px;
+    width: 33%;
 }
 .date-separator {
     text-align: right;
@@ -85,6 +98,7 @@ time {
 }
 .reminder {
     color: gray;
+    margin-left: 40px;
 }
 .sidebar {
     font-size: 12px;
@@ -97,7 +111,7 @@ time {
     clear: both;
 }
 @media (min-width: 700px) {
-    .island {
+    .island.--main {
         float: left;
         width: 50%;
         max-width: 350px;

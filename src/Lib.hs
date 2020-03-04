@@ -19,9 +19,11 @@ import Servant
 import System.Clock (TimeSpec(..))
 import Timetable (Island, Route, limit, hongkongTimeZone)
 import Timetable.Local (allIslandsAtTime, addDiff, islandAtTime)
+import Timetable.Raw (islandRaw')
 import Render.Html (HTMLLucid)
 import Render.Page.Index (Index(..))
 import Render.Page.Detail (Detail(..))
+import Render.Page.RawTimetable (RawTimetable(..))
 
 import Debug.Trace
 
@@ -30,6 +32,7 @@ import qualified Scraping.Islands.CheungChau (route)
 
 type API = "static" :> Raw
       :<|> Capture "island" Island :> QueryParam "count" Int :> QueryParam "date" Text :> Get '[JSON, HTMLLucid] Detail
+      :<|> Capture "island" Island :> "raw" :> Get '[JSON, HTMLLucid] RawTimetable
       :<|> QueryParam "count" Int :> Get '[JSON, HTMLLucid] Index
 
 startApp :: IO ()
@@ -46,6 +49,7 @@ api = Proxy
 server :: Cache String (Route NominalDiffTime) -> Server API
 server c = (serveDirectoryWebApp "static")
       :<|> (detail c)
+      :<|> (rawDetail c)
       :<|> (index c)
 
 index :: Cache String (Route NominalDiffTime) -> Maybe Int -> Handler Index
@@ -67,3 +71,6 @@ detail cache island mcount mday = liftIO $ do
         count = min 50 $ fromMaybe 20 mcount
     route <- islandAtTime cache island queriedDate
     pure $ Detail localNow (limit count route) queriedDay count
+
+rawDetail :: Cache String (Route NominalDiffTime) -> Island -> Handler RawTimetable
+rawDetail c island = liftIO $ RawTimetable <$> islandRaw' c island
