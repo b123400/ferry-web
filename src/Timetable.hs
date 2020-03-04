@@ -2,8 +2,11 @@
 
 module Timetable where
 
+import Data.Aeson (ToJSON(..), FromJSON(..), (.=), (.:), object, withObject)
 import Data.Aeson.TH
+import Data.Time.Clock (NominalDiffTime)
 import Data.Time.LocalTime (TimeZone, hoursToTimeZone)
+import Data.Time.LocalTime (LocalTime(..))
 import Web.HttpApiData (FromHttpApiData(..), ToHttpApiData(..))
 
 data Timetable t = Timetable { ferries :: [Ferry t]
@@ -35,10 +38,40 @@ data Route t = Route { island :: Island
 $(deriveJSON defaultOptions ''FerryType)
 $(deriveJSON defaultOptions ''Ferry)
 $(deriveJSON defaultOptions ''Day)
-$(deriveJSON defaultOptions ''Timetable) -- TODO: diff json for local time / nominal diff time
 $(deriveJSON defaultOptions ''Direction)
 $(deriveJSON defaultOptions ''Island)
-$(deriveJSON defaultOptions ''Route)
+
+instance ToJSON (Timetable LocalTime) where
+    toJSON (Timetable ferries _ direction) = object
+        [ "ferries" .= ferries
+        , "direction" .= direction
+        ]
+
+instance ToJSON (Timetable NominalDiffTime) where
+    toJSON (Timetable ferries day direction) = object
+        [ "ferries" .= ferries
+        , "day" .= day
+        , "direction" .= direction
+        ]
+
+instance FromJSON (Timetable NominalDiffTime) where
+    parseJSON = withObject "Timetable" $ \o -> do
+        ferries <- o .: "ferries"
+        day <- o .: "day"
+        direction <- o .: "direction"
+        pure $ Timetable ferries day direction
+
+instance (ToJSON (Timetable t)) => ToJSON (Route t) where
+    toJSON (Route island timetables) = object
+        [ "island" .= island
+        , "timetables" .= timetables
+        ]
+
+instance FromJSON (Route NominalDiffTime) where
+    parseJSON = withObject "Route" $ \o -> do
+        island <- o .: "island"
+        timetables <- o .: "timetables"
+        pure $ Route island timetables
 
 instance Functor Route where
     fmap fn (Route i t) = Route i (fmap fn <$> t)

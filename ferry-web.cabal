@@ -78,6 +78,7 @@ library
                     , PolyKinds
                     , FunctionalDependencies
                     , AllowAmbiguousTypes
+                    , UndecidableInstances
 
 executable ferry-web-exe
   hs-source-dirs:      app
