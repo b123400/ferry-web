@@ -23,11 +23,11 @@ data Day = Weekday | Saturday | SundayAndHoliday deriving (Show, Eq)
 
 data Direction = ToIsland | FromIsland deriving (Show, Eq)
 
-data Island = CheungChau
-            | MuiWo
-            | PengChau
-            | YungShueWan
-            | SokKwuWan
+data Island = CentralCheungChau
+            | CentralMuiWo
+            | CentralPengChau
+            | CentralYungShueWan
+            | CentralSokKwuWan
               deriving (Eq, Show)
 
 data Route t = Route { island :: Island
@@ -84,28 +84,28 @@ instance Functor Ferry where
     fmap fn (Ferry time t) = Ferry (fn time) t
 
 instance FromHttpApiData Island where
-    parseUrlPiece "cheungchau" = Right CheungChau
-    parseUrlPiece "muiwo" = Right MuiWo
-    parseUrlPiece "pengchau" = Right PengChau
-    parseUrlPiece "yungshuewan" = Right YungShueWan
-    parseUrlPiece "sokkwuwan" = Right SokKwuWan
+    parseUrlPiece "central-cheungchau" = Right CentralCheungChau
+    parseUrlPiece "central-muiwo" = Right CentralMuiWo
+    parseUrlPiece "central-pengchau" = Right CentralPengChau
+    parseUrlPiece "central-yungshuewan" = Right CentralYungShueWan
+    parseUrlPiece "central-sokkwuwan" = Right CentralSokKwuWan
     parseUrlPiece _ = Left "Invalid island"
 
 instance ToHttpApiData Island where
-    toUrlPiece CheungChau = "cheungchau"
-    toUrlPiece MuiWo = "muiwo"
-    toUrlPiece PengChau = "pengchau"
-    toUrlPiece YungShueWan = "yungshuewan"
-    toUrlPiece SokKwuWan = "sokkwuwan"
+    toUrlPiece CentralCheungChau = "central-cheungchau"
+    toUrlPiece CentralMuiWo = "central-muiwo"
+    toUrlPiece CentralPengChau = "central-pengchau"
+    toUrlPiece CentralYungShueWan = "central-yungshuewan"
+    toUrlPiece CentralSokKwuWan = "central-sokkwuwan"
 
 islandName :: Island -> String
 islandName i =
     case i of
-        CheungChau -> "Cheung Chau"
-        MuiWo -> "Mui Wo"
-        PengChau -> "Peng Chau"
-        YungShueWan -> "Yung Shue Wan"
-        SokKwuWan -> "Sok Kwu Wan"
+        CentralCheungChau -> "Cheung Chau"
+        CentralMuiWo -> "Mui Wo"
+        CentralPengChau -> "Peng Chau"
+        CentralYungShueWan -> "Yung Shue Wan"
+        CentralSokKwuWan -> "Sok Kwu Wan"
 
 limit :: Int -> Route t -> Route t
 limit count (Route island timetables) = (Route island $ limit' <$> timetables)

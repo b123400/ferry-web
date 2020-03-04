@@ -1,4 +1,4 @@
-module Scraping.Islands.PengChau
+module Scraping.Islands.CentralPengChau
 ( timetables
 ) where
 
@@ -14,21 +14,21 @@ import Scraping.Utility
 import Timetable hiding (timetables)
 
 
-instance Cache PengChau where
-    cacheFilename _ = "PengChau"
+instance Cache CentralPengChau where
+    cacheFilename _ = "CentralPengChau"
 
-instance Scrap PengChau where
-    route _ cursor = Route PengChau $ timetables cursor
+instance Scrap CentralPengChau where
+    route _ cursor = Route CentralPengChau $ timetables cursor
 
 timetables :: Cursor -> [Timetable NominalDiffTime]
 timetables cursor = do
-    c <- findPengChau cursor
+    c <- findCentralPengChau cursor
     ct <- findTimetableCursors c
     cursorToTimetables ct
 
 
-findPengChau :: Cursor -> [Cursor]
-findPengChau cursor = cursor $.// (makeElement "a") >=> attributeIs (makeName "name") (Data.Text.pack "o03")
+findCentralPengChau :: Cursor -> [Cursor]
+findCentralPengChau cursor = cursor $.// (makeElement "a") >=> attributeIs (makeName "name") (Data.Text.pack "o03")
 
 findTimetableCursors :: Cursor -> [Cursor]
 findTimetableCursors = findTableElements . nthMatch 3 (matchName "table") . following

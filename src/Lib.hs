@@ -27,7 +27,7 @@ import Render.Page.RawTimetable (RawTimetable(..))
 
 import Debug.Trace
 
-import qualified Scraping.Islands.CheungChau (route)
+import qualified Scraping.Islands.CentralCheungChau (route)
 
 
 type API = "static" :> Raw

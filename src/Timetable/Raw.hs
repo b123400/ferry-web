@@ -26,11 +26,11 @@ instance HasCursor State where
 allIslandsRaw :: Cache String (Route NominalDiffTime) -> IO [Route NominalDiffTime]
 allIslandsRaw cache =
     flip evalStateT (cache, Gov.fetchCursor) $ sequence
-        [ Gov.cheungChau
-        , Gov.muiWo
-        , Gov.pengChau
-        , Gov.sokKwuWan
-        , Gov.yungShueWan
+        [ Gov.centralCheungChau
+        , Gov.centralMuiWo
+        , Gov.centralPengChau
+        , Gov.centralSokKwuWan
+        , Gov.centralYungShueWan
         ]
         -- TODO: More islands here
 
@@ -39,8 +39,8 @@ islandRaw cache = flip evalStateT (cache, Gov.fetchCursor) . Gov.island
 
 islandRaw' :: Cache String (Route NominalDiffTime) -> Island -> IO (Route NominalDiffTime)
 islandRaw' cache island = case island of
-    CheungChau -> islandRaw cache (Proxy :: Proxy CheungChau)
-    MuiWo -> islandRaw cache (Proxy :: Proxy MuiWo)
-    PengChau -> islandRaw cache (Proxy :: Proxy PengChau)
-    SokKwuWan -> islandRaw cache (Proxy :: Proxy SokKwuWan)
-    YungShueWan -> islandRaw cache (Proxy :: Proxy YungShueWan)
+    CentralCheungChau -> islandRaw cache (Proxy :: Proxy CentralCheungChau)
+    CentralMuiWo -> islandRaw cache (Proxy :: Proxy CentralMuiWo)
+    CentralPengChau -> islandRaw cache (Proxy :: Proxy CentralPengChau)
+    CentralSokKwuWan -> islandRaw cache (Proxy :: Proxy CentralSokKwuWan)
+    CentralYungShueWan -> islandRaw cache (Proxy :: Proxy CentralYungShueWan)

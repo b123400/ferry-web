@@ -12,28 +12,28 @@ import Text.HTML.DOM (parseLBS)
 import Text.XML.Cursor (Cursor, fromDocument)
 
 import Scraping.Class (Scrap, HasCursor, route, shared)
-import Scraping.Islands.CheungChau ()
-import Scraping.Islands.MuiWo ()
-import Scraping.Islands.PengChau ()
-import Scraping.Islands.SokKwuWan ()
-import Scraping.Islands.YungShueWan ()
+import Scraping.Islands.CentralCheungChau ()
+import Scraping.Islands.CentralMuiWo ()
+import Scraping.Islands.CentralPengChau ()
+import Scraping.Islands.CentralSokKwuWan ()
+import Scraping.Islands.CentralYungShueWan ()
 import Timetable (Island(..), Route)
 
 
-cheungChau :: MonadIO m => MonadCatch m => HasCursor a => HasCache a (Route NominalDiffTime) => StateT a m (Route NominalDiffTime)
-cheungChau = island (Proxy :: Proxy CheungChau)
+centralCheungChau :: MonadIO m => MonadCatch m => HasCursor a => HasCache a (Route NominalDiffTime) => StateT a m (Route NominalDiffTime)
+centralCheungChau = island (Proxy :: Proxy CentralCheungChau)
 
-muiWo :: MonadIO m => MonadCatch m => HasCursor a => HasCache a (Route NominalDiffTime) => StateT a m (Route NominalDiffTime)
-muiWo = island (Proxy :: Proxy MuiWo)
+centralMuiWo :: MonadIO m => MonadCatch m => HasCursor a => HasCache a (Route NominalDiffTime) => StateT a m (Route NominalDiffTime)
+centralMuiWo = island (Proxy :: Proxy CentralMuiWo)
 
-pengChau :: MonadIO m => MonadCatch m => HasCursor a => HasCache a (Route NominalDiffTime) => StateT a m (Route NominalDiffTime)
-pengChau = island (Proxy :: Proxy PengChau)
+centralPengChau :: MonadIO m => MonadCatch m => HasCursor a => HasCache a (Route NominalDiffTime) => StateT a m (Route NominalDiffTime)
+centralPengChau = island (Proxy :: Proxy CentralPengChau)
 
-sokKwuWan :: MonadIO m => MonadCatch m => HasCursor a => HasCache a (Route NominalDiffTime) => StateT a m (Route NominalDiffTime)
-sokKwuWan = island (Proxy :: Proxy SokKwuWan)
+centralSokKwuWan :: MonadIO m => MonadCatch m => HasCursor a => HasCache a (Route NominalDiffTime) => StateT a m (Route NominalDiffTime)
+centralSokKwuWan = island (Proxy :: Proxy CentralSokKwuWan)
 
-yungShueWan :: MonadIO m => MonadCatch m => HasCursor a => HasCache a (Route NominalDiffTime) => StateT a m (Route NominalDiffTime)
-yungShueWan = island (Proxy :: Proxy YungShueWan)
+centralYungShueWan :: MonadIO m => MonadCatch m => HasCursor a => HasCache a (Route NominalDiffTime) => StateT a m (Route NominalDiffTime)
+centralYungShueWan = island (Proxy :: Proxy CentralYungShueWan)
 
 fetchCursor :: IO Cursor
 fetchCursor = do
