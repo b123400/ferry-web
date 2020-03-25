@@ -1,12 +1,10 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Schedule.Calendar (HolidayCalendar, isHoliday, fetchHolidayICal) where
+module Schedule.Calendar (HolidayCalendar, isHoliday, parseICal) where
 
 import Data.Aeson.TH
 import Data.ByteString.Lazy (ByteString)
-import Data.LocalCache (Cache(..))
 import Data.Maybe (mapMaybe)
 import Data.Time.Calendar (Day, fromGregorian)
-import Network.HTTP.Conduit (simpleHttp)
 import Text.Parsec
 import Text.Parsec.Combinator
 
@@ -19,19 +17,14 @@ data Holiday = Holiday Day String deriving (Show)
 $(deriveJSON defaultOptions ''EventEntry)
 $(deriveJSON defaultOptions ''Holiday)
 
-instance Cache HolidayCalendar where
-    cacheFilename _ = "HolidayCalendar"
-
 isHoliday :: HolidayCalendar -> Day -> Bool
 isHoliday holidays day = any (\(Holiday d _)-> d == day) holidays
 
-fetchHolidayICal :: IO HolidayCalendar
-fetchHolidayICal = do
-    res <- simpleHttp "https://www.1823.gov.hk/common/ical/en.ics"
+parseICal :: Monad m => ByteString -> m HolidayCalendar
+parseICal res =
     case parse ical "" res of
         Left error -> fail $ show error
         Right x -> pure x
-
 
 -- An incompleted parser for the iCal format.
 -- The one published by hkgov is invalid and cannot be parsed by a proper parser.

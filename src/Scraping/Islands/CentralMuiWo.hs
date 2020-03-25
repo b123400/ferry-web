@@ -1,26 +1,26 @@
 module Scraping.Islands.CentralMuiWo
-( timetables
+( fetch
 ) where
 
-import Text.XML.Cursor (Cursor, attributeIs, following,
-                        ($.//), ($//), (>=>))
+import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.Cache (MonadCache, withCache)
+import Data.ByteString.Lazy (ByteString)
 import Data.Text (Text, pack, unpack, isInfixOf)
 import Text.Regex.TDFA ((=~))
 import Data.Time.Clock (NominalDiffTime)
 import Data.Maybe (catMaybes)
-
-import Data.LocalCache (Cache(..))
-import Scraping.Class (Scrap(..))
+import Text.XML.Cursor (Cursor, attributeIs, following,
+                        ($.//), ($//), (>=>))
 import Timetable hiding (timetables)
 import Scraping.Utility
 
+import qualified Scraping.Gov as Gov (fetchCursor)
 
-instance Cache CentralMuiWo where
-    cacheFilename _ = "CentralMuiWo"
 
-instance Scrap CentralMuiWo where
-    route _ cursor = Route CentralMuiWo $ timetables cursor
-
+fetch :: (MonadIO m, MonadCache m ByteString, MonadCache m (Route NominalDiffTime)) => m (Route NominalDiffTime)
+fetch = withCache "CentralMuiWo" $ do
+    cursor <- Gov.fetchCursor
+    pure $ Route CentralMuiWo $ timetables cursor
 
 timetables :: Cursor -> [Timetable NominalDiffTime]
 timetables cursor = do

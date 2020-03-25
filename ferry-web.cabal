@@ -28,10 +28,8 @@ library
                      , Render.Page.RawTimetable
                      , Schedule.Calendar
                      , Schedule.Finder
-                     , Data.LocalCache
-                     , Data.MemoryCache
+                     , Control.Monad.Cache
                      , Scraping.Utility
-                     , Scraping.Class
                      , Scraping.Calendar
                      , Scraping.Gov
                      , Scraping.EmailDecode
@@ -79,6 +77,7 @@ library
                     , FunctionalDependencies
                     , AllowAmbiguousTypes
                     , UndecidableInstances
+                    , ConstraintKinds
 
 executable ferry-web-exe
   hs-source-dirs:      app
