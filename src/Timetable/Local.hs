@@ -4,6 +4,7 @@ import Control.Monad.Cache (MonadCache)
 import Control.Monad.Catch (MonadCatch)
 import Control.Monad.IO.Class (MonadIO)
 import Data.ByteString.Lazy (ByteString)
+import Data.Map.Strict as Map (Map)
 import Data.Time.Clock (NominalDiffTime, diffUTCTime)
 import Data.Time.LocalTime (LocalTime, localTimeToUTC, utc)
 import Data.Traversable (for)
@@ -16,6 +17,7 @@ import Timetable.Raw (allIslandsRaw, islandRaw)
 allIslandsAtTime
     :: ( MonadIO m
        , MonadCache m ByteString
+       , MonadCache m (Map String String)
        , MonadCache m (Route NominalDiffTime)
        , MonadCache m HolidayCalendar
        , MonadCatch m
@@ -39,6 +41,7 @@ allIslandsAtTime time = do
 islandAtTime
     :: ( MonadIO m
        , MonadCache m ByteString
+       , MonadCache m (Map String String)
        , MonadCache m (Route NominalDiffTime)
        , MonadCache m HolidayCalendar
        , MonadCatch m
