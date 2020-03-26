@@ -3,7 +3,7 @@ module Schedule.Calendar (HolidayCalendar, isHoliday, parseICal) where
 
 import Data.Aeson.TH
 import Data.ByteString.Lazy (ByteString)
-import Data.Maybe (mapMaybe)
+import Data.Maybe (listToMaybe, mapMaybe)
 import Data.Time.Calendar (Day, fromGregorian)
 import Text.Parsec
 import Text.Parsec.Combinator
@@ -58,8 +58,8 @@ event = do
     bodies <- many body
     endEvent
 
-    let h = Holiday <$> (safeHead $ mapMaybe getDate bodies)
-                    <*> (safeHead $ mapMaybe getSummary bodies)
+    let h = Holiday <$> (listToMaybe $ mapMaybe getDate bodies)
+                    <*> (listToMaybe $ mapMaybe getSummary bodies)
     case h of
         Nothing -> fail "Cannot parse event"
         Just h -> pure h
@@ -74,9 +74,6 @@ event = do
           getDate _ = Nothing
           getSummary (Summary str) = Just str
           getSummary _ = Nothing
-
-          safeHead [] = Nothing
-          safeHead (x:_) = Just x
 
           dateLine = do
               string "DTSTART;VALUE=DATE:"
