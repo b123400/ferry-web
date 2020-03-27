@@ -42,6 +42,7 @@ library
                      , Scraping.Islands.CentralYungShueWan
                      , Scraping.NWFF.RouteScript
                      , Scraping.NWFF.NorthPointHungHom
+                     , Scraping.NWFF.NorthPointKowloonCity
                      , Scraping.NWFF.TimeString
   build-depends:       base >= 4.7 && < 5
                      , aeson

@@ -33,6 +33,7 @@ linkOrDefault key def = ((<>) baseUrl) <$> f
                 Just n -> pure n
                 Nothing -> pure def
 
+-- Copied from official website 2020/03/26
 centralCheungChau :: (MonadCache m (Map String String), MonadIO m, MonadCatch m) => m String
 centralCheungChau = linkOrDefault "Central - Cheung Chau" "get_route.php?id=75852f2a-6be6-49bc-bb7a-e9d31f46b41e&route_id=8&submenu_num=3"
 
