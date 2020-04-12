@@ -39,7 +39,7 @@ findTableElements c = c $// (element "table")
 
 cursorToTimetables :: Cursor -> [Timetable NominalDiffTime]
 cursorToTimetables timeTable = catMaybes $ do
-    day <- [Weekday, Saturday, SundayAndHoliday]
+    day <- [Weekday, Saturday, Sunday, Holiday]
     direction <- [ToIsland, FromIsland]
     return $ findTimetable day direction timeTable
 
@@ -61,7 +61,8 @@ hasDay cursor day =
             case day of
                 Weekday          -> isInfixOf (pack "Mondays") text
                 Saturday         -> isInfixOf (pack "Saturdays") text
-                SundayAndHoliday -> isInfixOf (pack "Sundays") text
+                Sunday           -> isInfixOf (pack "Sundays") text
+                Holiday          -> isInfixOf (pack "holidays") text
 
 textForDirection :: Direction -> Text
 textForDirection FromIsland = pack "From Cheung Chau"
@@ -107,7 +108,8 @@ toFerry cond text =
 
 
 isDay :: Day -> [String] -> Bool
-isDay SundayAndHoliday  _ = True
+isDay Sunday  _           = True
+isDay Holiday _           = True
 isDay Weekday  captures   = (captures !! 6) /= "@"
 isDay Saturday captures   = (captures !! 7) /= "#"
 

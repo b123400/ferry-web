@@ -41,8 +41,15 @@ instance ToHtml RawTimetable where
                             div_ [class_ "direction"] $ do
                                 rawTimetable_ t
                         div_ [class_ "clearfix"] $ pure ()
+            -- TODO: join Sunday and holiday is possible
             div_ [class_ "day"] $ do
                 h2_ "Sunday"
+                forM_ sundayTimetables $ \t -> do
+                    div_ [class_ "direction"] $ do
+                        rawTimetable_ t
+                div_ [class_ "clearfix"] $ pure ()
+            div_ [class_ "day"] $ do
+                h2_ "Holiday"
                 forM_ holidayTimetables $ \t -> do
                     div_ [class_ "direction"] $ do
                         rawTimetable_ t
@@ -52,7 +59,8 @@ instance ToHtml RawTimetable where
         where timetablesOfDay d = filter (\(Timetable _ day _)-> day == d) timetables
               weekdayTimetables = timetablesOfDay Weekday
               saturdayTimetables = timetablesOfDay Saturday
-              holidayTimetables = timetablesOfDay SundayAndHoliday
+              sundayTimetables = timetablesOfDay Sunday
+              holidayTimetables = timetablesOfDay Holiday
               isSatSameAsWeekday = weekdayTimetables == saturdayTimetables
 
 

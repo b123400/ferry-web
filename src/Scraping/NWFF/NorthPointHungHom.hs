@@ -49,7 +49,7 @@ tableToTimetables table =
         listsOfStrings = [firsts, seconds]
     in catMaybes $ do
             listOfStrings <- listsOfStrings
-            day <- [Weekday, Saturday, SundayAndHoliday]
+            day <- [Weekday, Saturday, Sunday, Holiday]
             direction <- [ToIsland, FromIsland]
             pure $ findTimetable day direction listOfStrings
     where

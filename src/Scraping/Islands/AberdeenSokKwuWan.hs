@@ -39,7 +39,7 @@ findTableElements c = c $// (element "table")
 
 cursorToTimetables :: Cursor -> [Timetable NominalDiffTime]
 cursorToTimetables timeTable = catMaybes $ do
-    day <- [Weekday, Saturday, SundayAndHoliday]
+    day <- [Weekday, Saturday, Sunday, Holiday]
     direction <- [ToIsland, FromIsland]
     return $ findTimetable day direction timeTable
 
@@ -61,15 +61,16 @@ hasDay cursor day =
             case day of
                 Weekday          -> isInfixOf (pack "Mondays") text
                 Saturday         -> isInfixOf (pack "Saturdays") text
-                SundayAndHoliday -> isInfixOf (pack "Sundays") text
+                Sunday           -> isInfixOf (pack "Sundays") text
+                Holiday          -> isInfixOf (pack "holidays") text
 
 textForDirection :: Direction -> Text
-textForDirection FromIsland = pack "From Aberdeen"
-textForDirection ToIsland   = pack "From Sok Kwu Wan"
+textForDirection FromIsland = pack "From Sok Kwu Wan"
+textForDirection ToIsland   = pack "From Aberdeen"
 
 tableToTimetables :: Day -> Direction -> [Text] -> Timetable NominalDiffTime
 tableToTimetables day direction body =
-    Timetable { ferries   = handleOverMidnight $ catMaybes $ map (toFerry (isDay day)) $ findDirection (textForDirection direction) body
+    Timetable { ferries   = handleOverMidnight $ map toFerry $ findDirection (textForDirection direction) body
               , day       = day
               , direction = direction
               }
@@ -98,20 +99,12 @@ splitCapture timeString
     | otherwise             = error ("regex error " ++ timeString)
     where matches = (cleanHTMLEntity timeString =~ regexPattern)
 
-toFerry :: ([String] -> Bool) -> Text -> Maybe (Ferry NominalDiffTime)
-toFerry cond text =
+toFerry :: Text -> Ferry NominalDiffTime
+toFerry text =
     let captures = splitCapture $ unpack text
-    in if cond captures
-       then Just (capturesToFerry captures)
-       else Nothing
+    in capturesToFerry captures
 
-
-isDay :: Day -> [String] -> Bool
-isDay SundayAndHoliday  _ = True
-isDay Weekday  captures   = (captures !! 6) /= "@"
-isDay Saturday captures   = (captures !! 7) /= "#"
-
-capturesToFerry :: [String] -> (Ferry NominalDiffTime)
+capturesToFerry :: [String] -> Ferry NominalDiffTime
 capturesToFerry captures =
     Ferry { time      = fromInteger $ ((if isAm then hours else hours + 12) * 60 + minutes) * 60
           , ferryType = SlowFerry

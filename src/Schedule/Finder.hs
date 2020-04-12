@@ -55,9 +55,9 @@ ferriesOfDayAndDirection (T.Route _ timetables) day direction =
 
 toTimetableDay :: HolidayCalendar -> Day -> T.Day
 toTimetableDay calendar day
-    | isHoliday calendar day = T.SundayAndHoliday
+    | isHoliday calendar day = T.Holiday
     | otherwise =
         let (_, _, weekday) = toWeekDate day
         in case weekday of 6 -> T.Saturday
-                           7 -> T.SundayAndHoliday
+                           7 -> T.Sunday
                            _ -> T.Weekday

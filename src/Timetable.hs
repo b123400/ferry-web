@@ -19,7 +19,7 @@ data Ferry t = Ferry { time :: t
 
 data FerryType = FastFerry | SlowFerry | OptionalFerry deriving (Eq, Show)
 
-data Day = Weekday | Saturday | SundayAndHoliday deriving (Show, Eq)
+data Day = Weekday | Saturday | Sunday | Holiday deriving (Show, Eq)
 
 data Direction = ToIsland | FromIsland deriving (Show, Eq)
 
