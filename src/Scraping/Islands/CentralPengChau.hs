@@ -68,7 +68,7 @@ textForDirection ToIsland   = pack "From Central"
 
 tableToTimetables :: Day -> Direction -> [Text] -> Timetable NominalDiffTime
 tableToTimetables day direction body =
-    Timetable { ferries   = map toFerry $ findDirection (textForDirection direction) body
+    Timetable { ferries   = handleOverMidnight $ map toFerry $ findDirection (textForDirection direction) body
               , day       = day
               , direction = direction
               }

@@ -47,7 +47,8 @@ matchName name (NodeElement node) = (elementName node) == (makeName name)
 matchName _ _ = False
 
 notEmpty :: Text -> Bool
-notEmpty text = text /= (pack "\160") && text /= (pack "\r\n")
+notEmpty = not . T.null . T.replace "\r\n" "" . T.replace " " "" . replaceSpaces
+
 -- Replace &nbsp; with space
 replaceSpaces :: Text -> Text
 replaceSpaces = T.replace "\160" " "
