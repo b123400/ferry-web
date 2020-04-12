@@ -30,6 +30,7 @@ data Island = CentralCheungChau
             | CentralSokKwuWan
             | NorthPointHungHom
             | NorthPointKowloonCity
+            | PengChauHeiLingChau
               deriving (Eq, Show)
 
 data Route t = Route { island :: Island
@@ -93,6 +94,7 @@ instance FromHttpApiData Island where
     parseUrlPiece "central-sokkwuwan" = Right CentralSokKwuWan
     parseUrlPiece "northpoint-hunghom" = Right NorthPointHungHom
     parseUrlPiece "northpoint-kowlooncity" = Right NorthPointKowloonCity
+    parseUrlPiece "pengchau-heilingchau" = Right PengChauHeiLingChau
     parseUrlPiece _ = Left "Invalid island"
 
 instance ToHttpApiData Island where
@@ -103,6 +105,7 @@ instance ToHttpApiData Island where
     toUrlPiece CentralSokKwuWan = "central-sokkwuwan"
     toUrlPiece NorthPointHungHom = "northpoint-hunghom"
     toUrlPiece NorthPointKowloonCity  = "northpoint-kowlooncity"
+    toUrlPiece PengChauHeiLingChau = "pengchau-heilingchau"
 
 islandName :: Island -> String
 islandName i =
@@ -114,11 +117,22 @@ islandName i =
         CentralSokKwuWan -> "Sok Kwu Wan"
         NorthPointHungHom -> "North Point -> Hung Hom"
         NorthPointKowloonCity -> "North Point -> Kowloon City"
+        PengChauHeiLingChau -> "Peng Chau -> Hei Ling Chau"
 
 limit :: Int -> Route t -> Route t
 limit count (Route island timetables) = (Route island $ limit' <$> timetables)
     where
         limit' (Timetable fs day direction) = Timetable (take count fs) day direction
+
+-- | Turns something like [2300, 0030] to [2300, 2430]
+handleOverMidnight :: [Ferry NominalDiffTime] -> [Ferry NominalDiffTime]
+handleOverMidnight [] = []
+handleOverMidnight (onlyOne: []) = [onlyOne]
+handleOverMidnight (p@(Ferry prev _): (Ferry curr t): rest) =
+    let newCurr = if (prev > curr) then add1Day curr else curr
+        newCurrFerry = Ferry newCurr t
+    in (p: newCurrFerry: (tail  $ handleOverMidnight (newCurrFerry: rest)))
+    where add1Day = (+) 86400
 
 hongkongTimeZone :: TimeZone
 hongkongTimeZone = hoursToTimeZone 8

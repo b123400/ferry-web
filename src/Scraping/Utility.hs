@@ -22,7 +22,7 @@ flatContent :: Cursor -> Text
 flatContent cursor =
     let cursorNode = node cursor
     in case cursorNode of
-        (NodeContent cursorNode) -> T.concat $ content cursor
+        (NodeContent cursorNode) -> replaceSpaces $ T.concat $ content cursor
         {-
             Cloudflare's email protection is enabled and it messes with any element with the '@' character.
             e.g. <td>2.30 @</td> becomes <td>2.30 <a ... data-cfemail=...>email protection</a></td>
@@ -48,6 +48,9 @@ matchName _ _ = False
 
 notEmpty :: Text -> Bool
 notEmpty text = text /= (pack "\160") && text /= (pack "\r\n")
+-- Replace &nbsp; with space
+replaceSpaces :: Text -> Text
+replaceSpaces = T.replace "\160" " "
 
 pickOdd :: [a] -> [a]
 pickOdd [] = []
