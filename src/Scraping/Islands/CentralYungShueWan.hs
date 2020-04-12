@@ -6,7 +6,7 @@ import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Cache (MonadCache, withCache)
 import Data.ByteString.Lazy (ByteString)
 
-import Text.XML.Cursor (Cursor, attributeIs, child, following,
+import Text.XML.Cursor (Cursor, attributeIs, child, element, following,
                         ($.//), ($//), ($/), (>=>))
 import Data.Maybe (catMaybes)
 import Data.Text (Text, pack, unpack, isInfixOf)
@@ -29,13 +29,13 @@ timetables cursor = do
     cursorToTimetables ct
 
 findCentralYungShueWan :: Cursor -> [Cursor]
-findCentralYungShueWan cursor = cursor $.// (makeElement "a") >=> attributeIs (makeName "name") (Data.Text.pack "o04")
+findCentralYungShueWan cursor = cursor $.// (element "a") >=> attributeIs (makeName "name") (Data.Text.pack "o04")
 
 findTimetableCursors :: Cursor -> [Cursor]
 findTimetableCursors = findTableElements . nthMatch 3 (matchName "table") . following
 
 findTableElements :: Cursor -> [Cursor]
-findTableElements c = c $// (makeElement "table")
+findTableElements c = c $// (element "table")
 
 cursorToTimetables :: Cursor -> [Timetable NominalDiffTime]
 cursorToTimetables timeTable = catMaybes $ do
@@ -47,11 +47,11 @@ findTimetable :: Day -> Direction -> Cursor -> Maybe (Timetable NominalDiffTime)
 findTimetable day direction timeTable
     | not $ hasDay timeTable day = Nothing
     | otherwise                  =
-        let trs = timeTable $// (makeElement "tr")
+        let trs = timeTable $// (element "tr")
         in Just $ tableToTimetables day direction $ flatContent <$> (getTDs =<< filter hasTwoTd trs)
 
 hasDay :: Cursor -> Day -> Bool
-hasDay cursor day = textHasDay day $ flatContent $ head $ cursor $// (makeElement "td")
+hasDay cursor day = textHasDay day $ flatContent $ head $ cursor $// (element "td")
 
 textHasDay :: Day -> Text -> Bool
 textHasDay day text = isInfixOf (pack(

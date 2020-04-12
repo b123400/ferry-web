@@ -12,10 +12,8 @@ import qualified Data.ByteString.Lazy.Char8 (pack)
 makeName :: String -> Text.XML.Name
 makeName name = Text.XML.Name (T.pack name) Nothing Nothing
 
-makeElement name = element $ makeName name
-
 getTDs :: Cursor -> [Cursor]
-getTDs tr = tr $/ (makeElement "td")
+getTDs tr = tr $/ (element "td")
 
 hasTwoTd :: Cursor -> Bool
 hasTwoTd cursor = length (getTDs cursor) == 2
@@ -34,7 +32,7 @@ flatContent cursor =
             , Right parsed <- decodeCloudFlareEmail $ T.unpack encodedEmail
             -> T.pack parsed
         (NodeElement cursorNode) -> T.concat $ map flatContent $ child cursor
-        _                        -> error $ "not supported element: " <> (show cursorNode)
+        _                        -> ""
 
 nthMatch :: Int -> (Node -> Bool) -> [Cursor] -> Cursor
 nthMatch nth _ [] = error ("not found in empty list")

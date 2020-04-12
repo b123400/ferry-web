@@ -4,7 +4,7 @@ module Scraping.Islands.CentralCheungChau
 
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Cache (MonadCache, withCache)
-import Text.XML.Cursor (Cursor, attributeIs, following,
+import Text.XML.Cursor (Cursor, attributeIs, element, following,
                         ($.//), ($//), (>=>))
 import Data.ByteString.Lazy (ByteString)
 import Data.Text (Text, pack, unpack, isInfixOf)
@@ -28,14 +28,14 @@ timetables cursor = do
     cursorToTimetables ct
 
 findCentralCheungChau :: Cursor -> [Cursor]
-findCentralCheungChau cursor = cursor $.// (makeElement "a") >=> attributeIs (makeName "name") (Data.Text.pack "o01")
+findCentralCheungChau cursor = cursor $.// (element "a") >=> attributeIs (makeName "name") (Data.Text.pack "o01")
 
 findTimetableCursors :: Cursor -> [Cursor]
 findTimetableCursors =
     findTableElements . nthMatch 5 (matchName "table") . following
 
 findTableElements :: Cursor -> [Cursor]
-findTableElements c = c $// (makeElement "table")
+findTableElements c = c $// (element "table")
 
 cursorToTimetables :: Cursor -> [Timetable NominalDiffTime]
 cursorToTimetables timeTable = catMaybes $ do
@@ -47,12 +47,12 @@ findTimetable :: Day -> Direction -> Cursor -> Maybe (Timetable NominalDiffTime)
 findTimetable day direction timeTable
     | not $ hasDay timeTable day = Nothing
     | otherwise =
-        let trs = timeTable $// (makeElement "tr")
+        let trs = timeTable $// (element "tr")
         in Just $ tableToTimetables day direction (flatContent <$> (getTDs =<< filter hasTwoTd trs))
 
 hasDay :: Cursor -> Day -> Bool
 hasDay cursor day =
-    case cursor $// (makeElement "td") of
+    case cursor $// (element "td") of
         (x:_) -> textHasDay day $ flatContent x
         _ -> False
     where

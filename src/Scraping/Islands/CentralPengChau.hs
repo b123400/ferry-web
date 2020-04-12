@@ -9,7 +9,7 @@ import Data.Maybe (catMaybes)
 import Data.Text (Text, pack, unpack, isInfixOf)
 import Data.Time.Clock (NominalDiffTime)
 import Text.Regex.TDFA ((=~))
-import Text.XML.Cursor (Cursor, attributeIs, following,
+import Text.XML.Cursor (Cursor, attributeIs, element, following,
                         ($.//), ($//), (>=>))
 import Scraping.Utility
 import Timetable hiding (timetables)
@@ -30,13 +30,13 @@ timetables cursor = do
 
 
 findCentralPengChau :: Cursor -> [Cursor]
-findCentralPengChau cursor = cursor $.// (makeElement "a") >=> attributeIs (makeName "name") (Data.Text.pack "o03")
+findCentralPengChau cursor = cursor $.// (element "a") >=> attributeIs (makeName "name") (Data.Text.pack "o03")
 
 findTimetableCursors :: Cursor -> [Cursor]
 findTimetableCursors = findTableElements . nthMatch 3 (matchName "table") . following
 
 findTableElements :: Cursor -> [Cursor]
-findTableElements c = c $// (makeElement "table")
+findTableElements c = c $// (element "table")
 
 cursorToTimetables :: Cursor -> [Timetable NominalDiffTime]
 cursorToTimetables timeTable = catMaybes $ do
@@ -48,11 +48,11 @@ findTimetable :: Day -> Direction -> Cursor -> Maybe (Timetable NominalDiffTime)
 findTimetable day direction timeTable
     | not $ hasDay timeTable day = Nothing
     | otherwise                  =
-        let trs = timeTable $// (makeElement "tr")
+        let trs = timeTable $// (element "tr")
         in Just $ tableToTimetables day direction $ flatContent <$> (getTDs =<< filter hasTwoTd trs)
 
 hasDay :: Cursor -> Day -> Bool
-hasDay cursor day = textHasDay day $ flatContent $ head $ cursor $// (makeElement "td")
+hasDay cursor day = textHasDay day $ flatContent $ head $ cursor $// (element "td")
 
 textHasDay :: Day -> Text -> Bool
 textHasDay day text = isInfixOf (pack (
