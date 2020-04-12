@@ -41,6 +41,7 @@ library
                      , Scraping.Islands.CentralSokKwuWan
                      , Scraping.Islands.CentralYungShueWan
                      , Scraping.Islands.PengChauHeiLingChau
+                     , Scraping.Islands.AberdeenSokKwuWan
                      , Scraping.NWFF.RouteScript
                      , Scraping.NWFF.NorthPointHungHom
                      , Scraping.NWFF.NorthPointKowloonCity
