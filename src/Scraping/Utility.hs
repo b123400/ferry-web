@@ -19,20 +19,22 @@ hasTwoTd :: Cursor -> Bool
 hasTwoTd cursor = length (getTDs cursor) == 2
 
 flatContent :: Cursor -> Text
-flatContent cursor =
-    let cursorNode = node cursor
-    in case cursorNode of
-        (NodeContent cursorNode) -> replaceSpaces $ T.concat $ content cursor
-        {-
-            Cloudflare's email protection is enabled and it messes with any element with the '@' character.
-            e.g. <td>2.30 @</td> becomes <td>2.30 <a ... data-cfemail=...>email protection</a></td>
-        -}
-        (NodeElement (Element (Name "a" _ _) attrs _))
-            | Just encodedEmail <- M.lookup "data-cfemail" attrs
-            , Right parsed <- decodeCloudFlareEmail $ T.unpack encodedEmail
-            -> T.pack parsed
-        (NodeElement cursorNode) -> T.concat $ map flatContent $ child cursor
-        _                        -> ""
+flatContent = T.strip . f
+    where
+        f cursor =
+            let cursorNode = node cursor
+            in case cursorNode of
+                (NodeContent cursorNode) -> replaceSpaces $ T.concat $ content cursor
+                {-
+                    Cloudflare's email protection is enabled and it messes with any element with the '@' character.
+                    e.g. <td>2.30 @</td> becomes <td>2.30 <a ... data-cfemail=...>email protection</a></td>
+                -}
+                (NodeElement (Element (Name "a" _ _) attrs _))
+                    | Just encodedEmail <- M.lookup "data-cfemail" attrs
+                    , Right parsed <- decodeCloudFlareEmail $ T.unpack encodedEmail
+                    -> T.pack parsed
+                (NodeElement cursorNode) -> T.concat $ map f $ child cursor
+                _                        -> ""
 
 nthMatch :: Int -> (Node -> Bool) -> [Cursor] -> Cursor
 nthMatch nth _ [] = error ("not found in empty list")

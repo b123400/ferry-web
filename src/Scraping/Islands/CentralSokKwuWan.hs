@@ -28,7 +28,6 @@ timetables cursor = do
     ct <- findTimetableCursors c
     cursorToTimetables ct
 
-
 findCentralSokKwuWan :: Cursor -> [Cursor]
 findCentralSokKwuWan cursor = cursor $.// (element "a") >=> attributeIs (makeName "name") (Data.Text.pack "o05")
 
@@ -87,7 +86,7 @@ Match
 12.00 noon
 -}
 regexPattern :: String
-regexPattern = "([0-9]{1,2})\\.([0-9]{1,2}) ((a|p)\\.m\\.|noon)"
+regexPattern = "([0-9]{1,2})[\\.:]([0-9]{1,2}) ((a|p)\\.m\\.|noon)"
 
 splitCapture :: String -> [String]
 splitCapture timeString

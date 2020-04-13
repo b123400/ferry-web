@@ -1,4 +1,4 @@
-module Scraping.NWFF.NorthPointHungHom where
+module Scraping.NWFF.NorthPointHungHom (fetch) where
 
 import Control.Monad.Catch (MonadCatch, handleAll)
 import Control.Monad.Cache (MonadCache, withCache)

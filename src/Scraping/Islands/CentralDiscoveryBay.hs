@@ -91,7 +91,7 @@ Match
 15.30 p.m.#
 -}
 regexPattern :: String
-regexPattern = "([0-9]{1,2})\\.([0-9]{1,2}) ((a|p)\\.m\\.|noon)(\\*)?(@)?(#)?"
+regexPattern = "([0-9]{1,2})[\\.:]([0-9]{1,2}) ((a|p)\\.m\\.|noon)(\\*)?(@)?(#)?"
 
 splitCapture :: String -> [String]
 splitCapture timeString
