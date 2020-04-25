@@ -2,6 +2,7 @@ module Scraping.Utility where
 
 import Text.XML.Cursor (Cursor, attributeIs, content, element, fromDocument, child, following, node,
                         ($.//), ($//), (&|), ($/), (&/), (&//), (>=>))
+import Data.String (fromString)
 import Data.Text (Text, pack, unpack)
 import Scraping.EmailDecode (decodeCloudFlareEmail)
 import Text.XML
@@ -9,8 +10,6 @@ import qualified Data.Map as M
 import qualified Data.Text as T
 import qualified Data.ByteString.Lazy.Char8 (pack)
 
-makeName :: String -> Text.XML.Name
-makeName name = Text.XML.Name (T.pack name) Nothing Nothing
 
 getTDs :: Cursor -> [Cursor]
 getTDs tr = tr $/ (element "td")
@@ -45,7 +44,7 @@ nthMatch nth matcher (x:xs)
     where matches = matcher $ node x
 
 matchName :: String -> (Node -> Bool)
-matchName name (NodeElement node) = (elementName node) == (makeName name)
+matchName name (NodeElement node) = (elementName node) == (fromString name)
 matchName _ _ = False
 
 notEmpty :: Text -> Bool

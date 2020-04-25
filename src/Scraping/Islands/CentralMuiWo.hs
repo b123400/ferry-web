@@ -29,7 +29,7 @@ timetables cursor = do
     cursorToTimetables ct
 
 findCentralMuiWo :: Cursor -> [Cursor]
-findCentralMuiWo cursor = cursor $.// (element "a") >=> attributeIs (makeName "name") (Data.Text.pack "o02")
+findCentralMuiWo cursor = cursor $.// (element "a") >=> attributeIs "name" "o02"
 
 findTimetableCursors :: Cursor -> [Cursor]
 findTimetableCursors =

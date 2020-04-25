@@ -19,6 +19,7 @@ import qualified Scraping.Islands.CentralDiscoveryBay
 import qualified Scraping.Islands.MaWanTsuenWan
 import qualified Scraping.NWFF.NorthPointHungHom
 import qualified Scraping.NWFF.NorthPointKowloonCity
+import qualified Scraping.CoralSea.SaiWanHoKwunTong
 
 
 allIslandsRaw
@@ -41,6 +42,7 @@ allIslandsRaw = sequence
         , islandRaw AberdeenSokKwuWan
         , islandRaw CentralDiscoveryBay
         , islandRaw MaWanTsuenWan
+        , islandRaw SaiWanHoKwunTong
         ]
         -- TODO: More islands here
 
@@ -63,3 +65,4 @@ islandRaw PengChauHeiLingChau = Scraping.Islands.PengChauHeiLingChau.fetch
 islandRaw AberdeenSokKwuWan = Scraping.Islands.AberdeenSokKwuWan.fetch
 islandRaw CentralDiscoveryBay = Scraping.Islands.CentralDiscoveryBay.fetch
 islandRaw MaWanTsuenWan = Scraping.Islands.MaWanTsuenWan.fetch
+islandRaw SaiWanHoKwunTong = Scraping.CoralSea.SaiWanHoKwunTong.fetch

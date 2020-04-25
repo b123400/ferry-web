@@ -28,7 +28,7 @@ timetables cursor = do
     cursorToTimetables ct
 
 findMaWanTsuenWan :: Cursor -> [Cursor]
-findMaWanTsuenWan cursor = cursor $.// (element "a") >=> attributeIs (makeName "name") (Data.Text.pack "o17")
+findMaWanTsuenWan cursor = cursor $.// (element "a") >=> attributeIs "name" "o17"
 
 findTimetableCursors :: Cursor -> [Cursor]
 findTimetableCursors =

@@ -48,6 +48,9 @@ library
                      , Scraping.NWFF.NorthPointHungHom
                      , Scraping.NWFF.NorthPointKowloonCity
                      , Scraping.NWFF.TimeString
+                     , Scraping.CoralSea.Timetable
+                     , Scraping.CoralSea.TimeString
+                     , Scraping.CoralSea.SaiWanHoKwunTong
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , servant-server

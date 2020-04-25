@@ -30,7 +30,7 @@ timetables cursor = do
 
 
 findCentralPengChau :: Cursor -> [Cursor]
-findCentralPengChau cursor = cursor $.// (element "a") >=> attributeIs (makeName "name") (Data.Text.pack "o03")
+findCentralPengChau cursor = cursor $.// (element "a") >=> attributeIs "name" "o03"
 
 findTimetableCursors :: Cursor -> [Cursor]
 findTimetableCursors = findTableElements . nthMatch 3 (matchName "table") . following
