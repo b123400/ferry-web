@@ -52,6 +52,7 @@ library
                      , Scraping.CoralSea.TimeString
                      , Scraping.CoralSea.SaiWanHoKwunTong
                      , Scraping.CoralSea.SaiWanHoSamKaTsuen
+                     , Scraping.CoralSea.SamKaTsuenTungLungIsland
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , servant-server

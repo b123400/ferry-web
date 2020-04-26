@@ -36,6 +36,7 @@ data Island = CentralCheungChau
             | MaWanTsuenWan
             | SaiWanHoKwunTong
             | SaiWanHoSamKaTsuen
+            | SamKaTsuenTungLungIsland
               deriving (Eq, Show)
 
 data Route t = Route { island :: Island
@@ -105,6 +106,7 @@ instance FromHttpApiData Island where
     parseUrlPiece "mawan-tsuenwawn" = Right MaWanTsuenWan
     parseUrlPiece "saiwanho-kwuntong" = Right SaiWanHoKwunTong
     parseUrlPiece "saiwanho-samkatsuen" = Right SaiWanHoSamKaTsuen
+    parseUrlPiece "samkatsuen-tunglungisland" = Right SamKaTsuenTungLungIsland
     parseUrlPiece _ = Left "Invalid island"
 
 instance ToHttpApiData Island where
@@ -121,6 +123,7 @@ instance ToHttpApiData Island where
     toUrlPiece MaWanTsuenWan = "mawan-tsuenwawn"
     toUrlPiece SaiWanHoKwunTong = "saiwanho-kwuntong"
     toUrlPiece SaiWanHoSamKaTsuen = "saiwanho-samkatsuen"
+    toUrlPiece SamKaTsuenTungLungIsland = "samkatsuen-tunglungisland"
 
 islandName :: Island -> String
 islandName i =
@@ -138,6 +141,7 @@ islandName i =
         MaWanTsuenWan -> "Ma Wan - Tsuen Wan"
         SaiWanHoKwunTong -> "Sai Wan Ho - Kwun Tong"
         SaiWanHoSamKaTsuen -> "Sai Wan Ho - Sam Ka Tsuen"
+        SamKaTsuenTungLungIsland -> "Sam Ka Tsuen - Tung Lung Island"
 
 limit :: Int -> Route t -> Route t
 limit count (Route island timetables) = (Route island $ limit' <$> timetables)
