@@ -1,18 +1,30 @@
 module Timetable.Local where
 
+import Control.Monad.Cache (MonadCache)
+import Control.Monad.Catch (MonadCatch)
 import Control.Monad.IO.Class (MonadIO)
-import Data.Cache (Cache)
+import Data.ByteString.Lazy (ByteString)
+import Data.Map.Strict as Map (Map)
 import Data.Time.Clock (NominalDiffTime, diffUTCTime)
 import Data.Time.LocalTime (LocalTime, localTimeToUTC, utc)
 import Data.Traversable (for)
 import Scraping.Calendar (holidayCalendar)
+import Schedule.Calendar (HolidayCalendar)
 import Schedule.Finder (ferriesForRouteAtTime)
 import Timetable (Route(..), Timetable(..), Day(..), Direction(..), Island)
-import Timetable.Raw (allIslandsRaw, islandRaw')
+import Timetable.Raw (allIslandsRaw, islandRaw)
 
-allIslandsAtTime :: Cache String (Route NominalDiffTime) -> LocalTime -> IO [Route LocalTime]
-allIslandsAtTime cache time = do
-    routes <- allIslandsRaw cache
+allIslandsAtTime
+    :: ( MonadIO m
+       , MonadCache m ByteString
+       , MonadCache m (Map String String)
+       , MonadCache m (Route NominalDiffTime)
+       , MonadCache m HolidayCalendar
+       , MonadCatch m
+       )
+    => LocalTime -> m [Route LocalTime]
+allIslandsAtTime time = do
+    routes <- allIslandsRaw
     calendar <- holidayCalendar
     for routes $ \route@(Route island timetable)-> do
         pure $ Route island
@@ -26,9 +38,17 @@ allIslandsAtTime cache time = do
                         }
             ]
 
-islandAtTime :: Cache String (Route NominalDiffTime) -> Island -> LocalTime -> IO (Route LocalTime)
-islandAtTime cache island time = do
-    route <- islandRaw' cache island
+islandAtTime
+    :: ( MonadIO m
+       , MonadCache m ByteString
+       , MonadCache m (Map String String)
+       , MonadCache m (Route NominalDiffTime)
+       , MonadCache m HolidayCalendar
+       , MonadCatch m
+        )
+    => Island -> LocalTime -> m (Route LocalTime)
+islandAtTime island time = do
+    route <- islandRaw island
     calendar <- holidayCalendar
     pure $ Route island
         [ Timetable { ferries = ferriesForRouteAtTime calendar route time FromIsland

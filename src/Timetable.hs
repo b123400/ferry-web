@@ -19,15 +19,24 @@ data Ferry t = Ferry { time :: t
 
 data FerryType = FastFerry | SlowFerry | OptionalFerry deriving (Eq, Show)
 
-data Day = Weekday | Saturday | SundayAndHoliday deriving (Show, Eq)
+data Day = Weekday | Saturday | Sunday | Holiday deriving (Show, Eq)
 
 data Direction = ToIsland | FromIsland deriving (Show, Eq)
 
-data Island = CheungChau
-            | MuiWo
-            | PengChau
-            | YungShueWan
-            | SokKwuWan
+data Island = CentralCheungChau
+            | CentralMuiWo
+            | CentralPengChau
+            | CentralYungShueWan
+            | CentralSokKwuWan
+            | NorthPointHungHom
+            | NorthPointKowloonCity
+            | PengChauHeiLingChau
+            | AberdeenSokKwuWan
+            | CentralDiscoveryBay
+            | MaWanTsuenWan
+            | SaiWanHoKwunTong
+            | SaiWanHoSamKaTsuen
+            | SamKaTsuenTungLungIsland
               deriving (Eq, Show)
 
 data Route t = Route { island :: Island
@@ -84,33 +93,70 @@ instance Functor Ferry where
     fmap fn (Ferry time t) = Ferry (fn time) t
 
 instance FromHttpApiData Island where
-    parseUrlPiece "cheungchau" = Right CheungChau
-    parseUrlPiece "muiwo" = Right MuiWo
-    parseUrlPiece "pengchau" = Right PengChau
-    parseUrlPiece "yungshuewan" = Right YungShueWan
-    parseUrlPiece "sokkwuwan" = Right SokKwuWan
+    parseUrlPiece "central-cheungchau" = Right CentralCheungChau
+    parseUrlPiece "central-muiwo" = Right CentralMuiWo
+    parseUrlPiece "central-pengchau" = Right CentralPengChau
+    parseUrlPiece "central-yungshuewan" = Right CentralYungShueWan
+    parseUrlPiece "central-sokkwuwan" = Right CentralSokKwuWan
+    parseUrlPiece "northpoint-hunghom" = Right NorthPointHungHom
+    parseUrlPiece "northpoint-kowlooncity" = Right NorthPointKowloonCity
+    parseUrlPiece "pengchau-heilingchau" = Right PengChauHeiLingChau
+    parseUrlPiece "aberdeen-sokkwuwan" = Right AberdeenSokKwuWan
+    parseUrlPiece "central-discoverybay" = Right CentralDiscoveryBay
+    parseUrlPiece "mawan-tsuenwawn" = Right MaWanTsuenWan
+    parseUrlPiece "saiwanho-kwuntong" = Right SaiWanHoKwunTong
+    parseUrlPiece "saiwanho-samkatsuen" = Right SaiWanHoSamKaTsuen
+    parseUrlPiece "samkatsuen-tunglungisland" = Right SamKaTsuenTungLungIsland
     parseUrlPiece _ = Left "Invalid island"
 
 instance ToHttpApiData Island where
-    toUrlPiece CheungChau = "cheungchau"
-    toUrlPiece MuiWo = "muiwo"
-    toUrlPiece PengChau = "pengchau"
-    toUrlPiece YungShueWan = "yungshuewan"
-    toUrlPiece SokKwuWan = "sokkwuwan"
+    toUrlPiece CentralCheungChau = "central-cheungchau"
+    toUrlPiece CentralMuiWo = "central-muiwo"
+    toUrlPiece CentralPengChau = "central-pengchau"
+    toUrlPiece CentralYungShueWan = "central-yungshuewan"
+    toUrlPiece CentralSokKwuWan = "central-sokkwuwan"
+    toUrlPiece NorthPointHungHom = "northpoint-hunghom"
+    toUrlPiece NorthPointKowloonCity  = "northpoint-kowlooncity"
+    toUrlPiece PengChauHeiLingChau = "pengchau-heilingchau"
+    toUrlPiece AberdeenSokKwuWan = "aberdeen-sokkwuwan"
+    toUrlPiece CentralDiscoveryBay = "central-discoverybay"
+    toUrlPiece MaWanTsuenWan = "mawan-tsuenwawn"
+    toUrlPiece SaiWanHoKwunTong = "saiwanho-kwuntong"
+    toUrlPiece SaiWanHoSamKaTsuen = "saiwanho-samkatsuen"
+    toUrlPiece SamKaTsuenTungLungIsland = "samkatsuen-tunglungisland"
 
 islandName :: Island -> String
 islandName i =
     case i of
-        CheungChau -> "Cheung Chau"
-        MuiWo -> "Mui Wo"
-        PengChau -> "Peng Chau"
-        YungShueWan -> "Yung Shue Wan"
-        SokKwuWan -> "Sok Kwu Wan"
+        CentralCheungChau -> "Cheung Chau"
+        CentralMuiWo -> "Mui Wo"
+        CentralPengChau -> "Peng Chau"
+        CentralYungShueWan -> "Yung Shue Wan"
+        CentralSokKwuWan -> "Sok Kwu Wan"
+        NorthPointHungHom -> "North Point -> Hung Hom"
+        NorthPointKowloonCity -> "North Point -> Kowloon City"
+        PengChauHeiLingChau -> "Peng Chau -> Hei Ling Chau"
+        AberdeenSokKwuWan -> "Aberdeen -> Sok Kwu Wan"
+        CentralDiscoveryBay -> "Central -> Discovery Bay"
+        MaWanTsuenWan -> "Ma Wan - Tsuen Wan"
+        SaiWanHoKwunTong -> "Sai Wan Ho - Kwun Tong"
+        SaiWanHoSamKaTsuen -> "Sai Wan Ho - Sam Ka Tsuen"
+        SamKaTsuenTungLungIsland -> "Sam Ka Tsuen - Tung Lung Island"
 
 limit :: Int -> Route t -> Route t
 limit count (Route island timetables) = (Route island $ limit' <$> timetables)
     where
         limit' (Timetable fs day direction) = Timetable (take count fs) day direction
+
+-- | Turns something like [2300, 0030] to [2300, 2430]
+handleOverMidnight :: [Ferry NominalDiffTime] -> [Ferry NominalDiffTime]
+handleOverMidnight [] = []
+handleOverMidnight (onlyOne: []) = [onlyOne]
+handleOverMidnight (p@(Ferry prev _): (Ferry curr t): rest) =
+    let newCurr = if (prev > curr) then add1Day curr else curr
+        newCurrFerry = Ferry newCurr t
+    in (p: newCurrFerry: (tail  $ handleOverMidnight (newCurrFerry: rest)))
+    where add1Day = (+) 86400
 
 hongkongTimeZone :: TimeZone
 hongkongTimeZone = hoursToTimeZone 8

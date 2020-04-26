@@ -7,27 +7,27 @@ module Lib
     ) where
 
 import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Cache (runLocal, runDyn)
+import Control.Monad.Trans.State (StateT, evalStateT)
 import Data.Cache (Cache, newCache)
+import Data.Dynamic (Dynamic)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
-import Data.Time.Calendar (Day)
-import Data.Time.Clock (NominalDiffTime, getCurrentTime)
+import Data.Time.Clock (getCurrentTime)
 import Data.Time.LocalTime (LocalTime(..), TimeZone, utcToLocalTime, hoursToTimeZone, midnight)
 import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
 import System.Clock (TimeSpec(..))
 import Timetable (Island, Route, limit, hongkongTimeZone)
-import Timetable.Local (allIslandsAtTime, addDiff, islandAtTime)
-import Timetable.Raw (islandRaw')
+import Timetable.Local (allIslandsAtTime, islandAtTime)
+import Timetable.Raw (islandRaw)
 import Render.Html (HTMLLucid)
 import Render.Page.Index (Index(..))
 import Render.Page.Detail (Detail(..))
 import Render.Page.RawTimetable (RawTimetable(..))
 
 import Debug.Trace
-
-import qualified Scraping.Islands.CheungChau (route)
 
 
 type API = "static" :> Raw
@@ -40,27 +40,27 @@ startApp = do
     c <- newCache $ Just $ TimeSpec (60*60*3) 0 -- 3 hours
     run 8080 (app c)
 
-app :: Cache String (Route NominalDiffTime) -> Application
+app :: Cache String Dynamic -> Application
 app c = serve api (server c)
 
 api :: Proxy API
 api = Proxy
 
-server :: Cache String (Route NominalDiffTime) -> Server API
+server :: Cache String Dynamic -> Server API
 server c = (serveDirectoryWebApp "static")
       :<|> (detail c)
       :<|> (rawDetail c)
       :<|> (index c)
 
-index :: Cache String (Route NominalDiffTime) -> Maybe Int -> Handler Index
+index :: Cache String Dynamic -> Maybe Int -> Handler Index
 index cache count = liftIO $ do
     now <- getCurrentTime
     let lt = utcToLocalTime hongkongTimeZone now
         c = min 50 $ fromMaybe 4 count
-    routes <- allIslandsAtTime cache lt
+    routes <- flip evalStateT cache $ runDyn $ runLocal $ allIslandsAtTime lt
     pure $ Index lt (limit c <$> routes)
 
-detail :: Cache String (Route NominalDiffTime) -> Island -> Maybe Int -> Maybe Text -> Handler Detail
+detail :: Cache String Dynamic -> Island -> Maybe Int -> Maybe Text -> Handler Detail
 detail cache island mcount mday = liftIO $ do
     now <- getCurrentTime
     let localNow = utcToLocalTime hongkongTimeZone now
@@ -69,8 +69,8 @@ detail cache island mcount mday = liftIO $ do
                 Just (Right day) -> LocalTime day midnight
                 _ -> localNow
         count = min 50 $ fromMaybe 20 mcount
-    route <- islandAtTime cache island queriedDate
+    route <- flip evalStateT cache $ runDyn $ runLocal $ islandAtTime island queriedDate
     pure $ Detail localNow (limit count route) queriedDay count
 
-rawDetail :: Cache String (Route NominalDiffTime) -> Island -> Handler RawTimetable
-rawDetail c island = liftIO $ RawTimetable <$> islandRaw' c island
+rawDetail :: Cache String Dynamic -> Island -> Handler RawTimetable
+rawDetail c island = liftIO $ RawTimetable <$> (flip evalStateT c $ runDyn $ runLocal $ islandRaw island)

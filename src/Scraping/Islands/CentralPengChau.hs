@@ -1,43 +1,46 @@
-module Scraping.Islands.SokKwuWan
-( timetables
+module Scraping.Islands.CentralPengChau
+( fetch
 ) where
 
-import Text.XML.Cursor (Cursor, attributeIs, following,
-                        ($.//), ($//), ($/), (>=>))
-import Data.LocalCache (Cache(..))
+import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.Cache (MonadCache, withCache)
+import Data.ByteString.Lazy (ByteString)
 import Data.Maybe (catMaybes)
 import Data.Text (Text, pack, unpack, isInfixOf)
 import Data.Time.Clock (NominalDiffTime)
-import Scraping.Class (Scrap(..))
 import Text.Regex.TDFA ((=~))
-import Timetable hiding (timetables)
+import Text.XML.Cursor (Cursor, attributeIs, element, following,
+                        ($.//), ($//), (>=>))
 import Scraping.Utility
+import Timetable hiding (timetables)
 
-instance Cache SokKwuWan where
-    cacheFilename _ = "SokKwuWan"
+import qualified Scraping.Gov as Gov (fetchCursor)
 
-instance Scrap SokKwuWan where
-    route _ cursor = Route SokKwuWan $ timetables cursor
+
+fetch :: (MonadIO m, MonadCache m ByteString, MonadCache m (Route NominalDiffTime)) => m (Route NominalDiffTime)
+fetch = withCache "CentralPengChau" $ do
+    cursor <- Gov.fetchCursor
+    pure $ Route CentralPengChau $ timetables cursor
 
 timetables :: Cursor -> [Timetable NominalDiffTime]
 timetables cursor = do
-    c <- findSokKwuWan cursor
+    c <- findCentralPengChau cursor
     ct <- findTimetableCursors c
     cursorToTimetables ct
 
 
-findSokKwuWan :: Cursor -> [Cursor]
-findSokKwuWan cursor = cursor $.// (makeElement "a") >=> attributeIs (makeName "name") (Data.Text.pack "o05")
+findCentralPengChau :: Cursor -> [Cursor]
+findCentralPengChau cursor = cursor $.// (element "a") >=> attributeIs "name" "o03"
 
 findTimetableCursors :: Cursor -> [Cursor]
 findTimetableCursors = findTableElements . nthMatch 3 (matchName "table") . following
 
 findTableElements :: Cursor -> [Cursor]
-findTableElements c = c $// (makeElement "table")
+findTableElements c = c $// (element "table")
 
 cursorToTimetables :: Cursor -> [Timetable NominalDiffTime]
 cursorToTimetables timeTable = catMaybes $ do
-    day <- [Weekday, Saturday, SundayAndHoliday]
+    day <- [Weekday, Saturday, Sunday, Holiday]
     direction <- [ToIsland, FromIsland]
     return $ findTimetable day direction timeTable
 
@@ -45,27 +48,28 @@ findTimetable :: Day -> Direction -> Cursor -> Maybe (Timetable NominalDiffTime)
 findTimetable day direction timeTable
     | not $ hasDay timeTable day = Nothing
     | otherwise                  =
-        let trs = timeTable $// (makeElement "tr")
+        let trs = timeTable $// (element "tr")
         in Just $ tableToTimetables day direction $ flatContent <$> (getTDs =<< filter hasTwoTd trs)
 
 hasDay :: Cursor -> Day -> Bool
-hasDay cursor day = textHasDay day $ flatContent $ head $ cursor $// (makeElement "td")
+hasDay cursor day = textHasDay day $ flatContent $ head $ cursor $// (element "td")
 
 textHasDay :: Day -> Text -> Bool
-textHasDay day text = isInfixOf (pack(
+textHasDay day text = isInfixOf (pack (
     case day of
         Weekday  -> "Mondays"
-        Saturday -> "Saturdays"
-        SundayAndHoliday  -> "Sundays"
+        Saturday -> "Mondays"
+        Sunday  -> "Sundays"
+        Holiday  -> "Sundays"
     )) text
 
 textForDirection :: Direction -> Text
-textForDirection FromIsland = pack "From Sok Kwu Wan"
+textForDirection FromIsland = pack "From Peng Chau"
 textForDirection ToIsland   = pack "From Central"
 
 tableToTimetables :: Day -> Direction -> [Text] -> Timetable NominalDiffTime
 tableToTimetables day direction body =
-    Timetable { ferries   = map toFerry $ findDirection (textForDirection direction) body
+    Timetable { ferries   = handleOverMidnight $ map toFerry $ findDirection (textForDirection direction) body
               , day       = day
               , direction = direction
               }
@@ -81,9 +85,11 @@ Match
 1.20 a.m.
 12.30 p.m.
 12.00 noon
+13.30 p.m.*
+13.30 p.m. *
 -}
 regexPattern :: String
-regexPattern = "([0-9]{1,2})\\.([0-9]{1,2}) ((a|p)\\.m\\.|noon)"
+regexPattern = "([0-9]{1,2})[\\.:]([0-9]{1,2}) ((a|p)\\.m\\.|noon)(\\*)?(@)?(#)?"
 
 splitCapture :: String -> [String]
 splitCapture timeString
@@ -104,4 +110,4 @@ capturesToFerry captures =
     where hours   = read (captures !! 1) `mod` 12
           minutes = read (captures !! 2)
           isAm    = (captures !! 3) == "a.m."
-          isSlow  = True
+          isSlow  = (captures !! 6) == "*"

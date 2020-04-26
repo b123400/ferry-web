@@ -28,9 +28,11 @@ ferriesForRouteAtTime calendar route@(T.Route _ timetables) lt@(LocalTime today 
         futures :: Day -> [T.Ferry LocalTime]
         futures fromDay =
             let today = (fmap (localise fromDay) <$> allFerriesOfDay calendar route fromDay direction)
-            in if (length today == 0) -- If for some reason we cannot find any ferry (scraping issue?) stop the loop
+            in if (null allFerries) -- If for some reason we cannot find any ferry (scraping issue?) stop the loop
                then today
                else today <> (futures $ addDays 1 fromDay)
+
+        allFerries = timetables >>= T.ferries
 
         localise :: Day -> NominalDiffTime -> LocalTime
         localise day' diff = utcToLocalTime hongkongTimeZone
@@ -55,9 +57,9 @@ ferriesOfDayAndDirection (T.Route _ timetables) day direction =
 
 toTimetableDay :: HolidayCalendar -> Day -> T.Day
 toTimetableDay calendar day
-    | isHoliday calendar day = T.SundayAndHoliday
+    | isHoliday calendar day = T.Holiday
     | otherwise =
         let (_, _, weekday) = toWeekDate day
         in case weekday of 6 -> T.Saturday
-                           7 -> T.SundayAndHoliday
+                           7 -> T.Sunday
                            _ -> T.Weekday
