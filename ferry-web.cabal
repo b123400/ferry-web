@@ -51,6 +51,7 @@ library
                      , Scraping.CoralSea.Timetable
                      , Scraping.CoralSea.TimeString
                      , Scraping.CoralSea.SaiWanHoKwunTong
+                     , Scraping.CoralSea.SaiWanHoSamKaTsuen
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , servant-server
