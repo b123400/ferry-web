@@ -13,13 +13,14 @@ import Data.Cache (Cache, newCache)
 import Data.Dynamic (Dynamic)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
+import Data.Time.Calendar (addDays)
 import Data.Time.Clock (getCurrentTime)
 import Data.Time.LocalTime (LocalTime(..), TimeZone, utcToLocalTime, hoursToTimeZone, midnight)
 import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
 import System.Clock (TimeSpec(..))
-import Timetable (Island, Route, limit, hongkongTimeZone)
+import Timetable (Island, Route, limit, takeUntil, hongkongTimeZone)
 import Timetable.Local (allIslandsAtTime, islandAtTime)
 import Timetable.Raw (islandRaw)
 import Render.Html (HTMLLucid)
@@ -57,8 +58,9 @@ index cache count = liftIO $ do
     now <- getCurrentTime
     let lt = utcToLocalTime hongkongTimeZone now
         c = min 50 $ fromMaybe 4 count
+        tomorrow = LocalTime (addDays 1 $ localDay lt) (localTimeOfDay lt)
     routes <- flip evalStateT cache $ runDyn $ runLocal $ allIslandsAtTime lt
-    pure $ Index lt (limit c <$> routes)
+    pure $ Index lt (takeUntil tomorrow <$> limit c <$> routes)
 
 detail :: Cache String Dynamic -> Island -> Maybe Int -> Maybe Text -> Handler Detail
 detail cache island mcount mday = liftIO $ do

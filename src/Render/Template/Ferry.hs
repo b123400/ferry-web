@@ -34,6 +34,7 @@ instance DisplayTimeOfDay (LocalTime, NominalDiffTime) where
 
 
 ferries_ :: DisplayTime t => Monad m => [Ferry t] -> HtmlT m ()
+ferries_ [] = toHtml ("No ferry within 24 hours" :: String)
 ferries_ ferries = do
     ol_ $ do
         forM_ (zip [0..] ferries) $ \(index, f) -> do

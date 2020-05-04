@@ -148,6 +148,11 @@ limit count (Route island timetables) = (Route island $ limit' <$> timetables)
     where
         limit' (Timetable fs day direction) = Timetable (take count fs) day direction
 
+takeUntil :: LocalTime -> Route LocalTime -> Route LocalTime
+takeUntil targetTime (Route island timetables) = (Route island $ until <$> timetables)
+    where
+        until (Timetable fs day direction) = Timetable (takeWhile ((< targetTime) . time) fs) day direction
+
 -- | Turns something like [2300, 0030] to [2300, 2430]
 handleOverMidnight :: [Ferry NominalDiffTime] -> [Ferry NominalDiffTime]
 handleOverMidnight [] = []
