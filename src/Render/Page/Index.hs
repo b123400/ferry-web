@@ -5,6 +5,7 @@ import Lucid
 import Control.Monad (forM_)
 import Data.Aeson (ToJSON(..))
 import Data.Time.LocalTime (LocalTime)
+import Render.Lang (Localised(..))
 import Render.Template.Route (route_)
 import Render.Template.Wrapper (wrapper_)
 import Timetable (Route(..))
@@ -17,14 +18,14 @@ data Index = Index
     }
 
 
-instance ToHtml Index where
+instance ToHtml (Localised Index) where
     toHtmlRaw = toHtml
-    toHtml (Index now routes) = wrapper_ $ do
+    toHtml (Localised l (Index now routes)) = wrapper_ l $ do
         forM_ withDiffs $ \route@(Route island _) -> do
             a_ [href_ $ toUrlPiece island] $ do
-                route_ route
+                route_ l route
         div_ [class_ "clearfix"] $ pure ()
         where withDiffs = fmap (addDiff now) <$> routes
 
-instance ToJSON Index where
-    toJSON (Index _ routes) = toJSON routes
+instance ToJSON (Localised Index) where
+    toJSON (Localised l (Index _ routes)) = toJSON routes

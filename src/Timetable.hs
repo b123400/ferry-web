@@ -4,9 +4,11 @@ module Timetable where
 
 import Data.Aeson (ToJSON(..), FromJSON(..), (.=), (.:), object, withObject)
 import Data.Aeson.TH
+import Data.String (IsString, fromString)
 import Data.Time.Clock (NominalDiffTime)
 import Data.Time.LocalTime (LocalTime(..), ZonedTime(..), TimeZone, hoursToTimeZone)
 import Web.HttpApiData (FromHttpApiData(..), ToHttpApiData(..))
+import Render.Lang (Lang(..), LocalisedShow(..))
 
 data Timetable t = Timetable { ferries :: [Ferry t]
                              , day :: Day
@@ -73,7 +75,7 @@ instance FromJSON (Timetable NominalDiffTime) where
 
 instance (ToJSON (Timetable t)) => ToJSON (Route t) where
     toJSON (Route island timetables) = object
-        [ "island" .= island
+        [ "island" .= toUrlPiece island
         , "timetables" .= timetables
         ]
 
@@ -125,23 +127,82 @@ instance ToHttpApiData Island where
     toUrlPiece SaiWanHoSamKaTsuen = "saiwanho-samkatsuen"
     toUrlPiece SamKaTsuenTungLungIsland = "samkatsuen-tunglungisland"
 
-islandName :: Island -> String
-islandName i =
+primaryName :: IsString s => Lang -> Island -> s
+primaryName En i =
+    case i of
+        CentralCheungChau -> "Central"
+        CentralMuiWo -> "Central"
+        CentralPengChau -> "Central"
+        CentralYungShueWan -> "Central"
+        CentralSokKwuWan -> "Central"
+        NorthPointHungHom -> "NorthPoint"
+        NorthPointKowloonCity -> "NorthPoint"
+        PengChauHeiLingChau -> "PengChau"
+        AberdeenSokKwuWan -> "Aberdeen"
+        CentralDiscoveryBay -> "Central"
+        MaWanTsuenWan -> "Ma Wan"
+        SaiWanHoKwunTong -> "Sai Wan Ho"
+        SaiWanHoSamKaTsuen -> "Sai Wan Ho"
+        SamKaTsuenTungLungIsland -> "Sam Ka Tsuen"
+primaryName Hk i =
+    case i of
+        CentralCheungChau -> "中環"
+        CentralMuiWo -> "中環"
+        CentralPengChau -> "中環"
+        CentralYungShueWan -> "中環"
+        CentralSokKwuWan -> "中環"
+        NorthPointHungHom -> "北角"
+        NorthPointKowloonCity -> "北角"
+        PengChauHeiLingChau -> "坪洲"
+        AberdeenSokKwuWan -> "香港仔"
+        CentralDiscoveryBay -> "中環"
+        MaWanTsuenWan -> "馬灣"
+        SaiWanHoKwunTong -> "西灣河"
+        SaiWanHoSamKaTsuen -> "西灣河"
+        SamKaTsuenTungLungIsland -> "三家村"
+
+secondaryName En i =
     case i of
         CentralCheungChau -> "Cheung Chau"
         CentralMuiWo -> "Mui Wo"
         CentralPengChau -> "Peng Chau"
         CentralYungShueWan -> "Yung Shue Wan"
         CentralSokKwuWan -> "Sok Kwu Wan"
-        NorthPointHungHom -> "North Point -> Hung Hom"
-        NorthPointKowloonCity -> "North Point -> Kowloon City"
-        PengChauHeiLingChau -> "Peng Chau -> Hei Ling Chau"
-        AberdeenSokKwuWan -> "Aberdeen -> Sok Kwu Wan"
-        CentralDiscoveryBay -> "Central -> Discovery Bay"
-        MaWanTsuenWan -> "Ma Wan - Tsuen Wan"
-        SaiWanHoKwunTong -> "Sai Wan Ho - Kwun Tong"
-        SaiWanHoSamKaTsuen -> "Sai Wan Ho - Sam Ka Tsuen"
-        SamKaTsuenTungLungIsland -> "Sam Ka Tsuen - Tung Lung Island"
+        NorthPointHungHom -> "Hung Hom"
+        NorthPointKowloonCity -> "Kowloon City"
+        PengChauHeiLingChau -> "Hei Ling Chau"
+        AberdeenSokKwuWan -> "Sok Kwu Wan"
+        CentralDiscoveryBay -> "Discovery Bay"
+        MaWanTsuenWan -> "Tsuen Wan"
+        SaiWanHoKwunTong -> "Kwun Tong"
+        SaiWanHoSamKaTsuen -> "Sam Ka Tsuen"
+        SamKaTsuenTungLungIsland -> "Tung Lung Island"
+
+secondaryName Hk i =
+    case i of
+        CentralCheungChau -> "長洲"
+        CentralMuiWo -> "梅窩"
+        CentralPengChau -> "坪洲"
+        CentralYungShueWan -> "榕樹灣"
+        CentralSokKwuWan -> "索罟灣"
+        NorthPointHungHom -> "紅磡"
+        NorthPointKowloonCity -> "九龍城"
+        PengChauHeiLingChau -> "喜靈洲"
+        AberdeenSokKwuWan -> "索罟灣"
+        CentralDiscoveryBay -> "愉景灣"
+        MaWanTsuenWan -> "荃灣"
+        SaiWanHoKwunTong -> "觀塘"
+        SaiWanHoSamKaTsuen -> "三家村"
+        SamKaTsuenTungLungIsland -> "東龍洲"
+
+instance LocalisedShow Island where
+    lShow lang i = fromString $ (fromString $ primaryName lang i) <> " - " <> (fromString $ secondaryName lang i)
+
+instance LocalisedShow Direction where
+    lShow En ToIsland = "To"
+    lShow En FromIsland = "From"
+    lShow Hk ToIsland = "去程"
+    lShow Hk FromIsland = "回程"
 
 limit :: Int -> Route t -> Route t
 limit count (Route island timetables) = (Route island $ limit' <$> timetables)

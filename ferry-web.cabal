@@ -26,6 +26,7 @@ library
                      , Render.Page.Index
                      , Render.Page.Detail
                      , Render.Page.RawTimetable
+                     , Render.Lang
                      , Schedule.Calendar
                      , Schedule.Finder
                      , Control.Monad.Cache
@@ -78,6 +79,7 @@ library
                      , clock
                      , http-api-data
                      , utf8-string
+                     , cookie
   default-language:    Haskell2010
   default-extensions: TemplateHaskell
                     , OverloadedStrings
@@ -92,6 +94,7 @@ library
                     , AllowAmbiguousTypes
                     , UndecidableInstances
                     , ConstraintKinds
+                    , RankNTypes
 
 executable ferry-web-exe
   hs-source-dirs:      app

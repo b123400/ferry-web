@@ -5,21 +5,18 @@ import Control.Monad (forM_)
 import Data.Fixed (divMod')
 import Data.Time.LocalTime (LocalTime(..), TimeOfDay(..))
 import Data.Time.Clock (NominalDiffTime)
+import Render.Lang (Lang, lShow)
 import Render.Template.Ferry (DisplayTime, ferry_)
 import Timetable (Timetable(..), Direction(..), FerryType(..), Ferry(..))
 
 
-rawTimetable_ :: Monad m => Timetable NominalDiffTime -> HtmlT m ()
-rawTimetable_ (Timetable ferries day direction) = do
-    h2_ directionName
+rawTimetable_ :: Monad m => Lang -> Timetable NominalDiffTime -> HtmlT m ()
+rawTimetable_ l (Timetable ferries day direction) = do
+    h2_ (lShow l direction)
     ol_ $ do
         forM_ ferries $ \f -> do
-            ferry_ $ timeToDaysAndTimeOfDay <$> f
+            ferry_ l $ timeToDaysAndTimeOfDay <$> f
     where
-        directionName = case direction of
-            ToIsland -> "To"
-            FromIsland -> "From"
-
         timeToDaysAndTimeOfDay :: NominalDiffTime -> TimeOfDay
         timeToDaysAndTimeOfDay dt = let
             s = realToFrac dt

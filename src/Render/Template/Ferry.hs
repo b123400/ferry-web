@@ -5,6 +5,7 @@ import Control.Monad (forM_)
 import Data.Time.Calendar (showGregorian)
 import Data.Time.LocalTime (LocalTime(..), TimeOfDay(..))
 import Data.Time.Clock (NominalDiffTime)
+import Render.Lang (Lang(..))
 import Timetable (Timetable(..), Direction(..), FerryType(..), Ferry(..))
 
 class DisplayTimeOfDay t => DisplayTime t where
@@ -33,9 +34,10 @@ instance DisplayTimeOfDay (LocalTime, NominalDiffTime) where
     diff = Just . snd
 
 
-ferries_ :: DisplayTime t => Monad m => [Ferry t] -> HtmlT m ()
-ferries_ [] = toHtml ("No ferry within 24 hours" :: String)
-ferries_ ferries = do
+ferries_ :: DisplayTime t => Monad m => Lang -> [Ferry t] -> HtmlT m ()
+ferries_ En [] = "No ferry within 24 hours"
+ferries_ Hk [] = "24 小時內無船"
+ferries_ l ferries = do
     ol_ $ do
         forM_ (zip [0..] ferries) $ \(index, f) -> do
             let mPrev = if index == 0 then Nothing else Just $ ferries !! (index - 1)
@@ -44,14 +46,14 @@ ferries_ ferries = do
                 Just prev | (localDay $ local $ time prev) /= today ->
                     div_ [class_ "date-separator"] (toHtml $ showGregorian today)
                 _ -> pure ()
-            ferry_ f
+            ferry_ l f
 
-ferry_ :: DisplayTimeOfDay t => Monad m => Ferry t -> HtmlT m ()
-ferry_ (Ferry time ferryType) = do
+ferry_ :: DisplayTimeOfDay t => Monad m => Lang -> Ferry t -> HtmlT m ()
+ferry_ lang (Ferry time ferryType) = do
     li_ [class_ "timeslot"] $ do
         div_ [class_ (ferryClassName ferryType), alt_ (ferryAlt ferryType)] ""
         time_ (toHtml $ timeString $ timeOfDay time)
-        case diffString =<< diff time of
+        case diffString lang =<< diff time of
             Nothing -> pure ()
             Just diff -> span_ [class_ "reminder"] (toHtml diff)
     where
@@ -68,17 +70,24 @@ ferry_ (Ferry time ferryType) = do
         timeString (TimeOfDay hours minutes _) =
             (twoDigits hours) <> ":" <> (twoDigits minutes)
 
-        diffString d | d < 0 = Nothing
-                     | d < 60 = Just "Now"
-                     | d < 60*60 =
-                        Just $ "In " <> (show minute) <> " Minute" <> (if minute == 1 then "" else "s")
-                     | d < 60*60*2 =
-                        Just $ "In " <> (show hour) <> " Hour" <> (if hour == 1 then "" else "s")
-                     | otherwise = Nothing
-            where minute :: Integer
-                  minute = floor $ d/60.0
-                  hour :: Integer
-                  hour = floor $ d/3600.0
+        diffString En d | d < 0 = Nothing
+                        | d < 60 = Just "Now"
+                        | d < 60*60 =
+                           Just $ "In " <> (show $ minute d) <> " Minute" <> (if minute d == 1 then "" else "s")
+                        | d < 60*60*2 =
+                           Just $ "In " <> (show $ hour d) <> " Hour" <> (if hour d == 1 then "" else "s")
+                        | otherwise = Nothing
+        diffString Hk d | d < 0 = Nothing
+                        | d < 60 = Just "現在"
+                        | d < 60*60 =
+                           Just $ "還有 " <> (show $ minute d) <> " 分鐘"
+                        | d < 60*60*2 =
+                           Just $ "還有 " <> (show $ hour d) <> " 小時"
+                        | otherwise = Nothing
+        minute :: NominalDiffTime -> Integer
+        minute d = floor $ d/60.0
+        hour :: NominalDiffTime -> Integer
+        hour d = floor $ d/3600.0
 
         twoDigits num | num < 10 = "0" <> show num
                       | otherwise = show num

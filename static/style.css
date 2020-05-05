@@ -4,6 +4,11 @@ body {
     font-family: -apple-system, Helvetica, sans-serif;
     padding-top: 50px;
 }
+.lang {
+    position: absolute;
+    right: 50px;
+    top: 50px;
+}
 .island {
     margin-bottom: 60px;
     padding-left: 2%;

@@ -5,54 +5,55 @@ import Lucid
 import Control.Monad (forM_)
 import Data.Aeson (ToJSON(..))
 import Data.Time.Clock (NominalDiffTime)
+import Render.Lang as L (Localised(..), translate, lShow)
+import qualified Render.Lang as L
 import Render.Template.Wrapper (wrapper_)
 import Render.Template.RawTimetable (rawTimetable_)
-import Timetable (Route(..), Timetable(..), Day(..), islandName)
+import Timetable (Route(..), Timetable(..), Day(..))
 
 data RawTimetable = RawTimetable
     { route :: Route NominalDiffTime
     }
 
-
-instance ToHtml RawTimetable where
+instance ToHtml (Localised RawTimetable) where
     toHtmlRaw = toHtml
-    toHtml (RawTimetable (Route island timetables)) = wrapper_ $ do
+    toHtml (Localised l (RawTimetable (Route island timetables))) = wrapper_ l $ do
         div_ [class_ "island --raw"] $ do
-            h1_ (toHtml $ islandName island)
+            h1_ (lShow l island)
 
             if isSatSameAsWeekday
                 then do
                     div_ [class_ "day"] $ do
-                        h2_ "Monday - Saturday"
+                        h2_ (t L.MondayToSaturday)
                         forM_ weekdayTimetables $ \t -> do
                             div_ [class_ "direction"] $ do
-                                rawTimetable_ t
+                                rawTimetable_ l t
                             div_ [class_ "clearfix"] $ pure ()
                 else do
                     div_ [class_ "day"] $ do
-                        h2_ "Monday - Friday"
+                        h2_ (t L.MondayToFriday)
                         forM_ weekdayTimetables $ \t -> do
                             div_ [class_ "direction"] $ do
-                                rawTimetable_ t
+                                rawTimetable_ l t
                         div_ [class_ "clearfix"] $ pure ()
                     div_ [class_ "day"] $ do
-                        h2_ "Saturday"
+                        h2_ (t L.Saturday)
                         forM_ saturdayTimetables $ \t -> do
                             div_ [class_ "direction"] $ do
-                                rawTimetable_ t
+                                rawTimetable_ l t
                         div_ [class_ "clearfix"] $ pure ()
             -- TODO: join Sunday and holiday is possible
             div_ [class_ "day"] $ do
-                h2_ "Sunday"
+                h2_ (t L.Sunday)
                 forM_ sundayTimetables $ \t -> do
                     div_ [class_ "direction"] $ do
-                        rawTimetable_ t
+                        rawTimetable_ l t
                 div_ [class_ "clearfix"] $ pure ()
             div_ [class_ "day"] $ do
-                h2_ "Holiday"
+                h2_ (t L.Holiday)
                 forM_ holidayTimetables $ \t -> do
                     div_ [class_ "direction"] $ do
-                        rawTimetable_ t
+                        rawTimetable_ l t
                 div_ [class_ "clearfix"] $ pure ()
             div_ [class_ "clearfix"] $ pure ()
 
@@ -62,7 +63,8 @@ instance ToHtml RawTimetable where
               sundayTimetables = timetablesOfDay Sunday
               holidayTimetables = timetablesOfDay Holiday
               isSatSameAsWeekday = weekdayTimetables == saturdayTimetables
+              t = translate l
 
 
-instance ToJSON RawTimetable where
-    toJSON (RawTimetable route) = toJSON route
+instance ToJSON (Localised RawTimetable) where
+    toJSON (Localised l (RawTimetable route)) = toJSON route
