@@ -28,13 +28,13 @@ allIslandsAtTime time = do
     calendar <- holidayCalendar
     for routes $ \route@(Route island timetable)-> do
         pure $ Route island
-            [ Timetable { ferries = ferriesForRouteAtTime calendar route time FromIsland
+            [ Timetable { ferries = ferriesForRouteAtTime calendar route time ToPrimary
                         , day = Weekday -- Useless
-                        , direction = FromIsland
+                        , direction = ToPrimary
                         }
-            , Timetable { ferries = ferriesForRouteAtTime calendar route time ToIsland
+            , Timetable { ferries = ferriesForRouteAtTime calendar route time FromPrimary
                         , day = Weekday -- Useless
-                        , direction = ToIsland
+                        , direction = FromPrimary
                         }
             ]
 
@@ -51,13 +51,13 @@ islandAtTime island time = do
     route <- islandRaw island
     calendar <- holidayCalendar
     pure $ Route island
-        [ Timetable { ferries = ferriesForRouteAtTime calendar route time FromIsland
+        [ Timetable { ferries = ferriesForRouteAtTime calendar route time ToPrimary
                     , day = Weekday -- Useless
-                    , direction = FromIsland
+                    , direction = ToPrimary
                     }
-        , Timetable { ferries = ferriesForRouteAtTime calendar route time ToIsland
+        , Timetable { ferries = ferriesForRouteAtTime calendar route time FromPrimary
                     , day = Weekday -- Useless
-                    , direction = ToIsland
+                    , direction = FromPrimary
                     }
         ]
 

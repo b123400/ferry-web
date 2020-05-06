@@ -24,7 +24,7 @@ fetch = withCache "SamKaTsuenTungLungIsland" $ do
 timetables :: Cursor -> [Timetable NominalDiffTime]
 timetables cursor = do
     day <- [Weekday, Saturday, Sunday, Holiday]
-    direction <- [ToIsland, FromIsland]
+    direction <- [FromPrimary, ToPrimary]
     timeForDayAndDirection cursor day direction
 
 timeForDayAndDirection :: Cursor -> Day -> Direction -> [Timetable NominalDiffTime]
@@ -40,11 +40,11 @@ timeForDayAndDirection cursor day direction = do
             Just 0 -> catMaybes $ pickOdd parsedTime
             Just 1 -> catMaybes $ pickEven parsedTime
             _ -> []
-        ferries = (\x -> Ferry x SlowFerry) <$> thisTimes
+        ferries = (\x -> Ferry x mempty) <$> thisTimes
 
     [Timetable ferries day direction]
 
 
 titleForDirection :: IsString s => Direction -> s
-titleForDirection ToIsland = "由三家村出發"
-titleForDirection FromIsland = "由東龍島出發"
+titleForDirection FromPrimary = "由三家村出發"
+titleForDirection ToPrimary = "由東龍島出發"

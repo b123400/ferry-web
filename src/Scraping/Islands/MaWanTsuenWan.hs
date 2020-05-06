@@ -37,7 +37,7 @@ findTimetableCursors =
 cursorToTimetables :: Cursor -> [Timetable NominalDiffTime]
 cursorToTimetables timeTable = catMaybes $ do
     day <- [Weekday, Saturday, Sunday, Holiday]
-    direction <- [ToIsland, FromIsland]
+    direction <- [FromPrimary, ToPrimary]
     return $ findTimetable day direction timeTable
 
 findTimetable :: Day -> Direction -> Cursor -> Maybe (Timetable NominalDiffTime)
@@ -49,8 +49,8 @@ findTimetable day direction timeTable =
     in Just $ tableToTimetables day direction (thTexts <> tdTexts)
 
 textForDirection :: Direction -> Text
-textForDirection FromIsland = pack "From Tsuen Wan"
-textForDirection ToIsland   = pack "From Ma Wan"
+textForDirection ToPrimary = pack "From Tsuen Wan"
+textForDirection FromPrimary   = pack "From Ma Wan"
 
 tableToTimetables :: Day -> Direction -> [Text] -> Timetable NominalDiffTime
 tableToTimetables day direction body =
@@ -75,7 +75,7 @@ Match
 15.30 p.m.#
 -}
 regexPattern :: String
-regexPattern = "([0-9]{1,2})[\\.:]([0-9]{1,2}) ((a|p)\\.m\\.|noon)"
+regexPattern = "([0-9]{1,2})[\\.:]([0-9]{1,2}) (a\\.m\\.|p\\.m\\.|noon)"
 
 splitCapture :: String -> [String]
 splitCapture timeString
@@ -91,7 +91,7 @@ toFerry text =
 capturesToFerry :: [String] -> (Ferry NominalDiffTime)
 capturesToFerry captures =
     Ferry { time      = fromInteger $ ((if isAm then hours else hours + 12) * 60 + minutes) * 60
-          , ferryType = SlowFerry
+          , modifiers = mempty
           }
     where hours   = read (captures !! 1) `mod` 12
           minutes = read (captures !! 2)

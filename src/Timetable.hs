@@ -4,6 +4,7 @@ module Timetable where
 
 import Data.Aeson (ToJSON(..), FromJSON(..), (.=), (.:), object, withObject)
 import Data.Aeson.TH
+import Data.Set (Set)
 import Data.String (IsString, fromString)
 import Data.Time.Clock (NominalDiffTime)
 import Data.Time.LocalTime (LocalTime(..), ZonedTime(..), TimeZone, hoursToTimeZone)
@@ -16,14 +17,14 @@ data Timetable t = Timetable { ferries :: [Ferry t]
                              } deriving (Eq, Show)
 
 data Ferry t = Ferry { time :: t
-                     , ferryType :: FerryType
+                     , modifiers :: Set Modifier
                      } deriving (Eq, Show)
 
-data FerryType = FastFerry | SlowFerry | OptionalFerry deriving (Eq, Show)
+data Modifier = FastFerry | SlowFerry | OptionalFerry deriving (Eq, Ord, Show)
 
 data Day = Weekday | Saturday | Sunday | Holiday deriving (Show, Eq)
 
-data Direction = ToIsland | FromIsland deriving (Show, Eq)
+data Direction = FromPrimary | ToPrimary deriving (Show, Eq)
 
 data Island = CentralCheungChau
             | CentralMuiWo
@@ -45,7 +46,7 @@ data Route t = Route { island :: Island
                      , timetables :: [Timetable t]
                      } deriving (Show)
 
-$(deriveJSON defaultOptions ''FerryType)
+$(deriveJSON defaultOptions ''Modifier)
 $(deriveJSON defaultOptions ''Ferry)
 $(deriveJSON defaultOptions ''Day)
 $(deriveJSON defaultOptions ''Direction)
@@ -199,10 +200,10 @@ instance LocalisedShow Island where
     lShow lang i = fromString $ (fromString $ primaryName lang i) <> " - " <> (fromString $ secondaryName lang i)
 
 instance LocalisedShow Direction where
-    lShow En ToIsland = "To"
-    lShow En FromIsland = "From"
-    lShow Hk ToIsland = "去程"
-    lShow Hk FromIsland = "回程"
+    lShow En FromPrimary = "To"
+    lShow En ToPrimary = "From"
+    lShow Hk FromPrimary = "去程"
+    lShow Hk ToPrimary = "回程"
 
 limit :: Int -> Route t -> Route t
 limit count (Route island timetables) = (Route island $ limit' <$> timetables)

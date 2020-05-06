@@ -40,7 +40,7 @@ findTableElements c = c $// (element "table")
 cursorToTimetables :: Cursor -> [Timetable NominalDiffTime]
 cursorToTimetables timeTable = catMaybes $ do
     day <- [Weekday, Saturday, Sunday, Holiday]
-    direction <- [ToIsland, FromIsland]
+    direction <- [FromPrimary, ToPrimary]
     return $ findTimetable day direction timeTable
 
 findTimetable :: Day -> Direction -> Cursor -> Maybe (Timetable NominalDiffTime)
@@ -65,8 +65,8 @@ hasDay cursor day =
                 Holiday          -> isInfixOf (pack "Sundays") text
 
 textForDirection :: Direction -> Text
-textForDirection FromIsland = pack "From Discovery Bay"
-textForDirection ToIsland   = pack "From Central"
+textForDirection ToPrimary = pack "From Discovery Bay"
+textForDirection FromPrimary   = pack "From Central"
 
 tableToTimetables :: Day -> Direction -> [Text] -> Timetable NominalDiffTime
 tableToTimetables day direction body =
@@ -91,7 +91,7 @@ Match
 15.30 p.m.#
 -}
 regexPattern :: String
-regexPattern = "([0-9]{1,2})[\\.:]([0-9]{1,2}) ((a|p)\\.m\\.|noon)(\\*)?(@)?(#)?"
+regexPattern = "([0-9]{1,2})[\\.:]([0-9]{1,2}) (a\\.m\\.|p\\.m\\.|noon)(\\*)?(@)?(#)?"
 
 splitCapture :: String -> [String]
 splitCapture timeString
@@ -109,17 +109,17 @@ toFerry cond text =
 
 isDay :: Day -> [String] -> Bool
 isDay Sunday   _ = True
-isDay Holiday captures = (captures !! 7) /= "#"
+isDay Holiday captures = (captures !! 6) /= "#"
 isDay Weekday  _ = True
 isDay Saturday _ = True
 
 capturesToFerry :: [String] -> (Ferry NominalDiffTime)
 capturesToFerry captures =
     Ferry { time      = fromInteger $ ((if isAm then hours else hours + 12) * 60 + minutes) * 60
-          , ferryType = SlowFerry
+          , modifiers = mempty
           }
     where hours   = read (captures !! 1) `mod` 12
           minutes = read (captures !! 2)
           isAm    = (captures !! 3) == "a.m."
-          -- isViaDisneyland  = (captures !! 5) == "*"
+          -- isViaDisneyland  = (captures !! 4) == "*"
           -- The sailing will operate via Disneyland Resort Pier (Due to repair work in progress, the stopping point at Disneyland Resort Pier is temporary suspended.)

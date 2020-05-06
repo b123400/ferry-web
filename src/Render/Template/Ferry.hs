@@ -2,11 +2,12 @@ module Render.Template.Ferry where
 
 import Lucid
 import Control.Monad (forM_)
+import Data.Set (toAscList)
 import Data.Time.Calendar (showGregorian)
 import Data.Time.LocalTime (LocalTime(..), TimeOfDay(..))
 import Data.Time.Clock (NominalDiffTime)
 import Render.Lang (Lang(..))
-import Timetable (Timetable(..), Direction(..), FerryType(..), Ferry(..))
+import Timetable (Timetable(..), Direction(..), Modifier(..), Ferry(..))
 
 class DisplayTimeOfDay t => DisplayTime t where
     local :: t -> LocalTime
@@ -49,20 +50,21 @@ ferries_ l ferries = do
             ferry_ l f
 
 ferry_ :: DisplayTimeOfDay t => Monad m => Lang -> Ferry t -> HtmlT m ()
-ferry_ lang (Ferry time ferryType) = do
+ferry_ lang (Ferry time modifiers) = do
     li_ [class_ "timeslot"] $ do
-        div_ [class_ (ferryClassName ferryType), alt_ (ferryAlt ferryType)] ""
+        forM_ (toAscList modifiers) $ \modifier->
+            div_ [class_ (ferryClassName modifier), alt_ (ferryAlt modifier)] ""
         time_ (toHtml $ timeString $ timeOfDay time)
         case diffString lang =<< diff time of
             Nothing -> pure ()
             Just diff -> span_ [class_ "reminder"] (toHtml diff)
     where
-        ferryClassName ferryType = case ferryType of
+        ferryClassName modifier = case modifier of
             FastFerry -> "fast-ferry"
             SlowFerry -> "slow-ferry"
             OptionalFerry -> "optional-ferry"
 
-        ferryAlt ferryType = case ferryType of
+        ferryAlt modifier = case modifier of
             FastFerry -> "Fast Ferry"
             SlowFerry -> "Slow Ferry"
             OptionalFerry -> "Optional Ferry"

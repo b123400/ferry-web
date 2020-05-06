@@ -7,7 +7,7 @@ import Data.Time.LocalTime (LocalTime(..), TimeOfDay(..))
 import Data.Time.Clock (NominalDiffTime)
 import Render.Lang (Lang, lShow)
 import Render.Template.Ferry (DisplayTime, ferry_)
-import Timetable (Timetable(..), Direction(..), FerryType(..), Ferry(..))
+import Timetable (Timetable(..), Direction(..), Modifier(..), Ferry(..))
 
 
 rawTimetable_ :: Monad m => Lang -> Timetable NominalDiffTime -> HtmlT m ()

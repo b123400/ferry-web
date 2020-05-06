@@ -7,6 +7,7 @@ import Control.Monad.Cache (MonadCache, withCache)
 import Text.XML.Cursor (Cursor, attributeIs, element, following,
                         ($.//), ($//), (>=>))
 import Data.ByteString.Lazy (ByteString)
+import Data.Set (singleton)
 import Data.Text (Text, pack, unpack, isInfixOf)
 import Text.Regex.TDFA ((=~))
 import Timetable hiding (timetables)
@@ -40,7 +41,7 @@ findTableElements c = c $// (element "table")
 cursorToTimetables :: Cursor -> [Timetable NominalDiffTime]
 cursorToTimetables timeTable = catMaybes $ do
     day <- [Weekday, Saturday, Sunday, Holiday]
-    direction <- [ToIsland, FromIsland]
+    direction <- [FromPrimary, ToPrimary]
     return $ findTimetable day direction timeTable
 
 findTimetable :: Day -> Direction -> Cursor -> Maybe (Timetable NominalDiffTime)
@@ -65,8 +66,8 @@ hasDay cursor day =
                 Holiday          -> isInfixOf (pack "holidays") text
 
 textForDirection :: Direction -> Text
-textForDirection FromIsland = pack "From Cheung Chau"
-textForDirection ToIsland   = pack "From Central"
+textForDirection ToPrimary = pack "From Cheung Chau"
+textForDirection FromPrimary   = pack "From Central"
 
 tableToTimetables :: Day -> Direction -> [Text] -> Timetable NominalDiffTime
 tableToTimetables day direction body =
@@ -91,7 +92,7 @@ Match
 15.30 p.m.#
 -}
 regexPattern :: String
-regexPattern = "([0-9]{1,2})[\\.:]([0-9]{1,2}) ((a|p)\\.m\\.|noon)(\\*)?(@)?(#)?"
+regexPattern = "([0-9]{1,2})[\\.:]([0-9]{1,2}) (a\\.m\\.|p\\.m\\.|noon)(\\*)?(@)?(#)?"
 
 splitCapture :: String -> [String]
 splitCapture timeString
@@ -110,17 +111,17 @@ toFerry cond text =
 isDay :: Day -> [String] -> Bool
 isDay Sunday  _           = True
 isDay Holiday _           = True
-isDay Weekday  captures   = (captures !! 6) /= "@"
-isDay Saturday captures   = (captures !! 7) /= "#"
+isDay Weekday  captures   = (captures !! 5) /= "@"
+isDay Saturday captures   = (captures !! 6) /= "#"
 
 capturesToFerry :: [String] -> (Ferry NominalDiffTime)
 capturesToFerry captures =
     Ferry { time      = fromInteger $ ((if isAm then hours else hours + 12) * 60 + minutes) * 60
-          , ferryType = if   isSlow
-                        then SlowFerry
-                        else FastFerry
+          , modifiers = if   isSlow
+                        then singleton SlowFerry
+                        else singleton FastFerry
           }
     where hours   = read (captures !! 1) `mod` 12
           minutes = read (captures !! 2)
           isAm    = (captures !! 3) == "a.m."
-          isSlow  = (captures !! 5) == "*"
+          isSlow  = (captures !! 4) == "*"

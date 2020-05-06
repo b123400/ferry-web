@@ -16,7 +16,7 @@ import Text.XML.Cursor (Cursor, fromDocument)
 import Scraping.NWFF.RouteScript (northPointKowloonCity)
 import Scraping.NWFF.TimeString (parseTimeStr)
 import Scraping.Utility
-import Timetable (Day(..), Direction(..), Ferry(..), FerryType(..), Island(..), Timetable(..))
+import Timetable (Day(..), Direction(..), Ferry(..), Modifier(..), Island(..), Timetable(..))
 import qualified Timetable as T (Route(..))
 
 
@@ -50,7 +50,7 @@ tableToTimetables table =
     in catMaybes $ do
             listOfStrings <- listsOfStrings
             day <- [Weekday, Saturday, Sunday, Holiday]
-            direction <- [ToIsland, FromIsland]
+            direction <- [FromPrimary, ToPrimary]
             pure $ findTimetable day direction listOfStrings
     where
         trToTuple :: Cursor -> Maybe (Text, Text)
@@ -71,15 +71,15 @@ findTimetable day directionWanted texts =
 
         parsedPairs = mapMaybe parseTimeStr timeStrs
         filteredDay = filter (\(m, _)-> notElem '#' m || day == Weekday) parsedPairs
-        toFerry (_, time) = Ferry time SlowFerry
+        toFerry (_, time) = Ferry time mempty
 
         ferries = case (toFerry <$> filteredDay) of
                       [] -> Nothing
                       a -> Just a
 
         -- Well HK island should be the island side but I want to be more consistent
-        -- so "Leaving HK island = FromIsland", sorry please send a PR with a better name
+        -- so "Leaving HK island = ToPrimary", sorry please send a PR with a better name
         direction = case directionStr of
-                        "North Point -> Kowloon City" -> Just ToIsland
-                        "Kowloon City -> North Point" -> Just FromIsland
+                        "North Point -> Kowloon City" -> Just FromPrimary
+                        "Kowloon City -> North Point" -> Just ToPrimary
                         _ -> Nothing
