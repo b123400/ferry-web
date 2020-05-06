@@ -32,7 +32,7 @@ timeForDayAndDirection _ Weekday _ = []
 timeForDayAndDirection cursor day direction = do
     let allSections = cursor $.// element "div" >=> attributeIs "class" "section-title"
         routeCursors = parent =<< filter ((==) "三家村 ⇋ 東龍島" . flatContent) allSections
-        timetableElement = take 1 $ routeCursors >>= ($// element "h4" &.// followingSibling &.// element "table")
+        timetableElement = take 1 $ drop 1 $ routeCursors >>= ($// element "h4" &.// followingSibling &.// element "table")
         ths = flatContent <$> (timetableElement >>= ($// element "th"))
         times = flatContent <$> (timetableElement >>= ($// element "td"))
         parsedTime = fmap fst <$> parseTimeStr <$> times

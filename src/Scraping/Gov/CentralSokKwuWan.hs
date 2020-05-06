@@ -1,36 +1,37 @@
-module Scraping.Islands.PengChauHeiLingChau
+module Scraping.Gov.CentralSokKwuWan
 ( fetch
 ) where
 
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Cache (MonadCache, withCache)
 import Data.ByteString.Lazy (ByteString)
-import Data.Maybe (catMaybes)
+import Data.Set (singleton)
+import Text.XML.Cursor (Cursor, attributeIs, element, following,
+                        ($.//), ($//), ($/), (>=>))
+import Data.Maybe (catMaybes, mapMaybe)
 import Data.Text (Text, pack, unpack, isInfixOf)
 import Data.Time.Clock (NominalDiffTime)
 import Text.Regex.TDFA ((=~))
-import Text.XML.Cursor (Cursor, attributeIs, check, element, following,
-                        ($.//), ($//), (>=>))
-import Scraping.Utility
 import Timetable hiding (timetables)
+import Scraping.Gov.TimeString (parseTimeStr)
+import Scraping.Utility
 
 import qualified Scraping.Gov as Gov (fetchCursor)
 
 
 fetch :: (MonadIO m, MonadCache m ByteString, MonadCache m (Route NominalDiffTime)) => m (Route NominalDiffTime)
-fetch = withCache "PengChauHeiLingChau" $ do
+fetch = withCache "CentralSokKwuWan" $ do
     cursor <- Gov.fetchCursor
-    pure $ Route PengChauHeiLingChau $ timetables cursor
+    pure $ Route CentralSokKwuWan $ timetables cursor
 
 timetables :: Cursor -> [Timetable NominalDiffTime]
 timetables cursor = do
-    c <- findPengChauHeiLingChau cursor
+    c <- findCentralSokKwuWan cursor
     ct <- findTimetableCursors c
     cursorToTimetables ct
 
-
-findPengChauHeiLingChau :: Cursor -> [Cursor]
-findPengChauHeiLingChau cursor = cursor $//(element "p") >=> (check (isInfixOf "Peng Chau - Hei Ling Chau" . flatContent))
+findCentralSokKwuWan :: Cursor -> [Cursor]
+findCentralSokKwuWan cursor = cursor $.// (element "a") >=> attributeIs "name" "o05"
 
 findTimetableCursors :: Cursor -> [Cursor]
 findTimetableCursors = findTableElements . nthMatch 3 (matchName "table") . following
@@ -55,21 +56,21 @@ hasDay :: Cursor -> Day -> Bool
 hasDay cursor day = textHasDay day $ flatContent $ head $ cursor $// (element "td")
 
 textHasDay :: Day -> Text -> Bool
-textHasDay day text = isInfixOf (pack (
+textHasDay day text = isInfixOf (pack(
     case day of
         Weekday  -> "Mondays"
-        Saturday -> "Mondays"
+        Saturday -> "Saturdays"
         Sunday   -> "Sundays"
         Holiday  -> "Sundays"
     )) text
 
 textForDirection :: Direction -> Text
-textForDirection ToPrimary = pack "From Hei Ling Chau"
-textForDirection FromPrimary   = pack "From Peng Chau"
+textForDirection ToPrimary = pack "From Sok Kwu Wan"
+textForDirection FromPrimary   = pack "From Central"
 
 tableToTimetables :: Day -> Direction -> [Text] -> Timetable NominalDiffTime
 tableToTimetables day direction body =
-    Timetable { ferries   = handleOverMidnight $ map toFerry $ findDirection (textForDirection direction) body
+    Timetable { ferries   = handleOverMidnight $ mapMaybe toFerry $ findDirection (textForDirection direction) body
               , day       = day
               , direction = direction
               }
@@ -78,33 +79,12 @@ findDirection :: Text -> [Text] -> [Text]
 findDirection keyword list
     | isInfixOf keyword (list !! 0) = filter notEmpty $ tail $ pickOdd list
     | isInfixOf keyword (list !! 1) = filter notEmpty $ tail $ pickEven list
-    | otherwise                     = error ("not found" ++ (show keyword) ++ "/" ++ (show list))
+    | otherwise                     = error ("not found")
 
-{-
-Match
-1.20 a.m.
-12.30 p.m.
-12.00 noon
-13.30 p.m.*
-13.30 p.m. *
--}
-regexPattern :: String
-regexPattern = "([0-9]{1,2})\\.([0-9]{1,2}) (a\\.m\\.|p\\.m\\.|noon)( )*(\\*)?"
-
-splitCapture :: String -> [String]
-splitCapture timeString
-    | (length matches) == 1 = head matches
-    | otherwise             = error ("regex error " ++ timeString)
-    where matches = (cleanHTMLEntity timeString =~ regexPattern)
-
-toFerry :: Text -> Ferry NominalDiffTime
-toFerry = capturesToFerry . splitCapture . unpack
-
-capturesToFerry :: [String] -> Ferry NominalDiffTime
-capturesToFerry captures =
-    Ferry { time      = fromInteger $ ((if isAm then hours else hours + 12) * 60 + minutes) * 60
-          , modifiers = mempty
-          }
-    where hours   = read (captures !! 1) `mod` 12
-          minutes = read (captures !! 2)
-          isAm    = (captures !! 3) == "a.m."
+toFerry :: Text -> Maybe (Ferry NominalDiffTime)
+toFerry text = do
+    (diffTime, modString) <- parseTimeStr text
+    Just (Ferry { time = diffTime
+                , modifiers = mempty
+                })
+-- TODO '*' Additional sailing may be operated subject to passenger demand

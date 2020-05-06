@@ -36,15 +36,15 @@ library
                      , Scraping.EmailDecode
                      , Timetable.Local
                      , Timetable.Raw
-                     , Scraping.Islands.CentralCheungChau
-                     , Scraping.Islands.CentralMuiWo
-                     , Scraping.Islands.CentralPengChau
-                     , Scraping.Islands.CentralSokKwuWan
-                     , Scraping.Islands.CentralYungShueWan
-                     , Scraping.Islands.PengChauHeiLingChau
-                     , Scraping.Islands.AberdeenSokKwuWan
-                     , Scraping.Islands.CentralDiscoveryBay
-                     , Scraping.Islands.MaWanTsuenWan
+                     , Scraping.Gov.CentralCheungChau
+                     , Scraping.Gov.CentralMuiWo
+                     , Scraping.Gov.CentralPengChau
+                     , Scraping.Gov.CentralSokKwuWan
+                     , Scraping.Gov.CentralYungShueWan
+                     , Scraping.Gov.PengChauHeiLingChau
+                     , Scraping.Gov.AberdeenSokKwuWan
+                     , Scraping.Gov.CentralDiscoveryBay
+                     , Scraping.Gov.MaWanTsuenWan
                      , Scraping.NWFF.RouteScript
                      , Scraping.NWFF.NorthPointHungHom
                      , Scraping.NWFF.NorthPointKowloonCity

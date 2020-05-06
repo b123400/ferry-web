@@ -1,4 +1,4 @@
-module Scraping.Islands.AberdeenSokKwuWan
+module Scraping.Gov.AberdeenSokKwuWan
 ( fetch
 ) where
 
@@ -10,6 +10,7 @@ import Data.ByteString.Lazy (ByteString)
 import Data.Text (Text, pack, unpack, isInfixOf)
 import Text.Regex.TDFA ((=~))
 import Timetable hiding (timetables)
+import Scraping.Gov.TimeString (parseTimeStr)
 import Scraping.Utility
 import Data.Maybe
 import Data.Time.Clock (NominalDiffTime)
@@ -70,7 +71,7 @@ textForDirection FromPrimary   = pack "From Aberdeen"
 
 tableToTimetables :: Day -> Direction -> [Text] -> Timetable NominalDiffTime
 tableToTimetables day direction body =
-    Timetable { ferries   = handleOverMidnight $ map toFerry $ findDirection (textForDirection direction) body
+    Timetable { ferries   = handleOverMidnight $ mapMaybe toFerry $ findDirection (textForDirection direction) body
               , day       = day
               , direction = direction
               }
@@ -81,34 +82,9 @@ findDirection keyword list
     | isInfixOf keyword (list !! 1) = filter notEmpty $ tail $ pickEven list
     | otherwise                     = error ("not found")
 
-{-
-Match
-1.20 a.m.
-12.30 p.m.
-12.00 noon
-13.30 p.m.*
-14.30 p.m.*@
-15.30 p.m.#
--}
-regexPattern :: String
-regexPattern = "([0-9]{1,2})[\\.:]([0-9]{1,2}) (a\\.m\\.|p\\.m\\.|noon)"
-
-splitCapture :: String -> [String]
-splitCapture timeString
-    | (length matches) == 1 = head matches
-    | otherwise             = error ("regex error " ++ timeString)
-    where matches = (cleanHTMLEntity timeString =~ regexPattern)
-
-toFerry :: Text -> Ferry NominalDiffTime
-toFerry text =
-    let captures = splitCapture $ unpack text
-    in capturesToFerry captures
-
-capturesToFerry :: [String] -> Ferry NominalDiffTime
-capturesToFerry captures =
-    Ferry { time      = fromInteger $ ((if isAm then hours else hours + 12) * 60 + minutes) * 60
-          , modifiers = mempty
-          }
-    where hours   = read (captures !! 1) `mod` 12
-          minutes = read (captures !! 2)
-          isAm    = (captures !! 3) == "a.m."
+toFerry :: Text -> Maybe (Ferry NominalDiffTime)
+toFerry text = do
+    (diffTime, _) <- parseTimeStr text
+    Just (Ferry { time = diffTime
+                , modifiers = mempty
+                })
