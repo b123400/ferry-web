@@ -20,7 +20,7 @@ $(deriveJSON defaultOptions ''Holiday)
 isHoliday :: HolidayCalendar -> Day -> Bool
 isHoliday holidays day = any (\(Holiday d _)-> d == day) holidays
 
-parseICal :: Monad m => ByteString -> m HolidayCalendar
+parseICal :: (Monad m, MonadFail m) => ByteString -> m HolidayCalendar
 parseICal res =
     case parse ical "" res of
         Left error -> fail $ show error

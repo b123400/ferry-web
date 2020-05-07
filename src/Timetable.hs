@@ -2,17 +2,18 @@
 
 module Timetable where
 
-import Data.Aeson (ToJSON(..), FromJSON(..), (.=), (.:), object, withObject)
+import Data.Aeson (ToJSON(..), FromJSON(..), Value(String), (.=), (.:), object, withObject, withText)
 import Data.Aeson.TH
-import Data.Set (Set)
+import Data.Set (Set, insert, fromList)
 import Data.String (IsString, fromString)
+import Data.Time.Calendar (DayOfWeek(..))
 import Data.Time.Clock (NominalDiffTime)
 import Data.Time.LocalTime (LocalTime(..), ZonedTime(..), TimeZone, hoursToTimeZone)
 import Web.HttpApiData (FromHttpApiData(..), ToHttpApiData(..))
 import Render.Lang (Lang(..), LocalisedShow(..))
 
 data Timetable t = Timetable { ferries :: [Ferry t]
-                             , day :: Day
+                             , days :: Set Day
                              , direction :: Direction
                              } deriving (Eq, Show)
 
@@ -22,7 +23,7 @@ data Ferry t = Ferry { time :: t
 
 data Modifier = FastFerry | SlowFerry | OptionalFerry deriving (Eq, Ord, Show)
 
-data Day = Weekday | Saturday | Sunday | Holiday deriving (Show, Eq)
+data Day = Weekday DayOfWeek | Holiday deriving (Show, Eq)
 
 data Direction = FromPrimary | ToPrimary deriving (Show, Eq)
 
@@ -48,9 +49,29 @@ data Route t = Route { island :: Island
 
 $(deriveJSON defaultOptions ''Modifier)
 $(deriveJSON defaultOptions ''Ferry)
-$(deriveJSON defaultOptions ''Day)
 $(deriveJSON defaultOptions ''Direction)
 $(deriveJSON defaultOptions ''Island)
+
+instance Enum Day where
+    toEnum 99 = Holiday
+    toEnum n = Weekday $ toEnum n
+    fromEnum Holiday = 99
+    fromEnum (Weekday d) = fromEnum d
+
+instance Ord Day where
+    compare d1 d2
+        | d1 == d2 = EQ
+        | otherwise = compare (fromEnum d1) (fromEnum d2)
+
+instance ToJSON Day where
+    toJSON Holiday = "holiday"
+    toJSON (Weekday d) = toJSON d
+
+instance FromJSON Day where
+    parseJSON = withText "Day" $ \t ->
+        case t of
+            "holiday" -> pure Holiday
+            x -> Weekday <$> parseJSON (String x)
 
 instance ToJSON (Timetable LocalTime) where
     toJSON (Timetable ferries _ direction) = object
@@ -61,18 +82,18 @@ instance ToJSON (Timetable LocalTime) where
 
 
 instance ToJSON (Timetable NominalDiffTime) where
-    toJSON (Timetable ferries day direction) = object
+    toJSON (Timetable ferries days direction) = object
         [ "ferries" .= ferries
-        , "day" .= day
+        , "days" .= days
         , "direction" .= direction
         ]
 
 instance FromJSON (Timetable NominalDiffTime) where
     parseJSON = withObject "Timetable" $ \o -> do
         ferries <- o .: "ferries"
-        day <- o .: "day"
+        days <- o .: "days"
         direction <- o .: "direction"
-        pure $ Timetable ferries day direction
+        pure $ Timetable ferries days direction
 
 instance (ToJSON (Timetable t)) => ToJSON (Route t) where
     toJSON (Route island timetables) = object
@@ -227,3 +248,24 @@ handleOverMidnight (p@(Ferry prev _): (Ferry curr t): rest) =
 
 hongkongTimeZone :: TimeZone
 hongkongTimeZone = hoursToTimeZone 8
+
+weekdays :: Set Day
+weekdays = fromList $ Weekday <$>
+    [ Monday
+    , Tuesday
+    , Wednesday
+    , Thursday
+    , Friday
+    ]
+
+weekdaysAndSat :: Set Day
+weekdaysAndSat = insert (Weekday Saturday) weekdays
+
+everyday :: Set Day
+everyday = insert (Weekday Sunday) weekdaysAndSat
+
+sunAndHoliday :: Set Day
+sunAndHoliday = fromList $ [Weekday Sunday, Holiday]
+
+satSunAndHoliday :: Set Day
+satSunAndHoliday = insert (Weekday Saturday) sunAndHoliday

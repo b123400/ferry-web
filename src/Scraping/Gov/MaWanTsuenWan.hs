@@ -26,8 +26,9 @@ fetch = withCache "MaWanTsuenWan" $ do
 timetables :: Cursor -> [Timetable NominalDiffTime]
 timetables cursor = do
     c <- findMaWanTsuenWan cursor
+    direction <- [FromPrimary, ToPrimary]
     ct <- findTimetableCursors c
-    cursorToTimetables ct
+    catMaybes $ return $ findTimetable direction ct
 
 findMaWanTsuenWan :: Cursor -> [Cursor]
 findMaWanTsuenWan cursor = cursor $.// (element "a") >=> attributeIs "name" "o17"
@@ -36,28 +37,22 @@ findTimetableCursors :: Cursor -> [Cursor]
 findTimetableCursors =
     pure . nthMatch 3 (matchName "table") . following
 
-cursorToTimetables :: Cursor -> [Timetable NominalDiffTime]
-cursorToTimetables timeTable = catMaybes $ do
-    day <- [Weekday, Saturday, Sunday, Holiday]
-    direction <- [FromPrimary, ToPrimary]
-    return $ findTimetable day direction timeTable
-
-findTimetable :: Day -> Direction -> Cursor -> Maybe (Timetable NominalDiffTime)
-findTimetable day direction timeTable =
+findTimetable :: Direction -> Cursor -> Maybe (Timetable NominalDiffTime)
+findTimetable direction timeTable =
     let ths = timeTable $// (element "th")
         trs = timeTable $// (element "tr")
         thTexts = flatContent <$> ths
         tdTexts = flatContent <$> (getTDs =<< filter hasTwoTd trs)
-    in Just $ tableToTimetables day direction (thTexts <> tdTexts)
+    in Just $ tableToTimetables direction (thTexts <> tdTexts)
 
 textForDirection :: Direction -> Text
 textForDirection ToPrimary = pack "From Tsuen Wan"
 textForDirection FromPrimary   = pack "From Ma Wan"
 
-tableToTimetables :: Day -> Direction -> [Text] -> Timetable NominalDiffTime
-tableToTimetables day direction body =
+tableToTimetables :: Direction -> [Text] -> Timetable NominalDiffTime
+tableToTimetables direction body =
     Timetable { ferries   = handleOverMidnight $ mapMaybe toFerry $ findDirection (textForDirection direction) body
-              , day       = day
+              , days      = everyday
               , direction = direction
               }
 

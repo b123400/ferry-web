@@ -20,49 +20,17 @@ instance ToHtml (Localised RawTimetable) where
     toHtml (Localised l (RawTimetable (Route island timetables))) = wrapper_ l $ do
         div_ [class_ "island --raw"] $ do
             h1_ (lShow l island)
-
-            if isSatSameAsWeekday
-                then do
-                    div_ [class_ "day"] $ do
-                        h2_ (t L.MondayToSaturday)
-                        forM_ weekdayTimetables $ \t -> do
-                            div_ [class_ "direction"] $ do
-                                rawTimetable_ l t
-                            div_ [class_ "clearfix"] $ pure ()
-                else do
-                    div_ [class_ "day"] $ do
-                        h2_ (t L.MondayToFriday)
-                        forM_ weekdayTimetables $ \t -> do
-                            div_ [class_ "direction"] $ do
-                                rawTimetable_ l t
-                        div_ [class_ "clearfix"] $ pure ()
-                    div_ [class_ "day"] $ do
-                        h2_ (t L.Saturday)
-                        forM_ saturdayTimetables $ \t -> do
-                            div_ [class_ "direction"] $ do
-                                rawTimetable_ l t
-                        div_ [class_ "clearfix"] $ pure ()
-            -- TODO: join Sunday and holiday is possible
-            div_ [class_ "day"] $ do
-                h2_ (t L.Sunday)
-                forM_ sundayTimetables $ \t -> do
+            -- TODO: group by same days but different directions
+            forM_ timetables $ \timetable@(Timetable _ days _) -> do
+                div_ [class_ "day"] $ do
+                    -- TODO: render day set to proper string
+                    h2_ (toHtml $ show days) --(t L.Sunday)
                     div_ [class_ "direction"] $ do
-                        rawTimetable_ l t
-                div_ [class_ "clearfix"] $ pure ()
-            div_ [class_ "day"] $ do
-                h2_ (t L.Holiday)
-                forM_ holidayTimetables $ \t -> do
-                    div_ [class_ "direction"] $ do
-                        rawTimetable_ l t
-                div_ [class_ "clearfix"] $ pure ()
+                        rawTimetable_ l timetable
+                    div_ [class_ "clearfix"] $ pure ()
             div_ [class_ "clearfix"] $ pure ()
 
-        where timetablesOfDay d = filter (\(Timetable _ day _)-> day == d) timetables
-              weekdayTimetables = timetablesOfDay Weekday
-              saturdayTimetables = timetablesOfDay Saturday
-              sundayTimetables = timetablesOfDay Sunday
-              holidayTimetables = timetablesOfDay Holiday
-              isSatSameAsWeekday = weekdayTimetables == saturdayTimetables
+        where
               t = translate l
 
 

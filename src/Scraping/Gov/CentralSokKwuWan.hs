@@ -24,11 +24,15 @@ fetch = withCache "CentralSokKwuWan" $ do
     cursor <- Gov.fetchCursor
     pure $ Route CentralSokKwuWan $ timetables cursor
 
+data Days = MonToSat | SunAndHoliday
+
 timetables :: Cursor -> [Timetable NominalDiffTime]
 timetables cursor = do
     c <- findCentralSokKwuWan cursor
+    days <- [SunAndHoliday, MonToSat]
     ct <- findTimetableCursors c
-    cursorToTimetables ct
+    direction <- [FromPrimary, ToPrimary]
+    catMaybes $ return $ findTimetable days direction ct
 
 findCentralSokKwuWan :: Cursor -> [Cursor]
 findCentralSokKwuWan cursor = cursor $.// (element "a") >=> attributeIs "name" "o05"
@@ -39,39 +43,32 @@ findTimetableCursors = findTableElements . nthMatch 3 (matchName "table") . foll
 findTableElements :: Cursor -> [Cursor]
 findTableElements c = c $// (element "table")
 
-cursorToTimetables :: Cursor -> [Timetable NominalDiffTime]
-cursorToTimetables timeTable = catMaybes $ do
-    day <- [Weekday, Saturday, Sunday, Holiday]
-    direction <- [FromPrimary, ToPrimary]
-    return $ findTimetable day direction timeTable
-
-findTimetable :: Day -> Direction -> Cursor -> Maybe (Timetable NominalDiffTime)
-findTimetable day direction timeTable
-    | not $ hasDay timeTable day = Nothing
+findTimetable :: Days -> Direction -> Cursor -> Maybe (Timetable NominalDiffTime)
+findTimetable days direction timeTable
+    | not $ hasDay timeTable days = Nothing
     | otherwise                  =
         let trs = timeTable $// (element "tr")
-        in Just $ tableToTimetables day direction $ flatContent <$> (getTDs =<< filter hasTwoTd trs)
+        in Just $ tableToTimetables days direction $ flatContent <$> (getTDs =<< filter hasTwoTd trs)
 
-hasDay :: Cursor -> Day -> Bool
-hasDay cursor day = textHasDay day $ flatContent $ head $ cursor $// (element "td")
+hasDay :: Cursor -> Days -> Bool
+hasDay cursor days = textHasDay days $ flatContent $ head $ cursor $// (element "td")
 
-textHasDay :: Day -> Text -> Bool
-textHasDay day text = isInfixOf (pack(
-    case day of
-        Weekday  -> "Mondays"
-        Saturday -> "Saturdays"
-        Sunday   -> "Sundays"
-        Holiday  -> "Sundays"
+textHasDay :: Days -> Text -> Bool
+textHasDay days text = isInfixOf (pack(
+    case days of
+        MonToSat      -> "Mondays"
+        SunAndHoliday -> "Sundays"
     )) text
 
 textForDirection :: Direction -> Text
 textForDirection ToPrimary = pack "From Sok Kwu Wan"
 textForDirection FromPrimary   = pack "From Central"
 
-tableToTimetables :: Day -> Direction -> [Text] -> Timetable NominalDiffTime
-tableToTimetables day direction body =
+tableToTimetables :: Days -> Direction -> [Text] -> Timetable NominalDiffTime
+tableToTimetables days direction body =
     Timetable { ferries   = handleOverMidnight $ mapMaybe toFerry $ findDirection (textForDirection direction) body
-              , day       = day
+              , days      = case days of MonToSat -> weekdaysAndSat
+                                         SunAndHoliday -> sunAndHoliday
               , direction = direction
               }
 

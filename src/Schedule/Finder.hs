@@ -2,7 +2,8 @@ module Schedule.Finder where
 
 import Data.Maybe (fromMaybe)
 import Data.List (find, head, dropWhile)
-import Data.Time.Calendar (Day, addDays)
+import Data.Set (member)
+import Data.Time.Calendar (Day, addDays, dayOfWeek)
 import Data.Time.Calendar.WeekDate (toWeekDate)
 import Data.Time.Clock (NominalDiffTime, addUTCTime)
 import Data.Time.LocalTime (LocalTime(..), TimeZone, timeOfDayToTime, midnight, utcToLocalTime, localTimeToUTC, hoursToTimeZone)
@@ -52,14 +53,10 @@ allFerriesOfDay calendar route = ferriesOfDayAndDirection route . (toTimetableDa
 ferriesOfDayAndDirection :: T.Route t -> T.Day -> T.Direction -> [T.Ferry t]
 ferriesOfDayAndDirection (T.Route _ timetables) day direction =
     fromMaybe [] $ T.ferries <$> find matching timetables
-    where matching (T.Timetable _ day' direction') = day == day' && direction == direction'
+    where matching (T.Timetable _ days direction') = member day days && direction == direction'
 
 
 toTimetableDay :: HolidayCalendar -> Day -> T.Day
 toTimetableDay calendar day
     | isHoliday calendar day = T.Holiday
-    | otherwise =
-        let (_, _, weekday) = toWeekDate day
-        in case weekday of 6 -> T.Saturday
-                           7 -> T.Sunday
-                           _ -> T.Weekday
+    | otherwise              = T.Weekday $ dayOfWeek day

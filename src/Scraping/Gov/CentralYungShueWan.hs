@@ -11,6 +11,7 @@ import Text.XML.Cursor (Cursor, attributeIs, child, element, following,
                         ($.//), ($//), ($/), (>=>))
 import Data.Maybe (catMaybes)
 import Data.Text (Text, pack, unpack, isInfixOf)
+import Data.Time.Calendar (DayOfWeek(Saturday))
 import Data.Time.Clock (NominalDiffTime)
 import Text.Regex.TDFA ((=~))
 import Timetable hiding (timetables)
@@ -24,11 +25,15 @@ fetch = withCache "CentralYungShueWan" $ do
     cursor <- Gov.fetchCursor
     pure $ Route CentralYungShueWan $ timetables cursor
 
+data Days = MonToFri | Sat | SunAndHoliday
+
 timetables :: Cursor -> [Timetable NominalDiffTime]
 timetables cursor = do
     c <- findCentralYungShueWan cursor
+    days <- [SunAndHoliday, Sat, MonToFri]
     ct <- findTimetableCursors c
-    cursorToTimetables ct
+    direction <- [FromPrimary, ToPrimary]
+    catMaybes $ return $ findTimetable days direction ct
 
 findCentralYungShueWan :: Cursor -> [Cursor]
 findCentralYungShueWan cursor = cursor $.// (element "a") >=> attributeIs "name" "o04"
@@ -39,39 +44,34 @@ findTimetableCursors = findTableElements . nthMatch 3 (matchName "table") . foll
 findTableElements :: Cursor -> [Cursor]
 findTableElements c = c $// (element "table")
 
-cursorToTimetables :: Cursor -> [Timetable NominalDiffTime]
-cursorToTimetables timeTable = catMaybes $ do
-    day <- [Weekday, Saturday, Sunday, Holiday]
-    direction <- [FromPrimary, ToPrimary]
-    return $ findTimetable day direction timeTable
-
-findTimetable :: Day -> Direction -> Cursor -> Maybe (Timetable NominalDiffTime)
-findTimetable day direction timeTable
-    | not $ hasDay timeTable day = Nothing
+findTimetable :: Days -> Direction -> Cursor -> Maybe (Timetable NominalDiffTime)
+findTimetable days direction timeTable
+    | not $ hasDay timeTable days = Nothing
     | otherwise                  =
         let trs = timeTable $// (element "tr")
-        in Just $ tableToTimetables day direction $ flatContent <$> (getTDs =<< filter hasTwoTd trs)
+        in Just $ tableToTimetables days direction $ flatContent <$> (getTDs =<< filter hasTwoTd trs)
 
-hasDay :: Cursor -> Day -> Bool
-hasDay cursor day = textHasDay day $ flatContent $ head $ cursor $// (element "td")
+hasDay :: Cursor -> Days -> Bool
+hasDay cursor days = textHasDay days $ flatContent $ head $ cursor $// (element "td")
 
-textHasDay :: Day -> Text -> Bool
-textHasDay day text = isInfixOf (pack(
-    case day of
-        Weekday  -> "Mondays"
-        Saturday -> "Saturdays"
-        Sunday   -> "Sundays"
-        Holiday  -> "Sundays"
+textHasDay :: Days -> Text -> Bool
+textHasDay days text = isInfixOf (pack(
+    case days of
+        MonToFri      -> "Mondays"
+        Sat           -> "Saturdays"
+        SunAndHoliday -> "Sundays"
     )) text
 
 textForDirection :: Direction -> Text
 textForDirection ToPrimary = pack "From Yung Shue Wan"
 textForDirection FromPrimary   = pack "From Central"
 
-tableToTimetables :: Day -> Direction -> [Text] -> Timetable NominalDiffTime
-tableToTimetables day direction body =
-    Timetable { ferries   = handleOverMidnight $ catMaybes $ map (toFerry (isDay day)) $ findDirection (textForDirection direction) body
-              , day       = day
+tableToTimetables :: Days -> Direction -> [Text] -> Timetable NominalDiffTime
+tableToTimetables days direction body =
+    Timetable { ferries   = handleOverMidnight $ catMaybes $ map (toFerry (isDay days)) $ findDirection (textForDirection direction) body
+              , days      = case days of MonToFri -> weekdays
+                                         Sat -> singleton $ Weekday Saturday
+                                         SunAndHoliday -> sunAndHoliday
               , direction = direction
               }
 
@@ -91,8 +91,7 @@ toFerry cond text = do
                         })
        else Nothing
 
-isDay :: Day -> [Char] -> Bool
-isDay Sunday  _           = True
-isDay Holiday _           = True
-isDay Weekday  captures   = not $ elem '@' captures
-isDay Saturday _          = True
+isDay :: Days -> [Char] -> Bool
+isDay SunAndHoliday  _    = True
+isDay MonToFri  captures  = not $ elem '@' captures
+isDay Sat _               = True

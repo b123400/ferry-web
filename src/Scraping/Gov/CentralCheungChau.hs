@@ -4,11 +4,11 @@ module Scraping.Gov.CentralCheungChau
 
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Cache (MonadCache, withCache)
-import Text.XML.Cursor (Cursor, attributeIs, element, following,
-                        ($.//), ($//), (>=>))
+import Text.XML.Cursor (Cursor, attributeIs, element, following, ($.//), ($//), (>=>))
 import Data.ByteString.Lazy (ByteString)
 import Data.Set (singleton)
 import Data.Text (Text, pack, unpack, isInfixOf)
+import Data.Time.Calendar (DayOfWeek(Saturday))
 import Text.Regex.TDFA ((=~))
 import Timetable hiding (timetables)
 import Scraping.Gov.TimeString (parseTimeStr)
@@ -18,16 +18,21 @@ import Data.Time.Clock (NominalDiffTime)
 
 import qualified Scraping.Gov as Gov (fetchCursor)
 
+
 fetch :: (MonadIO m, MonadCache m ByteString, MonadCache m (Route NominalDiffTime)) => m (Route NominalDiffTime)
 fetch = withCache "CentralCheungChau" $ do
     cursor <- Gov.fetchCursor
     pure $ Route CentralCheungChau $ timetables cursor
 
+data Days = MonToFri | Sat | SunAndHoliday deriving (Show)
+
 timetables :: Cursor -> [Timetable NominalDiffTime]
 timetables cursor = do
     c <- findCentralCheungChau cursor
+    days <- [SunAndHoliday, Sat, MonToFri]
     ct <- findTimetableCursors c
-    cursorToTimetables ct
+    direction <- [FromPrimary, ToPrimary]
+    catMaybes $ pure $ findTimetable days direction ct
 
 findCentralCheungChau :: Cursor -> [Cursor]
 findCentralCheungChau cursor = cursor $.// (element "a") >=> attributeIs "name" "o01"
@@ -39,41 +44,36 @@ findTimetableCursors =
 findTableElements :: Cursor -> [Cursor]
 findTableElements c = c $// (element "table")
 
-cursorToTimetables :: Cursor -> [Timetable NominalDiffTime]
-cursorToTimetables timeTable = catMaybes $ do
-    day <- [Weekday, Saturday, Sunday, Holiday]
-    direction <- [FromPrimary, ToPrimary]
-    return $ findTimetable day direction timeTable
-
-findTimetable :: Day -> Direction -> Cursor -> Maybe (Timetable NominalDiffTime)
-findTimetable day direction timeTable
-    | not $ hasDay timeTable day = Nothing
+findTimetable :: Days -> Direction -> Cursor -> Maybe (Timetable NominalDiffTime)
+findTimetable days direction timeTable
+    | not $ hasDay timeTable days = Nothing
     | otherwise =
         let trs = timeTable $// (element "tr")
-        in Just $ tableToTimetables day direction (flatContent <$> (getTDs =<< filter hasTwoTd trs))
+        in Just $ tableToTimetables days direction (flatContent <$> (getTDs =<< filter hasTwoTd trs))
 
-hasDay :: Cursor -> Day -> Bool
-hasDay cursor day =
+hasDay :: Cursor -> Days -> Bool
+hasDay cursor days =
     case cursor $// (element "td") of
-        (x:_) -> textHasDay day $ flatContent x
+        (x:_) -> textHasDay $ flatContent x
         _ -> False
     where
-        textHasDay :: Day -> Text -> Bool
-        textHasDay day text =
-            case day of
-                Weekday          -> isInfixOf (pack "Mondays") text
-                Saturday         -> isInfixOf (pack "Saturdays") text
-                Sunday           -> isInfixOf (pack "Sundays") text
-                Holiday          -> isInfixOf (pack "holidays") text
+        textHasDay :: Text -> Bool
+        textHasDay text =
+            case days of
+                MonToFri      -> isInfixOf (pack "Mondays") text
+                Sat           -> isInfixOf (pack "Saturdays") text
+                SunAndHoliday -> isInfixOf (pack "Sundays") text
 
 textForDirection :: Direction -> Text
 textForDirection ToPrimary = pack "From Cheung Chau"
 textForDirection FromPrimary   = pack "From Central"
 
-tableToTimetables :: Day -> Direction -> [Text] -> Timetable NominalDiffTime
-tableToTimetables day direction body =
-    Timetable { ferries   = handleOverMidnight $ catMaybes $ map (toFerry (isDay day)) $ findDirection (textForDirection direction) body
-              , day       = day
+tableToTimetables :: Days -> Direction -> [Text] -> Timetable NominalDiffTime
+tableToTimetables days direction body =
+    Timetable { ferries   = handleOverMidnight $ catMaybes $ map (toFerry (isDay days)) $ findDirection (textForDirection direction) body
+              , days      = case days of MonToFri -> weekdays
+                                         Sat -> singleton $ Weekday Saturday
+                                         SunAndHoliday -> sunAndHoliday
               , direction = direction
               }
 
@@ -95,8 +95,7 @@ toFerry cond text = do
                            | otherwise = singleton FastFerry
 
 
-isDay :: Day -> [Char] -> Bool
-isDay Sunday  _           = True
-isDay Holiday _           = True
-isDay Weekday  captures   = not $ elem '@' captures
-isDay Saturday captures   = not $ elem '#' captures
+isDay :: Days -> [Char] -> Bool
+isDay SunAndHoliday  _     = True
+isDay MonToFri captures    = not $ elem '@' captures
+isDay Sat captures         = not $ elem '#' captures

@@ -6,7 +6,9 @@ import Control.Monad.Catch (MonadThrow)
 import Data.ByteString.Lazy (ByteString)
 import Data.List (elemIndex)
 import Data.Maybe (catMaybes)
+import Data.Set (singleton)
 import Data.String (IsString)
+import Data.Time.Calendar (DayOfWeek(Friday))
 import Data.Time.Clock (NominalDiffTime)
 import Text.Regex.TDFA ((=~))
 import Text.XML.Cursor (Cursor, attributeIs, check, element, parent, followingSibling, ($.//), ($//), (>=>), (&.//))
@@ -23,28 +25,33 @@ fetch = withCache "SamKaTsuenTungLungIsland" $ do
 
 timetables :: Cursor -> [Timetable NominalDiffTime]
 timetables cursor = do
-    day <- [Weekday, Saturday, Sunday, Holiday]
+    isWeekend <- [True, False]
     direction <- [FromPrimary, ToPrimary]
-    timeForDayAndDirection cursor day direction
+    timeForDayAndDirection cursor isWeekend direction
 
-timeForDayAndDirection :: Cursor -> Day -> Direction -> [Timetable NominalDiffTime]
-timeForDayAndDirection _ Weekday _ = []
-timeForDayAndDirection cursor day direction = do
+timeForDayAndDirection :: Cursor -> Bool -> Direction -> [Timetable NominalDiffTime]
+timeForDayAndDirection cursor isWeekend direction = do
     let allSections = cursor $.// element "div" >=> attributeIs "class" "section-title"
         routeCursors = parent =<< filter ((==) "三家村 ⇋ 東龍島" . flatContent) allSections
-        timetableElement = take 1 $ drop 1 $ routeCursors >>= ($// element "h4" &.// followingSibling &.// element "table")
+        timetableElement = if isWeekend
+            then take 1 $ drop 1 $ routeCursors >>= ($// element "h4" &.// followingSibling &.// element "table")
+            else take 1 $ routeCursors >>= ($// element "h4" &.// followingSibling &.// element "table")
         ths = flatContent <$> (timetableElement >>= ($// element "th"))
         times = flatContent <$> (timetableElement >>= ($// element "td"))
         parsedTime = fmap fst <$> parseTimeStr <$> times
-        thisTimes = case elemIndex (titleForDirection direction) ths of
+        thisTimes = case elemIndex (titleForDirection isWeekend direction) ths of
             Just 0 -> catMaybes $ pickOdd parsedTime
             Just 1 -> catMaybes $ pickEven parsedTime
             _ -> []
         ferries = (\x -> Ferry x mempty) <$> thisTimes
 
-    [Timetable ferries day direction]
+    [Timetable ferries daySet direction]
+
+    where daySet = if isWeekend then satSunAndHoliday else singleton $ Weekday Friday
 
 
-titleForDirection :: IsString s => Direction -> s
-titleForDirection FromPrimary = "由三家村出發"
-titleForDirection ToPrimary = "由東龍島出發"
+titleForDirection :: IsString s => Bool -> Direction -> s
+titleForDirection False FromPrimary = "去程"
+titleForDirection False ToPrimary = "回程"
+titleForDirection True FromPrimary = "由三家村出發"
+titleForDirection True ToPrimary = "由東龍島出發"

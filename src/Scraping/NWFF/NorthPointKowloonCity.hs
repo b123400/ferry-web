@@ -16,7 +16,7 @@ import Text.XML.Cursor (Cursor, fromDocument)
 import Scraping.NWFF.RouteScript (northPointKowloonCity)
 import Scraping.NWFF.TimeString (parseTimeStr)
 import Scraping.Utility
-import Timetable (Day(..), Direction(..), Ferry(..), Modifier(..), Island(..), Timetable(..))
+import Timetable (Day(..), Direction(..), Ferry(..), Modifier(..), Island(..), Timetable(..), weekdays, satSunAndHoliday)
 import qualified Timetable as T (Route(..))
 
 
@@ -33,14 +33,19 @@ fetchTimetables = do
     let cursor = fromDocument $ parseLBS res
     pure $ timetables cursor
 
+data Days = MonToFri | SatSunAndHoliday deriving (Eq)
+
 timetables :: Cursor -> [Timetable NominalDiffTime]
-timetables cur = tableToTimetables =<< findTables cur
+timetables cur = do
+    days <- [SatSunAndHoliday, MonToFri]
+    table <- findTables cur
+    tableToTimetables days table
 
 findTables :: Cursor -> [Cursor]
 findTables cursor = cursor $.// element "table"
 
-tableToTimetables :: Cursor -> [Timetable NominalDiffTime]
-tableToTimetables table =
+tableToTimetables :: Days -> Cursor -> [Timetable NominalDiffTime]
+tableToTimetables days table =
     let ths = table $// (element "th")
         trs = table $// (element "tr")
         tuples = thsToTuple ths : mapMaybe trToTuple trs
@@ -49,9 +54,9 @@ tableToTimetables table =
         listsOfStrings = [firsts, seconds]
     in catMaybes $ do
             listOfStrings <- listsOfStrings
-            day <- [Weekday, Saturday, Sunday, Holiday]
+
             direction <- [FromPrimary, ToPrimary]
-            pure $ findTimetable day direction listOfStrings
+            pure $ findTimetable days direction listOfStrings
     where
         trToTuple :: Cursor -> Maybe (Text, Text)
         trToTuple c = case getTDs c of
@@ -61,16 +66,18 @@ tableToTimetables table =
         -- A default header just in case we cannot find the real direction
         thsToTuple _ = ("North Point -> Kowloon City", "Kowloon City -> North Point")
 
-findTimetable :: Day -> Direction -> [Text] -> Maybe (Timetable NominalDiffTime)
-findTimetable day directionWanted texts =
+findTimetable :: Days -> Direction -> [Text] -> Maybe (Timetable NominalDiffTime)
+findTimetable days directionWanted texts =
     if Just directionWanted == direction
-        then Timetable <$> ferries <*> (pure day) <*> direction
+        then Timetable <$> ferries <*> (pure daySet) <*> direction
         else Nothing
     where
+        daySet = case days of MonToFri -> weekdays
+                              SatSunAndHoliday -> satSunAndHoliday
         (directionStr : timeStrs) = texts
 
         parsedPairs = mapMaybe parseTimeStr timeStrs
-        filteredDay = filter (\(m, _)-> notElem '#' m || day == Weekday) parsedPairs
+        filteredDay = filter (\(m, _)-> notElem '#' m || days == MonToFri) parsedPairs
         toFerry (_, time) = Ferry time mempty
 
         ferries = case (toFerry <$> filteredDay) of

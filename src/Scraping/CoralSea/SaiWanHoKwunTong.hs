@@ -22,12 +22,12 @@ fetch = withCache "SaiWanHoKwunTong" $ do
 
 timetables :: Cursor -> [Timetable NominalDiffTime]
 timetables cursor = do
-    day <- [Weekday, Saturday, Sunday, Holiday]
+    isWeekday <- [False, True]
     direction <- [FromPrimary, ToPrimary]
-    timeForDayAndDirection cursor day direction
+    timeForDayAndDirection cursor isWeekday direction
 
-timeForDayAndDirection :: Cursor -> Day -> Direction -> [Timetable NominalDiffTime]
-timeForDayAndDirection cursor day direction = do
+timeForDayAndDirection :: Cursor -> Bool -> Direction -> [Timetable NominalDiffTime]
+timeForDayAndDirection cursor isWeekday direction = do
     let allSections = cursor $.// element "div" >=> attributeIs "class" "section-title"
         routeCursors = parent =<< filter ((==) "西灣河 ⇋ 觀塘" . flatContent) allSections
         timetableElement = take 1 $ routeCursors >>= ($// element "h4"
@@ -38,9 +38,11 @@ timeForDayAndDirection cursor day direction = do
         parsedTime = map fst $ filter isToday $ mapMaybe parseTimeStr times
         ferries = (\x -> Ferry x mempty) <$> parsedTime
 
-    [Timetable ferries day direction]
+    [Timetable ferries daySet direction]
 
-    where isToday (_, weekDayOnly) = day == Weekday || not weekDayOnly
+    where
+        isToday (_, weekDayOnly) = isWeekday || not weekDayOnly
+        daySet = if isWeekday then weekdays else satSunAndHoliday
 
 
 titleForDirection :: IsString s => Direction -> s

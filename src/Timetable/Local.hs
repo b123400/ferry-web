@@ -16,6 +16,7 @@ import Timetable.Raw (allIslandsRaw, islandRaw)
 
 allIslandsAtTime
     :: ( MonadIO m
+       , MonadFail m
        , MonadCache m ByteString
        , MonadCache m (Map String String)
        , MonadCache m (Route NominalDiffTime)
@@ -29,17 +30,18 @@ allIslandsAtTime time = do
     for routes $ \route@(Route island timetable)-> do
         pure $ Route island
             [ Timetable { ferries = ferriesForRouteAtTime calendar route time ToPrimary
-                        , day = Weekday -- Useless
+                        , days = mempty -- Useless
                         , direction = ToPrimary
                         }
             , Timetable { ferries = ferriesForRouteAtTime calendar route time FromPrimary
-                        , day = Weekday -- Useless
+                        , days = mempty -- Useless
                         , direction = FromPrimary
                         }
             ]
 
 islandAtTime
     :: ( MonadIO m
+       , MonadFail m
        , MonadCache m ByteString
        , MonadCache m (Map String String)
        , MonadCache m (Route NominalDiffTime)
@@ -52,11 +54,11 @@ islandAtTime island time = do
     calendar <- holidayCalendar
     pure $ Route island
         [ Timetable { ferries = ferriesForRouteAtTime calendar route time ToPrimary
-                    , day = Weekday -- Useless
+                    , days = mempty -- Useless
                     , direction = ToPrimary
                     }
         , Timetable { ferries = ferriesForRouteAtTime calendar route time FromPrimary
-                    , day = Weekday -- Useless
+                    , days = mempty -- Useless
                     , direction = FromPrimary
                     }
         ]

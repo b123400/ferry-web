@@ -5,7 +5,7 @@ import Data.Time.Clock (NominalDiffTime)
 import Text.Parsec (ParsecT, Stream, char, digit, many, parse, (<|>))
 import Text.Parsec.Combinator (count)
 
-parseTimeStr :: Monad m => Text -> m (String, NominalDiffTime)
+parseTimeStr :: (Monad m, MonadFail m) => Text -> m (String, NominalDiffTime)
 parseTimeStr res =
     case parse timeStr "" res of
         Left error -> fail $ show error

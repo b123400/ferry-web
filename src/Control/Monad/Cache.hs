@@ -78,6 +78,9 @@ instance MonadCatch m => MonadCatch (Dyn m) where
 instance MonadIO m => MonadIO (Dyn m) where
     liftIO io = Dyn $ liftIO io
 
+instance MonadFail m => MonadFail (Dyn m) where
+    fail = Dyn . fail
+
 instance MonadTrans Dyn where
     lift = Dyn
 
@@ -111,6 +114,9 @@ instance MonadCatch m => MonadCatch (Local m) where
 
 instance MonadIO m => MonadIO (Local m) where
     liftIO io = Local $ liftIO io
+
+instance MonadFail m => MonadFail (Local m) where
+    fail = Local . fail
 
 instance MonadTrans Local where
     lift = Local

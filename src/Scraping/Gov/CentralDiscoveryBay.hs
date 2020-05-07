@@ -7,7 +7,9 @@ import Control.Monad.Cache (MonadCache, withCache)
 import Text.XML.Cursor (Cursor, attributeIs, element, following,
                         ($.//), ($//), (>=>))
 import Data.ByteString.Lazy (ByteString)
+import Data.Set (singleton)
 import Data.Text (Text, pack, unpack, isInfixOf)
+import Data.Time.Calendar (DayOfWeek(Saturday, Sunday))
 import Text.Regex.TDFA ((=~))
 import Timetable hiding (timetables)
 import Scraping.Gov.TimeString (parseTimeStr)
@@ -22,11 +24,15 @@ fetch = withCache "CentralDiscoveryBay" $ do
     cursor <- Gov.fetchCursor
     pure $ Route CentralDiscoveryBay $ timetables cursor
 
+data Days = MonToFri | Sat | Sun | Holidays
+
 timetables :: Cursor -> [Timetable NominalDiffTime]
 timetables cursor = do
     c <- findCentralDiscoveryBay cursor
+    days <- [Sun, Holidays, Sat, MonToFri]
     ct <- findTimetableCursors c
-    cursorToTimetables ct
+    direction <- [FromPrimary, ToPrimary]
+    catMaybes $ return $ findTimetable days direction ct
 
 findCentralDiscoveryBay :: Cursor -> [Cursor]
 findCentralDiscoveryBay cursor = cursor $.// (element "a") >=> attributeIs "name" "o11"
@@ -38,41 +44,38 @@ findTimetableCursors =
 findTableElements :: Cursor -> [Cursor]
 findTableElements c = c $// (element "table")
 
-cursorToTimetables :: Cursor -> [Timetable NominalDiffTime]
-cursorToTimetables timeTable = catMaybes $ do
-    day <- [Weekday, Saturday, Sunday, Holiday]
-    direction <- [FromPrimary, ToPrimary]
-    return $ findTimetable day direction timeTable
-
-findTimetable :: Day -> Direction -> Cursor -> Maybe (Timetable NominalDiffTime)
-findTimetable day direction timeTable
-    | not $ hasDay timeTable day = Nothing
+findTimetable :: Days -> Direction -> Cursor -> Maybe (Timetable NominalDiffTime)
+findTimetable days direction timeTable
+    | not $ hasDay timeTable days = Nothing
     | otherwise =
         let trs = timeTable $// (element "tr")
-        in Just $ tableToTimetables day direction (flatContent <$> (getTDs =<< filter hasTwoTd trs))
+        in Just $ tableToTimetables days direction (flatContent <$> (getTDs =<< filter hasTwoTd trs))
 
-hasDay :: Cursor -> Day -> Bool
-hasDay cursor day =
+hasDay :: Cursor -> Days -> Bool
+hasDay cursor days =
     case cursor $// (element "td") of
-        (x:_) -> textHasDay day $ flatContent x
+        (x:_) -> textHasDay $ flatContent x
         _ -> False
     where
-        textHasDay :: Day -> Text -> Bool
-        textHasDay day text =
-            case day of
-                Weekday          -> isInfixOf (pack "Mondays") text
-                Saturday         -> isInfixOf (pack "Saturdays") text
-                Sunday           -> isInfixOf (pack "Sundays") text
-                Holiday          -> isInfixOf (pack "Sundays") text
+        textHasDay :: Text -> Bool
+        textHasDay text =
+            case days of
+                MonToFri    -> isInfixOf (pack "Mondays") text
+                Sat         -> isInfixOf (pack "Saturdays") text
+                Sun         -> isInfixOf (pack "Sundays") text
+                Holidays    -> isInfixOf (pack "Sundays") text
 
 textForDirection :: Direction -> Text
 textForDirection ToPrimary = pack "From Discovery Bay"
 textForDirection FromPrimary   = pack "From Central"
 
-tableToTimetables :: Day -> Direction -> [Text] -> Timetable NominalDiffTime
-tableToTimetables day direction body =
-    Timetable { ferries   = handleOverMidnight $ catMaybes $ map (toFerry (isDay day)) $ findDirection (textForDirection direction) body
-              , day       = day
+tableToTimetables :: Days -> Direction -> [Text] -> Timetable NominalDiffTime
+tableToTimetables days direction body =
+    Timetable { ferries   = handleOverMidnight $ catMaybes $ map (toFerry (isDay days)) $ findDirection (textForDirection direction) body
+              , days      = case days of MonToFri -> weekdays
+                                         Sat -> singleton $ Weekday Saturday
+                                         Sun -> singleton $ Weekday Sunday
+                                         Holidays  -> singleton $ Holiday
               , direction = direction
               }
 
@@ -94,8 +97,8 @@ toFerry cond text = do
 -- isViaDisneyland  = elem '*' mods
 -- The sailing will operate via Disneyland Resort Pier (Due to repair work in progress, the stopping point at Disneyland Resort Pier is temporary suspended.)
 
-isDay :: Day -> [Char] -> Bool
-isDay Sunday  _           = True
-isDay Holiday captures    = not $ elem '#' captures
-isDay Weekday _           = True
-isDay Saturday _          = True
+isDay :: Days -> [Char] -> Bool
+isDay Sun  _            = True
+isDay Holidays captures = not $ elem '#' captures
+isDay MonToFri _        = True
+isDay Sat _             = True
