@@ -27,6 +27,7 @@ library
                      , Render.Page.Detail
                      , Render.Page.RawTimetable
                      , Render.Lang
+                     , Render.DaysName
                      , Schedule.Calendar
                      , Schedule.Finder
                      , Control.Monad.Cache

@@ -53,9 +53,10 @@ $(deriveJSON defaultOptions ''Direction)
 $(deriveJSON defaultOptions ''Island)
 
 instance Enum Day where
-    toEnum 99 = Holiday
-    toEnum n = Weekday $ toEnum n
-    fromEnum Holiday = 99
+    toEnum 8 = Holiday
+    toEnum n | n >= 1 && n <= 7 = Weekday $ toEnum n
+    toEnum _ = error "Not supported day"
+    fromEnum Holiday = 8
     fromEnum (Weekday d) = fromEnum d
 
 instance Ord Day where

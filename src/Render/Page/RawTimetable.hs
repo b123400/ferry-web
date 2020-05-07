@@ -7,6 +7,7 @@ import Data.Aeson (ToJSON(..))
 import Data.Time.Clock (NominalDiffTime)
 import Render.Lang as L (Localised(..), translate, lShow)
 import qualified Render.Lang as L
+import Render.DaysName (showDays)
 import Render.Template.Wrapper (wrapper_)
 import Render.Template.RawTimetable (rawTimetable_)
 import Timetable (Route(..), Timetable(..), Day(..))
@@ -23,8 +24,7 @@ instance ToHtml (Localised RawTimetable) where
             -- TODO: group by same days but different directions
             forM_ timetables $ \timetable@(Timetable _ days _) -> do
                 div_ [class_ "day"] $ do
-                    -- TODO: render day set to proper string
-                    h2_ (toHtml $ show days) --(t L.Sunday)
+                    h2_ (toHtml $ showDays l days)
                     div_ [class_ "direction"] $ do
                         rawTimetable_ l timetable
                     div_ [class_ "clearfix"] $ pure ()
