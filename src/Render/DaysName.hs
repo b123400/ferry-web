@@ -4,7 +4,7 @@ import Data.Time.Calendar (DayOfWeek(..))
 import Data.List (last, intercalate)
 import Data.Set (Set, toAscList)
 import Timetable (Day(..))
-import Render.Lang (Lang(..))
+import Render.Lang (Lang(..), lShow)
 
 -- Turn days into groups
 -- e.g. [Mon, Tue, Wed, Sun] -> [Right (Mon, Wed), Left Sun]
@@ -30,21 +30,10 @@ nameGroups = fmap toEither . ascListToGroups . toAscList
 showDays :: Lang -> Set Day -> String
 showDays lang = tGroups lang . nameGroups
     where
-        tDay En (Weekday x) = show x
-        tDay En Holiday = "Holiday"
-        tDay Hk (Weekday Monday) = "星期一"
-        tDay Hk (Weekday Tuesday) = "星期二"
-        tDay Hk (Weekday Wednesday) = "星期三"
-        tDay Hk (Weekday Thursday) = "星期四"
-        tDay Hk (Weekday Friday) = "星期五"
-        tDay Hk (Weekday Saturday) = "星期六"
-        tDay Hk (Weekday Sunday) = "星期日"
-        tDay Hk Holiday = "公眾假期"
+        tPeriod En (d1, d2) = (lShow En d1) <> " to " <> (lShow En d2)
+        tPeriod Hk (d1, d2) = (lShow Hk d1) <> " 至 " <> (lShow Hk d2)
 
-        tPeriod En (d1, d2) = (tDay En d1) <> " to " <> (tDay En d2)
-        tPeriod Hk (d1, d2) = (tDay Hk d1) <> " 至 " <> (tDay Hk d2)
-
-        tGroup l (Left d) = tDay l d
+        tGroup l (Left d) = lShow l d
         tGroup l (Right dd) = tPeriod l dd
 
         tGroups l [] = ""

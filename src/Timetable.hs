@@ -11,6 +11,7 @@ import Data.Time.Clock (NominalDiffTime)
 import Data.Time.LocalTime (LocalTime(..), ZonedTime(..), TimeZone, hoursToTimeZone)
 import Web.HttpApiData (FromHttpApiData(..), ToHttpApiData(..))
 import Render.Lang (Lang(..), LocalisedShow(..))
+import qualified Data.Map.Strict as M
 
 data Timetable t = Timetable { ferries :: [Ferry t]
                              , days :: Set Day
@@ -227,6 +228,19 @@ instance LocalisedShow Direction where
     lShow Hk FromPrimary = "去程"
     lShow Hk ToPrimary = "回程"
 
+instance LocalisedShow Day where
+    lShow En (Weekday x) = fromString $ show x
+    lShow En Holiday = "Holiday"
+    lShow Hk (Weekday Monday) = "星期一"
+    lShow Hk (Weekday Tuesday) = "星期二"
+    lShow Hk (Weekday Wednesday) = "星期三"
+    lShow Hk (Weekday Thursday) = "星期四"
+    lShow Hk (Weekday Friday) = "星期五"
+    lShow Hk (Weekday Saturday) = "星期六"
+    lShow Hk (Weekday Sunday) = "星期日"
+    lShow Hk Holiday = "公眾假期"
+
+
 limit :: Int -> Route t -> Route t
 limit count (Route island timetables) = (Route island $ limit' <$> timetables)
     where
@@ -270,3 +284,7 @@ sunAndHoliday = fromList $ [Weekday Sunday, Holiday]
 
 satSunAndHoliday :: Set Day
 satSunAndHoliday = insert (Weekday Saturday) sunAndHoliday
+
+groupByDays :: [Timetable t] -> [(Set Day, [Timetable t])]
+groupByDays = M.toList . foldl f mempty
+    where f m timetable@(Timetable _ days _) = M.insertWith (<>) days [timetable] m

@@ -10,7 +10,7 @@ import qualified Render.Lang as L
 import Render.DaysName (showDays)
 import Render.Template.Wrapper (wrapper_)
 import Render.Template.RawTimetable (rawTimetable_)
-import Timetable (Route(..), Timetable(..), Day(..))
+import Timetable (Route(..), Timetable(..), Day(..), groupByDays)
 
 data RawTimetable = RawTimetable
     { route :: Route NominalDiffTime
@@ -21,17 +21,18 @@ instance ToHtml (Localised RawTimetable) where
     toHtml (Localised l (RawTimetable (Route island timetables))) = wrapper_ l $ do
         div_ [class_ "island --raw"] $ do
             h1_ (lShow l island)
-            -- TODO: group by same days but different directions
-            forM_ timetables $ \timetable@(Timetable _ days _) -> do
+            forM_ timetableGroups $ \(days, tables)->
                 div_ [class_ "day"] $ do
                     h2_ (toHtml $ showDays l days)
-                    div_ [class_ "direction"] $ do
-                        rawTimetable_ l timetable
+                    forM_ tables $ \table@(Timetable _ days _) -> do
+                        div_ [class_ "direction"] $ do
+                            rawTimetable_ l table
                     div_ [class_ "clearfix"] $ pure ()
             div_ [class_ "clearfix"] $ pure ()
 
         where
               t = translate l
+              timetableGroups = groupByDays timetables
 
 
 instance ToJSON (Localised RawTimetable) where
