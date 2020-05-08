@@ -8,7 +8,6 @@ import Data.ByteString.Lazy (ByteString)
 import Data.Maybe (catMaybes, mapMaybe)
 import Data.Text (Text, pack, unpack, isInfixOf)
 import Data.Time.Clock (NominalDiffTime)
-import Text.Regex.TDFA ((=~))
 import Text.XML.Cursor (Cursor, attributeIs, check, element, following,
                         ($.//), ($//), (>=>))
 import Scraping.Gov.TimeString (parseTimeStr)

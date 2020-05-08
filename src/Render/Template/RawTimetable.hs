@@ -19,6 +19,8 @@ rawTimetable_ l (Timetable ferries day direction) = do
     where
         timeToDaysAndTimeOfDay :: NominalDiffTime -> TimeOfDay
         timeToDaysAndTimeOfDay dt = let
+            -- This is not exactly correct because it ignores leap seconds,
+            -- see the different between NominalDiffTime and DiffTime
             s = realToFrac dt
             (m,ms) = divMod' s 60
             (h,hm) = divMod' m 60

@@ -9,7 +9,6 @@ import Data.Maybe (catMaybes, mapMaybe)
 import Data.Set (singleton)
 import Data.Text (Text, pack, unpack, isInfixOf)
 import Data.Time.Clock (NominalDiffTime)
-import Text.Regex.TDFA ((=~))
 import Text.XML.Cursor (Cursor, attributeIs, element, following,
                         ($.//), ($//), (>=>))
 import Scraping.Gov.TimeString (parseTimeStr)

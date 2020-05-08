@@ -13,7 +13,6 @@ import Data.Maybe (catMaybes)
 import Data.Text (Text, pack, unpack, isInfixOf)
 import Data.Time.Calendar (DayOfWeek(Saturday))
 import Data.Time.Clock (NominalDiffTime)
-import Text.Regex.TDFA ((=~))
 import Timetable hiding (timetables)
 import Scraping.Gov.TimeString (parseTimeStr)
 import Scraping.Utility

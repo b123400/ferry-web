@@ -18,6 +18,7 @@ timeStr = (,) <$> many modifier <*> time
 modifier :: Stream s m Char => ParsecT s u m Char
 modifier = char '#'
        <|> char '*'
+       <|> char '^'
 
 time :: Stream s m Char => ParsecT s u m NominalDiffTime
 time = do

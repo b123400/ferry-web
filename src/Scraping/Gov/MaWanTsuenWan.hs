@@ -9,7 +9,6 @@ import Text.XML.Cursor (Cursor, attributeIs, element, following,
 import Data.ByteString.Lazy (ByteString)
 import Data.Maybe (mapMaybe)
 import Data.Text (Text, pack, unpack, isInfixOf)
-import Text.Regex.TDFA ((=~))
 import Timetable hiding (timetables)
 import Scraping.Gov.TimeString (parseTimeStr)
 import Scraping.Utility

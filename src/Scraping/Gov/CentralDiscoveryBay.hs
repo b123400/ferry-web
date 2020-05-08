@@ -10,7 +10,6 @@ import Data.ByteString.Lazy (ByteString)
 import Data.Set (singleton)
 import Data.Text (Text, pack, unpack, isInfixOf)
 import Data.Time.Calendar (DayOfWeek(Saturday, Sunday))
-import Text.Regex.TDFA ((=~))
 import Timetable hiding (timetables)
 import Scraping.Gov.TimeString (parseTimeStr)
 import Scraping.Utility

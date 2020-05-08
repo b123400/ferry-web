@@ -8,7 +8,6 @@ import Data.ByteString.Lazy (ByteString)
 import Data.Set (singleton)
 import Data.Text (Text, pack, unpack, isInfixOf)
 import Data.Time.Calendar (DayOfWeek(Saturday))
-import Text.Regex.TDFA ((=~))
 import Data.Time.Clock (NominalDiffTime)
 import Data.Maybe (catMaybes, mapMaybe)
 import Text.XML.Cursor (Cursor, attributeIs, element, following,

@@ -11,7 +11,6 @@ import Text.XML.Cursor (Cursor, attributeIs, element, following,
 import Data.Maybe (catMaybes, mapMaybe)
 import Data.Text (Text, pack, unpack, isInfixOf)
 import Data.Time.Clock (NominalDiffTime)
-import Text.Regex.TDFA ((=~))
 import Timetable hiding (timetables)
 import Scraping.Gov.TimeString (parseTimeStr)
 import Scraping.Utility
