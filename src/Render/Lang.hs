@@ -17,7 +17,7 @@ instance FromHttpApiData Lang where
     parseUrlPiece "en" = Right En
     parseUrlPiece "hk" = Right Hk
     parseUrlPiece _ = Left "Not supported"
-    parseHeader = Right . fromMaybe En . mapAcceptLanguage
+    parseHeader = Right . fromMaybe Hk . mapAcceptLanguage
           [ ("en", En)
           , ("yue-HK", Hk)
           , ("zh-HK", Hk)
@@ -33,7 +33,7 @@ instance FromHttpApiData [SetCookie] where
             rightOnly _ = Nothing
 
 withLang :: (Lang -> a) -> Maybe Lang -> Maybe [SetCookie] -> a
-withLang fn mLang cookie = fn (fromMaybe En $ mCookieLang <|> mLang)
+withLang fn mLang cookie = fn (fromMaybe Hk $ mCookieLang <|> mLang)
     where mCookieLang = (readMaybe . unpack) =<< (setCookieValue <$> (find ((==) "lang" . setCookieName) $ fromMaybe [] cookie))
 
 translate :: IsString s => Lang -> Syllabus -> s
@@ -53,6 +53,7 @@ data Syllabus
     | Submit
     | RawTimetable
     | DataSource
+    | Wiki
     -- Raw timetable page
     | MondayToSaturday
     | MondayToFriday
@@ -72,6 +73,7 @@ en Saturday = "Saturday"
 en Sunday = "Sunday"
 en Holiday = "Holiday"
 en DataSource = "Data source"
+en Wiki = "EFHK"
 
 hk :: IsString s => Syllabus -> s
 hk Now = "現在"
@@ -85,3 +87,4 @@ hk Saturday = "星期六"
 hk Sunday = "星期日"
 hk Holiday = "假期"
 hk DataSource = "資料來源"
+hk Wiki = "香港渡輪大典"

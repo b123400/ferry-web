@@ -11,7 +11,7 @@ import Data.Time.LocalTime (LocalTime)
 import Render.Lang (Localised(..), Syllabus(..), translate, lShow)
 import Render.Template.Wrapper (wrapper_)
 import Render.Template.Timetable (timetable_)
-import Timetable (Route(..), dataSource)
+import Timetable (Route(..), dataSource, wikiLink)
 import Timetable.Local (addDiff)
 import Web.HttpApiData (toUrlPiece)
 
@@ -54,6 +54,8 @@ instance ToHtml (Localised Detail) where
             a_ [href_ $ "/" <> toUrlPiece island <> "/raw"] (t RawTimetable)
             br_ []
             a_ [href_ $ dataSource island, target_ "_blank", rel_ "noopener"] (t DataSource)
+            br_ []
+            a_ [href_ $ wikiLink island, target_ "_blank", rel_ "noopener"] (t Wiki)
 
         where withDiffs = addDiff now <$> route
               (Route island timetables) = withDiffs
