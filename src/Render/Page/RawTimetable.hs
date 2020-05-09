@@ -19,17 +19,16 @@ data RawTimetable = RawTimetable
 instance ToHtml (Localised RawTimetable) where
     toHtmlRaw = toHtml
     toHtml (Localised l (RawTimetable (Route island timetables))) = wrapper_ l $ do
+        a_ [class_ "back", href_ ("/" <> toUrlPiece island)] "↩︎"
         div_ [class_ "island --raw"] $ do
             h1_ (lShow l island)
-            forM_ timetableGroups $ \(days, tables)->
-                div_ [class_ "day"] $ do
-                    h2_ (toHtml $ showDays l days)
-                    forM_ tables $ \table@(Timetable _ days _) -> do
-                        div_ [class_ "direction"] $ do
-                            rawTimetable_ l table
-                    div_ [class_ "clearfix"] $ pure ()
-            div_ [class_ "clearfix"] $ pure ()
-
+            div_ [class_ "days"] $ do
+                forM_ timetableGroups $ \(days, tables)->
+                    div_ [class_ "day"] $ do
+                        h2_ (toHtml $ showDays l days)
+                        forM_ tables $ \table@(Timetable _ days _) -> do
+                            div_ [class_ "direction"] $ do
+                                rawTimetable_ l table
         where
               t = translate l
               timetableGroups = groupByDays timetables

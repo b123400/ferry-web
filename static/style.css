@@ -3,16 +3,26 @@ body {
     margin: 0 auto;
     font-family: -apple-system, Helvetica, sans-serif;
     padding-top: 50px;
+    display: flex;
+    flex-wrap: wrap;
 }
 .lang {
     position: absolute;
     right: 50px;
     top: 50px;
 }
+.back {
+    position: absolute;
+}
+.island-link {
+    flex-basis: 350px;
+    text-decoration: none;
+}
 .island {
     margin-bottom: 60px;
     padding-left: 2%;
     box-sizing: border-box;
+    margin-right: 30px;
 }
 .island.--detail {
     max-width: none;
@@ -27,7 +37,7 @@ a .island {
 }
 a .island:hover {
     outline: solid black 1px;
-    outline-offset: -5px;
+    outline-offset: 10px;
 }
 h1 {
     font-weight: 200;
@@ -42,10 +52,13 @@ ol {
     padding-left: 10px;
     margin-left: 10px;
 }
+.directions {
+    display: flex;
+    flex-wrap: wrap;
+}
 .island.--detail .direction {
     width: 50%;
     min-width: 250px;
-    float: left;
 }
 .island.--raw .direction {
     float: left;
@@ -56,8 +69,11 @@ ol {
     content: 'More...';
     font-size: 80%;
 }
+.days {
+    display: flex;
+    flex-wrap: wrap;
+}
 .day {
-    float: left;
     min-width: 300px;
     width: 33%;
 }
@@ -77,29 +93,31 @@ ol {
     display: none;
 }
 .timeslot {
-    padding: 5px 10px;
+    padding: 5px 0px;
     position: relative;
 }
 time {
+    font-family: -apple-system, sans-serif, monospace;
+    font-variant-numeric: tabular-nums;
     font-size: 2em;
 }
 .fast-ferry {
     background: red;
-    height: 70%;
+    height: 38px;
     width: 5px;
-    display: block;
-    position: absolute;
-    top: 15%;
-    left: 0;
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 6px;
 }
 .slow-ferry {
     background: green;
-    height: 70%;
+    height: 38px;
     width: 5px;
-    display: block;
-    position: absolute;
-    top: 15%;
-    left: 0;
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 6px;
 }
 .reminder {
     color: gray;
@@ -114,15 +132,6 @@ time {
 }
 .clearfix {
     clear: both;
-}
-@media (min-width: 700px) {
-    .island.--main {
-        float: left;
-        width: 50%;
-        max-width: 350px;
-        min-width: 250px;
-    }
-
 }
 @media (max-width: 500px) {
     .sidebar {

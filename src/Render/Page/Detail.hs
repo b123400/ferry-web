@@ -11,7 +11,7 @@ import Data.Time.LocalTime (LocalTime)
 import Render.Lang (Localised(..), Syllabus(..), translate, lShow)
 import Render.Template.Wrapper (wrapper_)
 import Render.Template.Timetable (timetable_)
-import Timetable (Route(..))
+import Timetable (Route(..), dataSource)
 import Timetable.Local (addDiff)
 import Web.HttpApiData (toUrlPiece)
 
@@ -25,12 +25,13 @@ data Detail = Detail
 instance ToHtml (Localised Detail) where
     toHtmlRaw = toHtml
     toHtml (Localised l (Detail now route date count)) = wrapper_ l $ do
+        a_ [class_ "back", href_ "/"] "↩︎"
         div_ [class_ "island --detail"] $ do
             h1_ (lShow l island)
-            forM_ timetables $ \t -> do
-                div_ [class_ "direction"] $ do
-                    timetable_ l t
-            div_ [class_ "clearfix"] $ pure ()
+            div_ [class_ "directions"] $ do
+                forM_ timetables $ \t -> do
+                    div_ [class_ "direction"] $ do
+                        timetable_ l t
         div_ [class_ "sidebar"] $ do
             a_ [href_ $ "/" <> toUrlPiece island] (t Now)
             br_ []
@@ -51,6 +52,8 @@ instance ToHtml (Localised Detail) where
             br_ []
             br_ []
             a_ [href_ $ "/" <> toUrlPiece island <> "/raw"] (t RawTimetable)
+            br_ []
+            a_ [href_ $ dataSource island, target_ "_blank", rel_ "noopener"] (t DataSource)
 
         where withDiffs = addDiff now <$> route
               (Route island timetables) = withDiffs

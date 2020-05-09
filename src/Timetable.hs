@@ -288,3 +288,19 @@ satSunAndHoliday = insert (Weekday Saturday) sunAndHoliday
 groupByDays :: [Timetable t] -> [(Set Day, [Timetable t])]
 groupByDays = M.toList . foldl f mempty
     where f m timetable@(Timetable _ days _) = M.insertWith (<>) days [timetable] m
+
+dataSource :: IsString s => Island -> s
+dataSource CentralCheungChau = "https://www.td.gov.hk/en/transport_in_hong_kong/public_transport/ferries/service_details/index.html#o01"
+dataSource CentralMuiWo = "https://www.td.gov.hk/en/transport_in_hong_kong/public_transport/ferries/service_details/index.html#o02"
+dataSource CentralPengChau = "https://www.td.gov.hk/en/transport_in_hong_kong/public_transport/ferries/service_details/index.html#o03"
+dataSource CentralYungShueWan = "https://www.td.gov.hk/en/transport_in_hong_kong/public_transport/ferries/service_details/index.html#o04"
+dataSource CentralSokKwuWan = "https://www.td.gov.hk/en/transport_in_hong_kong/public_transport/ferries/service_details/index.html#o05"
+dataSource NorthPointHungHom = "http://www.nwff.com.hk/route/get_route.php?id=1c87d6ed-4ace-464c-b24e-4db2b83ce902&route_id=5"
+dataSource NorthPointKowloonCity  = "http://www.nwff.com.hk/route/get_route.php?id=6662173e-a9ee-489b-aa36-8ce56dec0a6b&route_id=6&submenu_num=3"
+dataSource PengChauHeiLingChau = "https://www.td.gov.hk/en/transport_in_hong_kong/public_transport/ferries/service_details/index.html#o03"
+dataSource AberdeenSokKwuWan = "https://www.td.gov.hk/en/transport_in_hong_kong/public_transport/ferries/service_details/index.html#o10"
+dataSource CentralDiscoveryBay = "https://www.td.gov.hk/en/transport_in_hong_kong/public_transport/ferries/service_details/index.html#o11"
+dataSource MaWanTsuenWan = "https://www.td.gov.hk/en/transport_in_hong_kong/public_transport/ferries/service_details/index.html#o17"
+dataSource SaiWanHoKwunTong = "https://www.coralseaferryservice.com.hk/timetable"
+dataSource SaiWanHoSamKaTsuen = "https://www.coralseaferryservice.com.hk/timetable"
+dataSource SamKaTsuenTungLungIsland = "https://www.coralseaferryservice.com.hk/timetable"

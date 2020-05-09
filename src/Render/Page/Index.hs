@@ -22,9 +22,8 @@ instance ToHtml (Localised Index) where
     toHtmlRaw = toHtml
     toHtml (Localised l (Index now routes)) = wrapper_ l $ do
         forM_ withDiffs $ \route@(Route island _) -> do
-            a_ [href_ $ toUrlPiece island] $ do
+            a_ [class_ "island-link", href_ $ toUrlPiece island] $ do
                 route_ l route
-        div_ [class_ "clearfix"] $ pure ()
         where withDiffs = fmap (addDiff now) <$> routes
 
 instance ToJSON (Localised Index) where

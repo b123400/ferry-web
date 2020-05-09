@@ -16,4 +16,3 @@ route_ l (Route island timetables) =
         forM_ timetables $ \t -> do
             div_ [class_ "direction"] $ do
                 timetable_ l t
-        div_ [class_ "clearfix"] $ pure ()

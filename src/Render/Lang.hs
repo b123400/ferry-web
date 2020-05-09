@@ -52,6 +52,7 @@ data Syllabus
     | ItemsPerPage
     | Submit
     | RawTimetable
+    | DataSource
     -- Raw timetable page
     | MondayToSaturday
     | MondayToFriday
@@ -70,6 +71,7 @@ en MondayToFriday = "Monday - Friday"
 en Saturday = "Saturday"
 en Sunday = "Sunday"
 en Holiday = "Holiday"
+en DataSource = "Data source"
 
 hk :: IsString s => Syllabus -> s
 hk Now = "現在"
@@ -82,3 +84,4 @@ hk MondayToFriday = "星期一至五"
 hk Saturday = "星期六"
 hk Sunday = "星期日"
 hk Holiday = "假期"
+hk DataSource = "資料來源"
