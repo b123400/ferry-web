@@ -13,7 +13,9 @@ import Data.Dynamic (Dynamic, fromDynamic, toDyn)
 import Data.Text.Lazy.Encoding (decodeUtf8, encodeUtf8)
 import Data.Time.Clock (getCurrentTime, diffUTCTime)
 import Data.Typeable (Typeable)
+import System.FilePath ((</>))
 import System.Directory (getModificationTime)
+import System.Environment (lookupEnv)
 
 class Monad m => MonadCache m a where
     readCache :: String -> m (Maybe a)
@@ -122,11 +124,12 @@ instance MonadTrans Local where
     lift = Local
 
 instance (MonadIO m, MonadCatch m, MonadCache m a, Serialisable a) => MonadCache (Local m) a where
-    readCache filePath = do
-        v <- handleAll (const $ pure Nothing) readLocalCache
+    readCache filename = do
+        filePath <- liftIO $ localCachePath filename
+        v <- handleAll (const $ pure Nothing) (readLocalCache filePath)
         maybe (readAndSaveParent filePath) (pure . Just) v
         where
-            readLocalCache = do
+            readLocalCache filePath = do
                 lastModified <- liftIO $ getModificationTime filePath
                 now <- liftIO $ getCurrentTime
                 if diffUTCTime now lastModified > 60*60*24*7
@@ -136,9 +139,18 @@ instance (MonadIO m, MonadCatch m, MonadCache m a, Serialisable a) => MonadCache
                         case eitherDecode c of
                             Left a -> pure Nothing
                             Right a -> pure $ Just a
-    writeCache filePath val = do
+    writeCache filename val = do
+        filePath <- liftIO $ localCachePath filename
         liftIO $ encodeFile filePath val
         lift $ writeCache filePath val
+
+-- TODO: make it configurable
+localCachePath :: FilePath -> IO FilePath
+localCachePath filename = do
+    dir <- lookupEnv "DATA_DIR"
+    case dir of
+        Nothing -> pure filename
+        Just d -> pure $ d </> filename
 
 instance ToJSON ByteString where
     toJSON = toJSON . decodeUtf8

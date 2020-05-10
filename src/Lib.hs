@@ -29,6 +29,7 @@ import Render.Html (HTMLLucid)
 import Render.Page.Index (Index(..))
 import Render.Page.Detail (Detail(..))
 import Render.Page.RawTimetable (RawTimetable(..))
+import System.Environment (lookupEnv)
 import Web.Cookie (SetCookie, defaultSetCookie, setCookieName, setCookieValue, setCookieExpires, setCookiePath)
 
 import Debug.Trace
@@ -45,7 +46,8 @@ type API = "static" :> Raw
 startApp :: IO ()
 startApp = do
     c <- newCache $ Just $ TimeSpec (60*60*3) 0 -- 3 hours
-    run 8080 (app c)
+    port <- read <$> fromMaybe "8080" <$> lookupEnv "PORT"
+    run port (app c)
 
 app :: Cache String Dynamic -> Application
 app c = serve api (server c)

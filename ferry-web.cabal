@@ -82,6 +82,7 @@ library
                      , http-api-data
                      , utf8-string
                      , cookie
+                     , filepath
   default-language:    Haskell2010
   default-extensions: TemplateHaskell
                     , OverloadedStrings
