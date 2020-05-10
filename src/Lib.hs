@@ -95,7 +95,7 @@ setLanguage lang from = do
             , setCookieExpires = Just $ addUTCTime (60*60*24*365) now
             , setCookiePath = Just "/"
             })
-    throwError $ err301 { errHeaders =
+    throwError $ err303 { errHeaders =
         [("Location", fromString $ fromMaybe "/" from)
         ,("Set-Cookie", cookieString)
         ] }
