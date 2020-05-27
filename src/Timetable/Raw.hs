@@ -8,7 +8,7 @@ import Data.Map.Strict as Map (Map)
 import Data.Time.Clock (NominalDiffTime)
 
 import Timetable (Route, Island(..))
-import qualified Scraping.Gov.CentralCheungChau
+import qualified Scraping.GovData.CentralCheungChau
 import qualified Scraping.Gov.CentralMuiWo
 import qualified Scraping.Gov.CentralPengChau
 import qualified Scraping.Gov.CentralSokKwuWan
@@ -58,7 +58,7 @@ islandRaw
        , MonadCache m (Map String String)
        )
     => Island-> m (Route NominalDiffTime)
-islandRaw CentralCheungChau = Scraping.Gov.CentralCheungChau.fetch
+islandRaw CentralCheungChau = Scraping.GovData.CentralCheungChau.fetch
 islandRaw CentralMuiWo = Scraping.Gov.CentralMuiWo.fetch
 islandRaw CentralPengChau = Scraping.Gov.CentralPengChau.fetch
 islandRaw CentralSokKwuWan = Scraping.Gov.CentralSokKwuWan.fetch

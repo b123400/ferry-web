@@ -49,6 +49,7 @@ library
                      , Scraping.Gov.AberdeenSokKwuWan
                      , Scraping.Gov.CentralDiscoveryBay
                      , Scraping.Gov.MaWanTsuenWan
+                     , Scraping.GovData.CentralCheungChau
                      , Scraping.NWFF.RouteScript
                      , Scraping.NWFF.NorthPointHungHom
                      , Scraping.NWFF.NorthPointKowloonCity
@@ -83,6 +84,7 @@ library
                      , utf8-string
                      , cookie
                      , filepath
+                     , cassava
   default-language:    Haskell2010
   default-extensions: TemplateHaskell
                     , OverloadedStrings

@@ -22,7 +22,7 @@ data Ferry t = Ferry { time :: t
                      , modifiers :: Set Modifier
                      } deriving (Eq, Show)
 
-data Modifier = FastFerry | SlowFerry | OptionalFerry deriving (Eq, Ord, Show)
+data Modifier = FastFerry | SlowFerry | OptionalFerry | Freight deriving (Eq, Ord, Show)
 
 data Day = Weekday DayOfWeek | Holiday deriving (Show, Eq)
 

@@ -119,6 +119,9 @@ time {
     vertical-align: top;
     margin-right: 6px;
 }
+.freight {
+    display: none;
+}
 .reminder {
     color: gray;
     margin-left: 40px;
