@@ -15,7 +15,7 @@ import qualified Scraping.Gov.CentralSokKwuWan
 import qualified Scraping.Gov.CentralYungShueWan
 import qualified Scraping.Gov.PengChauHeiLingChau
 import qualified Scraping.Gov.AberdeenSokKwuWan
-import qualified Scraping.Gov.CentralDiscoveryBay
+import qualified Scraping.GovData.CentralDiscoveryBay
 import qualified Scraping.Gov.MaWanTsuenWan
 import qualified Scraping.NWFF.NorthPointHungHom
 import qualified Scraping.NWFF.NorthPointKowloonCity
@@ -67,7 +67,7 @@ islandRaw NorthPointHungHom = Scraping.NWFF.NorthPointHungHom.fetch
 islandRaw NorthPointKowloonCity = Scraping.NWFF.NorthPointKowloonCity.fetch
 islandRaw PengChauHeiLingChau = Scraping.Gov.PengChauHeiLingChau.fetch
 islandRaw AberdeenSokKwuWan = Scraping.Gov.AberdeenSokKwuWan.fetch
-islandRaw CentralDiscoveryBay = Scraping.Gov.CentralDiscoveryBay.fetch
+islandRaw CentralDiscoveryBay = Scraping.GovData.CentralDiscoveryBay.fetch
 islandRaw MaWanTsuenWan = Scraping.Gov.MaWanTsuenWan.fetch
 islandRaw SaiWanHoKwunTong = Scraping.CoralSea.SaiWanHoKwunTong.fetch
 islandRaw SaiWanHoSamKaTsuen = Scraping.CoralSea.SaiWanHoSamKaTsuen.fetch

@@ -20,6 +20,12 @@ time = do
     hour <- read <$> many1 digit
     char ':' <|> char '.'
     minute <- read <$> many1 digit
+
+    -- handle case like 12:00:00, we don't care the seconds
+    optional $ do
+        char ':'
+        many1 digit
+
     spaces
     ampm <- period
     let extraHour = case ampm of

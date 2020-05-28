@@ -51,6 +51,7 @@ library
                      , Scraping.Gov.MaWanTsuenWan
                      , Scraping.GovData.Csv
                      , Scraping.GovData.CentralCheungChau
+                     , Scraping.GovData.CentralDiscoveryBay
                      , Scraping.GovData.TimeString
                      , Scraping.NWFF.RouteScript
                      , Scraping.NWFF.NorthPointHungHom
