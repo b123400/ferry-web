@@ -9,7 +9,7 @@ import Data.Time.Clock (NominalDiffTime)
 
 import Timetable (Route, Island(..))
 import qualified Scraping.GovData.CentralCheungChau
-import qualified Scraping.Gov.CentralMuiWo
+import qualified Scraping.GovData.CentralMuiWo
 import qualified Scraping.Gov.CentralPengChau
 import qualified Scraping.Gov.CentralSokKwuWan
 import qualified Scraping.Gov.CentralYungShueWan
@@ -59,7 +59,7 @@ islandRaw
        )
     => Island-> m (Route NominalDiffTime)
 islandRaw CentralCheungChau = Scraping.GovData.CentralCheungChau.fetch
-islandRaw CentralMuiWo = Scraping.Gov.CentralMuiWo.fetch
+islandRaw CentralMuiWo = Scraping.GovData.CentralMuiWo.fetch
 islandRaw CentralPengChau = Scraping.Gov.CentralPengChau.fetch
 islandRaw CentralSokKwuWan = Scraping.Gov.CentralSokKwuWan.fetch
 islandRaw CentralYungShueWan = Scraping.Gov.CentralYungShueWan.fetch

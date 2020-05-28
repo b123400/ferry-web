@@ -84,7 +84,7 @@ detail cache lang island mcount mday = liftIO $ do
     pure $ Localised lang $ Detail localNow (limit count route) queriedDay count
 
 rawDetail :: Cache String Dynamic -> Lang -> Island -> Handler (Localised RawTimetable)
-rawDetail c lang island = liftIO $ Localised lang <$> RawTimetable <$> (flip evalStateT c $ runDyn $ runLocal $ islandRaw island)
+rawDetail c lang island = liftIO $ Localised lang <$> RawTimetable <$> (islandRaw island)
 
 setLanguage :: Lang -> Maybe String -> Handler NoContent
 setLanguage lang from = do
