@@ -4,7 +4,9 @@ import Control.Applicative ((<|>))
 import Control.Newtype (Newtype, pack, unpack)
 import Data.Bifunctor (first, second)
 import Data.ByteString.Lazy (ByteString)
-import Data.Csv (decode, decodeByName, FromRecord(..), FromNamedRecord(..), FromField(..), HasHeader(..))
+import qualified Data.ByteString as B
+import Data.Csv (decode, decodeByName, decodeWithP, defaultDecodeOptions, FromRecord(..), FromNamedRecord(..), FromField(..), HasHeader(..), Parser)
+import Data.Maybe (catMaybes)
 import Data.Set (Set, isSubsetOf, empty, insert)
 import Data.Time.Clock (NominalDiffTime)
 import GHC.Exts (toList)
@@ -12,8 +14,11 @@ import GHC.Exts (toList)
 import Timetable hiding (timetables)
 import Scraping.GovData.TimeString (parseTimeStr)
 
-parseCsv :: forall e ed di da t r. (e ~ (Entry di da t r), NT di da t r ed)=> ByteString -> Either String [Timetable NominalDiffTime]
+parseCsv :: forall e ed di da t r. (e ~ (Entry di da t r), NT di da t r ed, FromNamedRecord e)=> ByteString -> Either String [Timetable NominalDiffTime]
 parseCsv bs = toTimetables @e @ed <$> (parseWithHeader @e @ed bs <|> parse @e @ed bs)
+
+parseCsv' :: forall e ed di da t r i. (e ~ (Entry di da t r), NT di da t r ed, FromRecord i)=> (i -> Parser Bool) -> ByteString -> Either String [Timetable NominalDiffTime]
+parseCsv' cond bs = toTimetables @e @ed <$> parse' @e @ed cond bs
 
 data Entry di da t r = Entry
     { _direction :: di
@@ -34,7 +39,6 @@ type NT di da t r ed =
     , NTRemark r
     , EnumDays ed
     , FromRecord (Entry di da t r)
-    , FromNamedRecord (Entry di da t r)
     )
 
 class EnumDays a where
@@ -76,8 +80,22 @@ toFerry e@(Entry _ _ t r) =
 patchDaySetByRemark :: forall e ed di da t r. (e ~ (Entry di da t r), NT di da t r ed)=> e -> Entry di da t r
 patchDaySetByRemark e@(Entry direction' _ time' r) = Entry direction' (pack $ fst $ (unpack r) $ emptyRemark e) time' r
 
-parseWithHeader :: forall e ed di da t r. (e ~ (Entry di da t r), NT di da t r ed)=> ByteString -> Either String [Entry di da t r]
+parseWithHeader :: forall e ed di da t r. (e ~ (Entry di da t r), NT di da t r ed, FromNamedRecord e)=> ByteString -> Either String [Entry di da t r]
 parseWithHeader bs = (toList . snd) <$> decodeByName bs
 
 parse :: forall e ed di da t r. (e ~ (Entry di da t r), NT di da t r ed)=> ByteString -> Either String [e]
 parse bs = toList <$> decode HasHeader bs
+
+parse' :: forall e ed di da t r i. (e ~ (Entry di da t r), NT di da t r ed, FromRecord i)=> (i -> Parser Bool) -> ByteString -> Either String [e]
+parse' cond bs = catMaybes <$> toList <$> decodeWithP decodeFn defaultDecodeOptions HasHeader bs
+    where
+        decodeFn record = do
+            i <- parseRecord record
+            isOk <- cond i
+            if isOk
+            then Just <$> parseRecord record
+            else pure Nothing
+
+tryFirstAsDirection :: forall (d :: *). (FromField d)=> [B.ByteString] -> Parser Bool
+tryFirstAsDirection (bs: _) = (True <$ parseField @d bs) <|> (pure False)
+tryFirstAsDirection _ = pure False

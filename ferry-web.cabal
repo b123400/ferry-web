@@ -53,6 +53,8 @@ library
                      , Scraping.GovData.CentralCheungChau
                      , Scraping.GovData.CentralDiscoveryBay
                      , Scraping.GovData.TimeString
+                     , Scraping.GovData.CentralMuiWo
+                     , Scraping.GovData.CentralPengChau
                      , Scraping.NWFF.RouteScript
                      , Scraping.NWFF.NorthPointHungHom
                      , Scraping.NWFF.NorthPointKowloonCity
