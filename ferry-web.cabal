@@ -56,6 +56,7 @@ library
                      , Scraping.GovData.CentralMuiWo
                      , Scraping.GovData.CentralPengChau
                      , Scraping.GovData.CentralSokKwuWan
+                     , Scraping.GovData.CentralYungShueWan
                      , Scraping.NWFF.RouteScript
                      , Scraping.NWFF.NorthPointHungHom
                      , Scraping.NWFF.NorthPointKowloonCity
