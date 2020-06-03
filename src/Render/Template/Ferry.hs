@@ -63,11 +63,13 @@ ferry_ lang (Ferry time modifiers) = do
             FastFerry -> "fast-ferry"
             SlowFerry -> "slow-ferry"
             OptionalFerry -> "optional-ferry"
+            Freight -> "freight"
 
         ferryAlt modifier = case modifier of
             FastFerry -> "Fast Ferry"
             SlowFerry -> "Slow Ferry"
             OptionalFerry -> "Optional Ferry"
+            Freight -> "Freight service is allowed"
 
         timeString (TimeOfDay hours minutes _) =
             (twoDigits hours) <> ":" <> (twoDigits minutes)

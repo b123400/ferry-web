@@ -49,6 +49,16 @@ library
                      , Scraping.Gov.AberdeenSokKwuWan
                      , Scraping.Gov.CentralDiscoveryBay
                      , Scraping.Gov.MaWanTsuenWan
+                     , Scraping.GovData.Csv
+                     , Scraping.GovData.CentralCheungChau
+                     , Scraping.GovData.CentralDiscoveryBay
+                     , Scraping.GovData.TimeString
+                     , Scraping.GovData.CentralMuiWo
+                     , Scraping.GovData.CentralPengChau
+                     , Scraping.GovData.CentralSokKwuWan
+                     , Scraping.GovData.CentralYungShueWan
+                     , Scraping.GovData.PengChauHeiLingChau
+                     , Scraping.GovData.MaWanTsuenWan
                      , Scraping.NWFF.RouteScript
                      , Scraping.NWFF.NorthPointHungHom
                      , Scraping.NWFF.NorthPointKowloonCity
@@ -83,6 +93,7 @@ library
                      , utf8-string
                      , cookie
                      , filepath
+                     , cassava
   default-language:    Haskell2010
   default-extensions: TemplateHaskell
                     , OverloadedStrings
@@ -98,6 +109,8 @@ library
                     , UndecidableInstances
                     , ConstraintKinds
                     , RankNTypes
+                    , TypeFamilies
+                    , TypeApplications
 
 executable ferry-web-exe
   hs-source-dirs:      app

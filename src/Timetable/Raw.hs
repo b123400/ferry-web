@@ -8,15 +8,15 @@ import Data.Map.Strict as Map (Map)
 import Data.Time.Clock (NominalDiffTime)
 
 import Timetable (Route, Island(..))
-import qualified Scraping.Gov.CentralCheungChau
-import qualified Scraping.Gov.CentralMuiWo
-import qualified Scraping.Gov.CentralPengChau
-import qualified Scraping.Gov.CentralSokKwuWan
-import qualified Scraping.Gov.CentralYungShueWan
-import qualified Scraping.Gov.PengChauHeiLingChau
+import qualified Scraping.GovData.CentralCheungChau
+import qualified Scraping.GovData.CentralMuiWo
+import qualified Scraping.GovData.CentralPengChau
+import qualified Scraping.GovData.CentralSokKwuWan
+import qualified Scraping.GovData.CentralYungShueWan
+import qualified Scraping.GovData.PengChauHeiLingChau
 import qualified Scraping.Gov.AberdeenSokKwuWan
-import qualified Scraping.Gov.CentralDiscoveryBay
-import qualified Scraping.Gov.MaWanTsuenWan
+import qualified Scraping.GovData.CentralDiscoveryBay
+import qualified Scraping.GovData.MaWanTsuenWan
 import qualified Scraping.NWFF.NorthPointHungHom
 import qualified Scraping.NWFF.NorthPointKowloonCity
 import qualified Scraping.CoralSea.SaiWanHoKwunTong
@@ -58,17 +58,17 @@ islandRaw
        , MonadCache m (Map String String)
        )
     => Island-> m (Route NominalDiffTime)
-islandRaw CentralCheungChau = Scraping.Gov.CentralCheungChau.fetch
-islandRaw CentralMuiWo = Scraping.Gov.CentralMuiWo.fetch
-islandRaw CentralPengChau = Scraping.Gov.CentralPengChau.fetch
-islandRaw CentralSokKwuWan = Scraping.Gov.CentralSokKwuWan.fetch
-islandRaw CentralYungShueWan = Scraping.Gov.CentralYungShueWan.fetch
+islandRaw CentralCheungChau = Scraping.GovData.CentralCheungChau.fetch
+islandRaw CentralMuiWo = Scraping.GovData.CentralMuiWo.fetch
+islandRaw CentralPengChau = Scraping.GovData.CentralPengChau.fetch
+islandRaw CentralSokKwuWan = Scraping.GovData.CentralSokKwuWan.fetch
+islandRaw CentralYungShueWan = Scraping.GovData.CentralYungShueWan.fetch
 islandRaw NorthPointHungHom = Scraping.NWFF.NorthPointHungHom.fetch
 islandRaw NorthPointKowloonCity = Scraping.NWFF.NorthPointKowloonCity.fetch
-islandRaw PengChauHeiLingChau = Scraping.Gov.PengChauHeiLingChau.fetch
+islandRaw PengChauHeiLingChau = Scraping.GovData.PengChauHeiLingChau.fetch
 islandRaw AberdeenSokKwuWan = Scraping.Gov.AberdeenSokKwuWan.fetch
-islandRaw CentralDiscoveryBay = Scraping.Gov.CentralDiscoveryBay.fetch
-islandRaw MaWanTsuenWan = Scraping.Gov.MaWanTsuenWan.fetch
+islandRaw CentralDiscoveryBay = Scraping.GovData.CentralDiscoveryBay.fetch
+islandRaw MaWanTsuenWan = Scraping.GovData.MaWanTsuenWan.fetch
 islandRaw SaiWanHoKwunTong = Scraping.CoralSea.SaiWanHoKwunTong.fetch
 islandRaw SaiWanHoSamKaTsuen = Scraping.CoralSea.SaiWanHoSamKaTsuen.fetch
 islandRaw SamKaTsuenTungLungIsland = Scraping.CoralSea.SamKaTsuenTungLungIsland.fetch
