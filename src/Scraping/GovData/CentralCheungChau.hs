@@ -5,7 +5,6 @@ module Scraping.GovData.CentralCheungChau
 import Control.Monad (mzero)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Cache (MonadCache, withCache)
-import Control.Newtype (Newtype)
 import Data.ByteString.Lazy (ByteString, fromStrict)
 import Data.Csv (FromRecord(..), FromNamedRecord(..), FromField(..), (.:), (.!))
 import Data.Set (Set, singleton, intersection)
@@ -44,14 +43,9 @@ instance EnumDays EnumDays' where
 newtype Direction' = Direction' Direction
 newtype Days' = Days' (Set Day) deriving (Show)
 newtype Time' = Time' NominalDiffTime
-newtype Remark' = Remark' ((Set Day, Set Modifier) -> (Set Day, Set Modifier))
+newtype Remark' = Remark' Remark
 
 type Entry' = Entry Direction' Days' Time' Remark'
-
-instance Newtype Direction' Direction
-instance Newtype Days' (Set Day)
-instance Newtype Time' NominalDiffTime
-instance Newtype Remark' ((Set Day, Set Modifier) -> (Set Day, Set Modifier))
 
 instance FromRecord Entry' where
     parseRecord v

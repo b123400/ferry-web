@@ -90,7 +90,6 @@ library
                      , cookie
                      , filepath
                      , cassava
-                     , newtype
   default-language:    Haskell2010
   default-extensions: TemplateHaskell
                     , OverloadedStrings

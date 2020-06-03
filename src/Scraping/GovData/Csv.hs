@@ -1,10 +1,10 @@
 module Scraping.GovData.Csv where
 
 import Control.Applicative ((<|>))
-import Control.Newtype (Newtype, pack, unpack)
 import Data.Bifunctor (first, second)
 import Data.ByteString.Lazy (ByteString)
 import qualified Data.ByteString as B
+import Data.Coerce (Coercible, coerce)
 import Data.Csv (decode, decodeByName, decodeWithP, defaultDecodeOptions, FromRecord(..), FromNamedRecord(..), FromField(..), HasHeader(..), Parser)
 import Data.Maybe (catMaybes)
 import Data.Set (Set, isSubsetOf, empty, insert)
@@ -27,16 +27,17 @@ data Entry di da t r = Entry
     , _remark :: r
     }
 
-type NTDirection di = Newtype di Direction
-type NTDays da = Newtype da (Set Day)
-type NTTime t = Newtype t NominalDiffTime
-type NTRemark r = Newtype r ((Set Day, Set Modifier) -> (Set Day, Set Modifier))
+type CDirection di = Coercible di Direction
+type CDays da = Coercible da (Set Day)
+type CTime t = Coercible t NominalDiffTime
+type CRemark r = Coercible r Remark
+type Remark = ((Set Day, Set Modifier) -> (Set Day, Set Modifier))
 
 type NT di da t r ed =
-    ( NTDirection di
-    , NTDays da
-    , NTTime t
-    , NTRemark r
+    ( CDirection di
+    , CDays da
+    , CTime t
+    , CRemark r
     , EnumDays ed
     , FromRecord (Entry di da t r)
     )
@@ -45,8 +46,8 @@ class EnumDays a where
     enumerated :: [a]
     toDaySet :: a -> Set Day
 
-emptyRemark :: (NTDays da)=> Entry di da t r -> (Set Day, Set Modifier)
-emptyRemark (Entry _ d _ _) = (unpack d, empty)
+emptyRemark :: (CDays da)=> Entry di da t r -> (Set Day, Set Modifier)
+emptyRemark (Entry _ d _ _) = (coerce d, empty)
 
 addModifier :: Modifier -> (Set Day, Set Modifier) -> (Set Day, Set Modifier)
 addModifier = second . insert
@@ -67,7 +68,7 @@ toTimetables entries = do
         findEntries :: Direction -> ed -> [Entry di da t r]
         findEntries direction days = filter (match direction days) remarkedEntries
 
-        match direction days (Entry direction' days' _ _) = direction == (unpack direction') && (matchDays days (unpack days'))
+        match direction days (Entry direction' days' _ _) = direction == (coerce direction') && (matchDays days (coerce days'))
 
         matchDays :: ed -> Set Day -> Bool
         matchDays days days' = (toDaySet days) `isSubsetOf` days'
@@ -75,10 +76,10 @@ toTimetables entries = do
 
 toFerry :: forall e ed di da t r. (e ~ (Entry di da t r), NT di da t r ed)=> e -> Ferry NominalDiffTime
 toFerry e@(Entry _ _ t r) =
-    Ferry (unpack t) (snd $ (unpack r) $ emptyRemark e)
+    Ferry (coerce t) (snd $ (coerce r :: Remark) $ emptyRemark e)
 
 patchDaySetByRemark :: forall e ed di da t r. (e ~ (Entry di da t r), NT di da t r ed)=> e -> Entry di da t r
-patchDaySetByRemark e@(Entry direction' _ time' r) = Entry direction' (pack $ fst $ (unpack r) $ emptyRemark e) time' r
+patchDaySetByRemark e@(Entry direction' _ time' r) = Entry direction' (coerce $ fst $ (coerce r :: Remark) $ emptyRemark e) time' r
 
 parseWithHeader :: forall e ed di da t r. (e ~ (Entry di da t r), NT di da t r ed, FromNamedRecord e)=> ByteString -> Either String [Entry di da t r]
 parseWithHeader bs = (toList . snd) <$> decodeByName bs
