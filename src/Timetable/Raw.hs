@@ -11,9 +11,9 @@ import Timetable (Route, Island(..))
 import qualified Scraping.GovData.CentralCheungChau
 import qualified Scraping.GovData.CentralMuiWo
 import qualified Scraping.GovData.CentralPengChau
-import qualified Scraping.Gov.PengChauHeiLingChau
 import qualified Scraping.GovData.CentralSokKwuWan
 import qualified Scraping.GovData.CentralYungShueWan
+import qualified Scraping.GovData.PengChauHeiLingChau
 import qualified Scraping.Gov.AberdeenSokKwuWan
 import qualified Scraping.GovData.CentralDiscoveryBay
 import qualified Scraping.GovData.MaWanTsuenWan
@@ -65,7 +65,7 @@ islandRaw CentralSokKwuWan = Scraping.GovData.CentralSokKwuWan.fetch
 islandRaw CentralYungShueWan = Scraping.GovData.CentralYungShueWan.fetch
 islandRaw NorthPointHungHom = Scraping.NWFF.NorthPointHungHom.fetch
 islandRaw NorthPointKowloonCity = Scraping.NWFF.NorthPointKowloonCity.fetch
-islandRaw PengChauHeiLingChau = Scraping.Gov.PengChauHeiLingChau.fetch
+islandRaw PengChauHeiLingChau = Scraping.GovData.PengChauHeiLingChau.fetch
 islandRaw AberdeenSokKwuWan = Scraping.Gov.AberdeenSokKwuWan.fetch
 islandRaw CentralDiscoveryBay = Scraping.GovData.CentralDiscoveryBay.fetch
 islandRaw MaWanTsuenWan = Scraping.GovData.MaWanTsuenWan.fetch
