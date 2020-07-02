@@ -15,7 +15,7 @@ import Data.Maybe (fromMaybe)
 import Data.String (fromString)
 import Data.Text (Text)
 import Data.Time.Calendar (addDays)
-import Data.Time.Clock (getCurrentTime, addUTCTime)
+import Data.Time.Clock (NominalDiffTime, getCurrentTime, addUTCTime)
 import Data.Time.LocalTime (LocalTime(..), TimeZone, utcToLocalTime, hoursToTimeZone, midnight)
 import Network.Wai
 import Network.Wai.Handler.Warp
@@ -23,7 +23,7 @@ import Servant
 import System.Clock (TimeSpec(..))
 import Timetable (Island, Route, limit, takeUntil, hongkongTimeZone)
 import Timetable.Local (allIslandsAtTime, islandAtTime)
-import Timetable.Raw (islandRaw)
+import Timetable.Raw (islandRaw, allIslandsRaw)
 import Render.Lang (Localised(..), Lang, withLang)
 import Render.Html (HTMLLucid)
 import Render.Page.Index (Index(..))
@@ -40,6 +40,7 @@ type API = "static" :> Raw
       :<|> WithLang (Capture "island" Island :> QueryParam "count" Int :> QueryParam "date" Text :> Get '[JSON, HTMLLucid] (Localised Detail))
       :<|> WithLang (Capture "island" Island :> "raw" :> Get '[JSON, HTMLLucid] (Localised RawTimetable))
       :<|> "lang" :> Capture "lang" Lang :> Header "Referer" String :> Get '[HTMLLucid] NoContent
+      :<|> "raws" :> Get '[JSON] [Route NominalDiffTime]
       :<|> WithLang (QueryParam "count" Int :> Get '[JSON, HTMLLucid] (Localised Index))
 
 
@@ -60,6 +61,7 @@ server c = (serveDirectoryWebApp "static")
       :<|> (withLang $ detail c)
       :<|> (withLang $ rawDetail c)
       :<|> setLanguage
+      :<|> raws c
       :<|> (withLang $ index c)
 
 index :: Cache String Dynamic -> Lang -> Maybe Int -> Handler (Localised Index)
@@ -84,7 +86,7 @@ detail cache lang island mcount mday = liftIO $ do
     pure $ Localised lang $ Detail localNow (limit count route) queriedDay count
 
 rawDetail :: Cache String Dynamic -> Lang -> Island -> Handler (Localised RawTimetable)
-rawDetail c lang island = liftIO $ Localised lang <$> RawTimetable <$> (islandRaw island)
+rawDetail c lang island = liftIO $ Localised lang <$> RawTimetable <$> (flip evalStateT c $ runDyn $ runLocal $ islandRaw island)
 
 setLanguage :: Lang -> Maybe String -> Handler NoContent
 setLanguage lang from = do
@@ -99,3 +101,7 @@ setLanguage lang from = do
         [("Location", fromString $ fromMaybe "/" from)
         ,("Set-Cookie", cookieString)
         ] }
+
+raws :: Cache String Dynamic -> Handler [Route NominalDiffTime]
+raws cache =
+    liftIO $ flip evalStateT cache $ runDyn $ runLocal allIslandsRaw
