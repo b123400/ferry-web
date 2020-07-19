@@ -220,13 +220,13 @@ secondaryName Hk i =
         SamKaTsuenTungLungIsland -> "東龍洲"
 
 instance LocalisedShow Island where
-    lShow lang i = fromString $ (fromString $ primaryName lang i) <> " - " <> (fromString $ secondaryName lang i)
+    lShow lang i = fromString $ (fromString $ primaryName lang i) <> " ↔︎ " <> (fromString $ secondaryName lang i)
 
 instance LocalisedShow Direction where
-    lShow En FromPrimary = "To"
-    lShow En ToPrimary = "From"
-    lShow Hk FromPrimary = "去程"
-    lShow Hk ToPrimary = "回程"
+    lShow En FromPrimary = "→ To"
+    lShow En ToPrimary = "← From"
+    lShow Hk FromPrimary = "→ 去程"
+    lShow Hk ToPrimary = "← 回程"
 
 instance LocalisedShow Day where
     lShow En (Weekday x) = fromString $ show x
