@@ -19,6 +19,8 @@ import Data.Time.Clock (NominalDiffTime, getCurrentTime, addUTCTime)
 import Data.Time.LocalTime (LocalTime(..), TimeZone, utcToLocalTime, hoursToTimeZone, midnight)
 import Network.Wai
 import Network.Wai.Handler.Warp
+import Schedule.Calendar (HolidayCalendar)
+import Scraping.Calendar (holidayCalendar)
 import Servant
 import System.Clock (TimeSpec(..))
 import Timetable (Island, Route, limit, takeUntil, hongkongTimeZone)
@@ -41,6 +43,7 @@ type API = "static" :> Raw
       :<|> WithLang (Capture "island" Island :> "raw" :> Get '[JSON, HTMLLucid] (Localised RawTimetable))
       :<|> "lang" :> Capture "lang" Lang :> Header "Referer" String :> Get '[HTMLLucid] NoContent
       :<|> "raws" :> Get '[JSON] [Route NominalDiffTime]
+      :<|> "holidays" :> Get '[JSON] HolidayCalendar
       :<|> WithLang (QueryParam "count" Int :> Get '[JSON, HTMLLucid] (Localised Index))
 
 
@@ -62,6 +65,7 @@ server c = (serveDirectoryWebApp "static")
       :<|> (withLang $ rawDetail c)
       :<|> setLanguage
       :<|> raws c
+      :<|> holidays c
       :<|> (withLang $ index c)
 
 index :: Cache String Dynamic -> Lang -> Maybe Int -> Handler (Localised Index)
@@ -105,3 +109,7 @@ setLanguage lang from = do
 raws :: Cache String Dynamic -> Handler [Route NominalDiffTime]
 raws cache =
     liftIO $ flip evalStateT cache $ runDyn $ runLocal allIslandsRaw
+
+holidays :: Cache String Dynamic -> Handler HolidayCalendar
+holidays cache =
+    liftIO $ flip evalStateT cache $ runDyn $ runLocal holidayCalendar

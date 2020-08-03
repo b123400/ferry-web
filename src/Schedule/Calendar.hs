@@ -12,7 +12,10 @@ import Text.Parsec.Combinator
 type HolidayCalendar = [Holiday]
 
 data EventEntry = Date Integer Int Int | Summary String | Other deriving (Show)
-data Holiday = Holiday Day String deriving (Show)
+data Holiday = Holiday
+    { day :: Day
+    , name :: String
+    } deriving (Show)
 
 $(deriveJSON defaultOptions ''EventEntry)
 $(deriveJSON defaultOptions ''Holiday)
