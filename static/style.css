@@ -137,6 +137,12 @@ time {
 .clearfix {
     clear: both;
 }
+.footer {
+    flex-basis: 100%;
+    margin-bottom: 30px;
+    font-size: 0.8em;
+    text-align: center;
+}
 @media (max-width: 500px) {
     .sidebar {
         position: relative;

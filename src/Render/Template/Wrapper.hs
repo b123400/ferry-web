@@ -18,6 +18,8 @@ wrapper_ l body = do
         body_ $ do
             language
             body
+            div_ [class_ "footer"] $ do
+                a_ [href_ "https://github.com/b123400/ferry-web"] "Source code and API"
 
         where
             currentLang = case l of
