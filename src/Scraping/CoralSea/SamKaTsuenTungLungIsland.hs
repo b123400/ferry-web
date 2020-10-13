@@ -8,6 +8,7 @@ import Data.List (elemIndex)
 import Data.Maybe (catMaybes)
 import Data.Set (singleton)
 import Data.String (IsString)
+import Data.Text (isInfixOf)
 import Data.Time.Calendar (DayOfWeek(Friday))
 import Data.Time.Clock (NominalDiffTime)
 import Text.XML.Cursor (Cursor, attributeIs, check, element, parent, followingSibling, ($.//), ($//), (>=>), (&.//))
@@ -33,8 +34,8 @@ timeForDayAndDirection cursor isWeekend direction = do
     let allSections = cursor $.// element "div" >=> attributeIs "class" "section-title"
         routeCursors = parent =<< filter ((==) "三家村 ⇋ 東龍島" . flatContent) allSections
         timetableElement = if isWeekend
-            then take 1 $ drop 1 $ routeCursors >>= ($// element "h4" &.// followingSibling &.// element "table")
-            else take 1 $ routeCursors >>= ($// element "h4" &.// followingSibling &.// element "table")
+            then routeCursors >>= ($// element "h4" &.// (check $ isInfixOf "星期六" . flatContent) &.// followingSibling &.// element "table")
+            else routeCursors >>= ($// element "h4" &.// (check $ isInfixOf "星期五" . flatContent) &.// followingSibling &.// element "table")
         ths = flatContent <$> (timetableElement >>= ($// element "th"))
         times = flatContent <$> (timetableElement >>= ($// element "td"))
         parsedTime = fmap fst <$> parseTimeStr <$> times
