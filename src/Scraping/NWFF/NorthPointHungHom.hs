@@ -1,4 +1,4 @@
-module Scraping.NWFF.NorthPointHungHom (fetch) where
+module Scraping.NWFF.NorthPointHungHom () where
 
 import Control.Monad.Catch (MonadCatch, handleAll)
 import Control.Monad.Cache (MonadCache, withCache)
@@ -17,13 +17,14 @@ import Scraping.NWFF.RouteScript (northPointHungHom)
 import Scraping.NWFF.TimeString (parseTimeStr)
 import Scraping.Utility
 import Timetable (Day(..), Direction(..), Ferry(..), Modifier(..), Island(..), Timetable(..), weekdays, satSunAndHoliday)
+import Timetable.Class (HasTimetable(..))
 import qualified Timetable as T (Route(..))
 
 
-fetch :: (MonadIO m, MonadCatch m, MonadCache m (Map String String), MonadCache m (T.Route NominalDiffTime)) => m (T.Route NominalDiffTime)
-fetch =  withCache "NorthPointHungHom" $ do
-    t <- fetchTimetables
-    pure $ T.Route NorthPointHungHom t
+instance (MonadIO m, MonadCatch m, MonadCache m (Map String String), MonadCache m (T.Route NominalDiffTime)) => HasTimetable m NorthPointHungHom where
+    fetchTimetable _ =  withCache "NorthPointHungHom" $ do
+        t <- fetchTimetables
+        pure $ T.Route NorthPointHungHom t
 
 
 fetchTimetables :: (MonadCache m (Map String String), MonadIO m, MonadCatch m) => m [Timetable NominalDiffTime]

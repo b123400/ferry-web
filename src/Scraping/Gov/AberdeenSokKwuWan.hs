@@ -1,5 +1,5 @@
 module Scraping.Gov.AberdeenSokKwuWan
-( fetch
+(
 ) where
 
 import Control.Monad.IO.Class (MonadIO)
@@ -10,6 +10,7 @@ import Data.ByteString.Lazy (ByteString)
 import Data.Set (Set)
 import Data.Text (Text, pack, unpack, isInfixOf)
 import Timetable hiding (timetables)
+import Timetable.Class (HasTimetable(..))
 import Scraping.Gov.TimeString (parseTimeStr)
 import Scraping.Utility
 import Data.Maybe
@@ -17,10 +18,10 @@ import Data.Time.Clock (NominalDiffTime)
 
 import qualified Scraping.Gov as Gov (fetchCursor)
 
-fetch :: (MonadIO m, MonadCache m ByteString, MonadCache m (Route NominalDiffTime)) => m (Route NominalDiffTime)
-fetch = withCache "AberdeenSokKwuWan" $ do
-    cursor <- Gov.fetchCursor
-    pure $ Route AberdeenSokKwuWan $ timetables cursor
+instance (MonadIO m, MonadCache m ByteString, MonadCache m (Route NominalDiffTime)) => HasTimetable m AberdeenSokKwuWan where
+    fetchTimetable _ = withCache "AberdeenSokKwuWan" $ do
+        cursor <- Gov.fetchCursor
+        pure $ Route AberdeenSokKwuWan $ timetables cursor
 
 timetables :: Cursor -> [Timetable NominalDiffTime]
 timetables cursor = do

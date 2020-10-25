@@ -1,5 +1,5 @@
 module Scraping.GovData.CentralYungShueWan
-( fetch
+(
 ) where
 
 import Control.Monad (mzero)
@@ -15,6 +15,7 @@ import Network.HTTP.Conduit (simpleHttp)
 
 
 import Timetable hiding (timetables)
+import Timetable.Class (HasTimetable(..))
 import Scraping.GovData.Csv
 import Scraping.GovData.TimeString (parseTimeStr)
 
@@ -22,14 +23,13 @@ csv :: (MonadIO m, MonadCache m ByteString) => m ByteString
 csv = withCache "GovData-CentralYungShueWan-CSV" $
     simpleHttp "https://www.td.gov.hk/filemanager/en/content_1408/opendata/ferry_central_ysw_timetable_eng.csv"
 
-
-fetch :: (MonadIO m, MonadCache m ByteString, MonadCache m (Route NominalDiffTime)) => m (Route NominalDiffTime)
-fetch = withCache "GovData-CentralYungShueWan" $ do
-    res <- csv
-    timetables <- case parseCsv @Entry' @EnumDays' res of
-        Left err -> error err
-        Right a -> pure a
-    pure $ Route CentralYungShueWan timetables
+instance (MonadIO m, MonadCache m ByteString, MonadCache m (Route NominalDiffTime)) => HasTimetable m CentralYungShueWan where
+    fetchTimetable _ = withCache "GovData-CentralYungShueWan" $ do
+        res <- csv
+        timetables <- case parseCsv @Entry' @EnumDays' res of
+            Left err -> error err
+            Right a -> pure a
+        pure $ Route CentralYungShueWan timetables
 
 data EnumDays' = MonToSat | SunAndHoliday
 

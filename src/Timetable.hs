@@ -53,6 +53,25 @@ $(deriveJSON defaultOptions ''Ferry)
 $(deriveJSON defaultOptions ''Direction)
 $(deriveJSON defaultOptions ''Island)
 
+islands :: [Island]
+islands =
+    [ CentralCheungChau
+    , CentralMuiWo
+    , CentralPengChau
+    , CentralSokKwuWan
+    , CentralYungShueWan
+    , NorthPointHungHom
+    , NorthPointKowloonCity
+    , PengChauHeiLingChau
+    , AberdeenSokKwuWan
+    , CentralDiscoveryBay
+    , MaWanTsuenWan
+    , SaiWanHoKwunTong
+    , SaiWanHoSamKaTsuen
+    , SamKaTsuenTungLungIsland
+    ]
+    -- TODO: More islands here
+
 instance Enum Day where
     toEnum 8 = Holiday
     toEnum n | n >= 1 && n <= 7 = Weekday $ toEnum n

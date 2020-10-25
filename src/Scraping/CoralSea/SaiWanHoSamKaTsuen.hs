@@ -10,14 +10,15 @@ import Data.Time.Clock (NominalDiffTime)
 import Text.XML.Cursor (Cursor, attributeIs, check, element, parent, followingSibling, ($.//), ($//), (>=>), (&.//))
 import Scraping.Utility (flatContent)
 import Timetable hiding (timetables)
+import Timetable.Class (HasTimetable(..))
 
 import Scraping.CoralSea.Timetable (fetchCursor)
 import Scraping.CoralSea.TimeString (parseTimeStr)
 
-fetch :: (MonadIO m, MonadCache m ByteString, MonadCache m (Route NominalDiffTime), MonadThrow m) => m (Route NominalDiffTime)
-fetch = withCache "SaiWanHoSamKaTsuen" $ do
-    cursor <- fetchCursor
-    pure $ Route SaiWanHoSamKaTsuen $ timetables cursor
+instance (MonadIO m, MonadCache m ByteString, MonadCache m (Route NominalDiffTime), MonadThrow m) => HasTimetable m SaiWanHoSamKaTsuen where
+  fetchTimetable _ = withCache "SaiWanHoSamKaTsuen" $ do
+      cursor <- fetchCursor
+      pure $ Route SaiWanHoSamKaTsuen $ timetables cursor
 
 timetables :: Cursor -> [Timetable NominalDiffTime]
 timetables cursor = do
