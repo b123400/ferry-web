@@ -18,10 +18,10 @@ import Data.Time.Clock (NominalDiffTime)
 
 import qualified Scraping.Gov as Gov (fetchCursor)
 
-instance (MonadIO m, MonadCache m ByteString, MonadCache m (Route NominalDiffTime)) => HasTimetable m AberdeenSokKwuWan where
-    fetchTimetable _ = withCache "AberdeenSokKwuWan" $ do
-        cursor <- Gov.fetchCursor
-        pure $ Route AberdeenSokKwuWan $ timetables cursor
+-- instance (MonadIO m, MonadCache m ByteString, MonadCache m (Route NominalDiffTime)) => HasTimetable m AberdeenSokKwuWan where
+--     fetchTimetable _ = withCache "AberdeenSokKwuWan" $ do
+--         cursor <- Gov.fetchCursor
+--         pure $ Route AberdeenSokKwuWan $ timetables cursor
 
 timetables :: Cursor -> [Timetable NominalDiffTime]
 timetables cursor = do
