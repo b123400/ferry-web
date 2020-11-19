@@ -1,6 +1,4 @@
-module Scraping.GovData.CentralCheungChau
-(
-) where
+module Scraping.GovData.CentralCheungChau.Timetable () where
 
 import Control.Monad (mzero)
 import Control.Monad.IO.Class (MonadIO)
