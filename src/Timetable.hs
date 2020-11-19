@@ -2,8 +2,9 @@
 
 module Timetable where
 
-import Data.Aeson (ToJSON(..), FromJSON(..), Value(String), (.=), (.:), object, withObject, withText)
+import Data.Aeson (ToJSON(..), FromJSON(..), ToJSONKey(..), Value(String), (.=), (.:), object, withObject, withText)
 import Data.Aeson.TH
+import Data.Aeson.Types (toJSONKeyText)
 import Data.Set (Set, insert, fromList)
 import Data.String (IsString, fromString)
 import Data.Time.Calendar (DayOfWeek(..))
@@ -42,7 +43,7 @@ data Island = CentralCheungChau
             | SaiWanHoKwunTong
             | SaiWanHoSamKaTsuen
             | SamKaTsuenTungLungIsland
-              deriving (Eq, Show)
+              deriving (Eq, Ord, Show)
 
 data Route t = Route { island :: Island
                      , timetables :: [Timetable t]
@@ -52,6 +53,9 @@ $(deriveJSON defaultOptions ''Modifier)
 $(deriveJSON defaultOptions ''Ferry)
 $(deriveJSON defaultOptions ''Direction)
 $(deriveJSON defaultOptions ''Island)
+
+instance ToJSONKey Island where
+    toJSONKey = toJSONKeyText toUrlPiece
 
 islands :: [Island]
 islands =

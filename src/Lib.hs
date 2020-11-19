@@ -11,6 +11,7 @@ import Control.Monad.Cache (runLocal, runDyn)
 import Control.Monad.Trans.State (StateT, evalStateT)
 import Data.Cache (Cache, newCache)
 import Data.Dynamic (Dynamic)
+import Data.Map.Strict (Map)
 import Data.Maybe (fromMaybe)
 import Data.String (fromString)
 import Data.Text (Text)
@@ -25,7 +26,7 @@ import Servant
 import System.Clock (TimeSpec(..))
 import Timetable (Island, Route, limit, takeUntil, hongkongTimeZone)
 import Timetable.Local (allIslandsAtTime, islandAtTime)
-import Timetable.Raw (islandRaw, allIslandsRaw)
+import Timetable.Raw (islandRaw, allIslandsRaw, metadataRaw, metadatasRaw)
 import Render.Lang (Localised(..), Lang, withLang)
 import Render.Html (HTMLLucid)
 import Render.Page.Index (Index(..))
@@ -34,6 +35,8 @@ import Render.Page.RawTimetable (RawTimetable(..))
 import System.Environment (lookupEnv)
 import Web.Cookie (SetCookie, defaultSetCookie, setCookieName, setCookieValue, setCookieExpires, setCookiePath)
 
+import Timetable.Metadata (Metadata)
+
 import Debug.Trace
 
 type WithLang a = Header "Accept-Language" Lang :> Header "Cookie" [SetCookie] :> a
@@ -41,8 +44,10 @@ type WithLang a = Header "Accept-Language" Lang :> Header "Cookie" [SetCookie] :
 type API = "static" :> Raw
       :<|> WithLang (Capture "island" Island :> QueryParam "count" Int :> QueryParam "date" Text :> Get '[JSON, HTMLLucid] (Localised Detail))
       :<|> WithLang (Capture "island" Island :> "raw" :> Get '[JSON, HTMLLucid] (Localised RawTimetable))
+      :<|> Capture "island" Island :> "metadata" :> Get '[JSON] Metadata
       :<|> "lang" :> Capture "lang" Lang :> Header "Referer" String :> Get '[HTMLLucid] NoContent
       :<|> "raws" :> Get '[JSON] [Route NominalDiffTime]
+      :<|> "metadata" :> Get '[JSON] (Map Island Metadata)
       :<|> "holidays" :> Get '[JSON] HolidayCalendar
       :<|> WithLang (QueryParam "count" Int :> Get '[JSON, HTMLLucid] (Localised Index))
 
@@ -63,8 +68,10 @@ server :: Cache String Dynamic -> Server API
 server c = (serveDirectoryWebApp "static")
       :<|> (withLang $ detail c)
       :<|> (withLang $ rawDetail c)
+      :<|> metadata c
       :<|> setLanguage
       :<|> raws c
+      :<|> metadatas c
       :<|> holidays c
       :<|> (withLang $ index c)
 
@@ -113,3 +120,9 @@ raws cache =
 holidays :: Cache String Dynamic -> Handler HolidayCalendar
 holidays cache =
     liftIO $ flip evalStateT cache $ runDyn $ runLocal holidayCalendar
+
+metadata :: Cache String Dynamic -> Island -> Handler Metadata
+metadata cache island = liftIO $ flip evalStateT cache $ runDyn $ runLocal $ metadataRaw island
+
+metadatas :: Cache String Dynamic -> Handler (Map Island Metadata)
+metadatas cache = liftIO $ flip evalStateT cache $ runDyn $ runLocal metadatasRaw
