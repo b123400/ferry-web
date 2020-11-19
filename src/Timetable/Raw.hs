@@ -9,12 +9,13 @@ import Data.Proxy (Proxy(..))
 import Data.Time.Clock (NominalDiffTime)
 
 import Timetable (Route, Island(..), islands)
-import qualified Scraping.GovData.CentralMuiWo ()
 import qualified Scraping.GovData.CentralPengChau ()
 import Timetable.Metadata (Metadata)
 import Timetable.Class (HasTimetable(..), HasMetadata(..))
 import qualified Scraping.GovData.CentralCheungChau.Timetable ()
 import qualified Scraping.GovData.CentralCheungChau.Metadata ()
+import qualified Scraping.GovData.CentralMuiWo.Timetable ()
+import qualified Scraping.GovData.CentralMuiWo.Metadata ()
 import qualified Scraping.GovData.CentralSokKwuWan ()
 import qualified Scraping.GovData.CentralYungShueWan ()
 import qualified Scraping.GovData.PengChauHeiLingChau ()
@@ -93,4 +94,5 @@ metadatasRaw = Map.fromList <$> mapM (\i-> ((,) i) <$> metadataRaw i) islands
 
 metadataRaw :: (HasMetadatas m)=> Island -> m Metadata
 metadataRaw CentralCheungChau = fetchMetadata (Proxy @CentralCheungChau)
+metadataRaw CentralMuiWo = fetchMetadata (Proxy @CentralMuiWo)
 metadataRaw _ = error "not yet"

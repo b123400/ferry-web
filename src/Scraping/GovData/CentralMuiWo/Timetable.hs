@@ -1,4 +1,4 @@
-module Scraping.GovData.CentralMuiWo
+module Scraping.GovData.CentralMuiWo.Timetable
 (
 ) where
 
