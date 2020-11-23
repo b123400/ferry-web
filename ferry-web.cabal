@@ -40,6 +40,8 @@ library
                      , Scraping.EmailDecode
                      , Timetable.Local
                      , Timetable.Raw
+                     , Timetable.Metadata
+                     , Timetable.Class
                      , Scraping.Gov.CentralCheungChau
                      , Scraping.Gov.CentralMuiWo
                      , Scraping.Gov.CentralPengChau
@@ -50,15 +52,19 @@ library
                      , Scraping.Gov.CentralDiscoveryBay
                      , Scraping.Gov.MaWanTsuenWan
                      , Scraping.GovData.Csv
-                     , Scraping.GovData.CentralCheungChau
+                     , Scraping.GovData.CentralCheungChau.Timetable
+                     , Scraping.GovData.CentralCheungChau.Metadata
                      , Scraping.GovData.CentralDiscoveryBay
                      , Scraping.GovData.TimeString
-                     , Scraping.GovData.CentralMuiWo
-                     , Scraping.GovData.CentralPengChau
+                     , Scraping.GovData.CentralMuiWo.Timetable
+                     , Scraping.GovData.CentralMuiWo.Metadata
+                     , Scraping.GovData.CentralPengChau.Timetable
+                     , Scraping.GovData.CentralPengChau.Metadata
                      , Scraping.GovData.CentralSokKwuWan
                      , Scraping.GovData.CentralYungShueWan
                      , Scraping.GovData.PengChauHeiLingChau
                      , Scraping.GovData.MaWanTsuenWan
+                     , Scraping.GovData.AberdeenSokKwuWan
                      , Scraping.NWFF.RouteScript
                      , Scraping.NWFF.NorthPointHungHom
                      , Scraping.NWFF.NorthPointKowloonCity
