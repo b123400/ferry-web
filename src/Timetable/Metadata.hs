@@ -1,5 +1,6 @@
 module Timetable.Metadata where
 
+import Data.Aeson (ToJSON(..), FromJSON(..), ToJSONKey(..), Value(String), (.=), (.:), object, withObject)
 import Data.Aeson.TH
 import Data.Set (Set)
 import Data.Time.Clock (NominalDiffTime)
@@ -35,7 +36,25 @@ data Duration = Duration
     }
 
 $(deriveJSON defaultOptions ''Metadata)
-$(deriveJSON defaultOptions ''Fare)
+
+instance ToJSON Fare where
+    toJSON (Fare passenger days fare type_ modifiers) = object
+        [ "passenger" .= passenger
+        , "days" .= days
+        , "fare" .= fare
+        , "type" .= type_
+        , "modifiers" .=modifiers
+        ]
+
+instance FromJSON Fare where
+    parseJSON = withObject "Fare" $ \o -> do
+        passenger <- o .: "passenger"
+        days <- o .: "days"
+        fare <- o .: "fare"
+        type_ <- o .: "type"
+        modifier <- o .: "modifier"
+        pure $ Fare passenger days fare type_ modifier
+
 $(deriveJSON defaultOptions ''Modifier)
 $(deriveJSON defaultOptions ''Duration)
 $(deriveJSON defaultOptions ''FareType)
