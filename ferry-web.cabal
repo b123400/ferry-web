@@ -60,8 +60,9 @@ library
                      , Scraping.GovData.CentralMuiWo.Metadata
                      , Scraping.GovData.CentralPengChau.Timetable
                      , Scraping.GovData.CentralPengChau.Metadata
-                     , Scraping.GovData.CentralSokKwuWan
                      , Scraping.GovData.CentralYungShueWan
+                     , Scraping.GovData.CentralSokKwuWan.Timetable
+                     , Scraping.GovData.CentralSokKwuWan.Metadata
                      , Scraping.GovData.PengChauHeiLingChau
                      , Scraping.GovData.MaWanTsuenWan
                      , Scraping.GovData.AberdeenSokKwuWan

@@ -17,8 +17,9 @@ import qualified Scraping.GovData.CentralMuiWo.Timetable ()
 import qualified Scraping.GovData.CentralMuiWo.Metadata ()
 import qualified Scraping.GovData.CentralPengChau.Timetable ()
 import qualified Scraping.GovData.CentralPengChau.Metadata ()
-import qualified Scraping.GovData.CentralSokKwuWan ()
 import qualified Scraping.GovData.CentralYungShueWan ()
+import qualified Scraping.GovData.CentralSokKwuWan.Timetable ()
+import qualified Scraping.GovData.CentralSokKwuWan.Metadata ()
 import qualified Scraping.GovData.PengChauHeiLingChau ()
 import qualified Scraping.GovData.AberdeenSokKwuWan ()
 import qualified Scraping.GovData.CentralDiscoveryBay ()
@@ -76,9 +77,9 @@ type HasMetadatas m =
     , HasMetadata m CentralCheungChau
     , HasMetadata m CentralMuiWo
     , HasMetadata m CentralPengChau
-    -- , HasMetadata m CentralSokKwuWan
     -- , HasMetadata m CentralYungShueWan
     -- , HasMetadata m NorthPointHungHom
+    , HasMetadata m CentralSokKwuWan
     -- , HasMetadata m NorthPointKowloonCity
     -- , HasMetadata m PengChauHeiLingChau
     -- , HasMetadata m AberdeenSokKwuWan
@@ -91,10 +92,15 @@ type HasMetadatas m =
 
 metadatasRaw :: (HasMetadatas m)=> m (Map Island Metadata)
 metadatasRaw = Map.fromList <$> mapM (\i-> ((,) i) <$> metadataRaw i) islands
-    where islands = [CentralCheungChau, CentralMuiWo, CentralPengChau]
+    where islands = [ CentralCheungChau
+                    , CentralMuiWo
+                    , CentralPengChau
+                    , CentralSokKwuWan
+                    ]
 
 metadataRaw :: (HasMetadatas m)=> Island -> m Metadata
 metadataRaw CentralCheungChau = fetchMetadata (Proxy @CentralCheungChau)
 metadataRaw CentralMuiWo = fetchMetadata (Proxy @CentralMuiWo)
 metadataRaw CentralPengChau = fetchMetadata (Proxy @CentralPengChau)
+metadataRaw CentralSokKwuWan = fetchMetadata (Proxy @CentralSokKwuWan)
 metadataRaw _ = error "not yet"
