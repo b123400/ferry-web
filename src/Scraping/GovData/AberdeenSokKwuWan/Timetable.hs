@@ -1,4 +1,4 @@
-module Scraping.GovData.AberdeenSokKwuWan
+module Scraping.GovData.AberdeenSokKwuWan.Timetable
 (
 ) where
 
