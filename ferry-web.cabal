@@ -60,14 +60,16 @@ library
                      , Scraping.GovData.CentralMuiWo.Metadata
                      , Scraping.GovData.CentralPengChau.Timetable
                      , Scraping.GovData.CentralPengChau.Metadata
-                     , Scraping.GovData.CentralYungShueWan
                      , Scraping.GovData.CentralSokKwuWan.Timetable
                      , Scraping.GovData.CentralSokKwuWan.Metadata
+                     , Scraping.GovData.CentralYungShueWan.Timetable
+                     , Scraping.GovData.CentralYungShueWan.Metadata
                      , Scraping.GovData.PengChauHeiLingChau
                      , Scraping.GovData.MaWanTsuenWan
                      , Scraping.GovData.AberdeenSokKwuWan
                      , Scraping.NWFF.RouteScript
-                     , Scraping.NWFF.NorthPointHungHom
+                     , Scraping.NWFF.NorthPointHungHom.Timetable
+                     , Scraping.NWFF.NorthPointHungHom.Metadata
                      , Scraping.NWFF.NorthPointKowloonCity
                      , Scraping.CoralSea.Timetable
                      , Scraping.CoralSea.SaiWanHoKwunTong
