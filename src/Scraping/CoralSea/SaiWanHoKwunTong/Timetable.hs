@@ -1,4 +1,4 @@
-module Scraping.CoralSea.SaiWanHoSamKaTsuen where
+module Scraping.CoralSea.SaiWanHoKwunTong.Timetable where
 
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Cache (MonadCache, withCache)
@@ -15,31 +15,36 @@ import Timetable.Class (HasTimetable(..))
 import Scraping.CoralSea.Timetable (fetchCursor)
 import Scraping.CoralSea.TimeString (parseTimeStr)
 
-instance (MonadIO m, MonadCache m ByteString, MonadCache m (Route NominalDiffTime), MonadThrow m) => HasTimetable m SaiWanHoSamKaTsuen where
-  fetchTimetable _ = withCache "SaiWanHoSamKaTsuen" $ do
-      cursor <- fetchCursor
-      pure $ Route SaiWanHoSamKaTsuen $ timetables cursor
+instance (MonadIO m, MonadCache m ByteString, MonadCache m (Route NominalDiffTime), MonadThrow m) => HasTimetable m SaiWanHoKwunTong where
+    fetchTimetable _ = withCache "SaiWanHoKwunTong" $ do
+        cursor <- fetchCursor
+        pure $ Route SaiWanHoKwunTong $ timetables cursor
 
 timetables :: Cursor -> [Timetable NominalDiffTime]
 timetables cursor = do
+    isWeekday <- [False, True]
     direction <- [FromPrimary, ToPrimary]
-    timeForDayAndDirection cursor direction
+    timeForDayAndDirection cursor isWeekday direction
 
-timeForDayAndDirection :: Cursor -> Direction -> [Timetable NominalDiffTime]
-timeForDayAndDirection cursor direction = do
+timeForDayAndDirection :: Cursor -> Bool -> Direction -> [Timetable NominalDiffTime]
+timeForDayAndDirection cursor isWeekday direction = do
     let allSections = cursor $.// element "div" >=> attributeIs "class" "section-title"
-        routeCursors = parent =<< filter ((==) "西灣河 ⇋ 三家村" . flatContent) allSections
+        routeCursors = parent =<< filter ((==) "西灣河 ⇋ 觀塘" . flatContent) allSections
         timetableElement = take 1 $ routeCursors >>= ($// element "h4"
                                                       &.// (check $ (==) (titleForDirection direction) . flatContent)
                                                       &.// followingSibling
                                                       &.// element "table")
         times = flatContent <$> (timetableElement >>= ($// element "td"))
-        parsedTime = fst <$> mapMaybe parseTimeStr times
+        parsedTime = map fst $ filter isToday $ mapMaybe parseTimeStr times
         ferries = (\x -> Ferry x mempty) <$> parsedTime
 
-    [Timetable ferries everyday direction]
+    [Timetable ferries daySet direction]
+
+    where
+        isToday (_, weekDayOnly) = isWeekday || not weekDayOnly
+        daySet = if isWeekday then weekdays else satSunAndHoliday
 
 
 titleForDirection :: IsString s => Direction -> s
 titleForDirection FromPrimary = "由西灣河出發"
-titleForDirection ToPrimary = "由三家村出發"
+titleForDirection ToPrimary = "由觀塘出發"

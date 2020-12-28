@@ -27,7 +27,7 @@ data FareType
 
 data Modifier
     = FromSecondaryOnly
-    | DummyModifier -- Dummy modifier for proper json instance
+    | RegisteredUser -- e.g. Ma Wan - Tsuen Wan. Users registered with Park Island Transport Company Ltd
     deriving (Eq, Ord, Show)
 
 data Duration = Duration

@@ -1,4 +1,4 @@
-module Scraping.NWFF.NorthPointKowloonCity () where
+module Scraping.NWFF.NorthPointKowloonCity.Timetable () where
 
 import Control.Monad.Catch (MonadCatch, handleAll)
 import Control.Monad.Cache (MonadCache, withCache)

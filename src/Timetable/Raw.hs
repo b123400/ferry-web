@@ -21,17 +21,22 @@ import qualified Scraping.GovData.CentralSokKwuWan.Timetable ()
 import qualified Scraping.GovData.CentralSokKwuWan.Metadata ()
 import qualified Scraping.GovData.CentralYungShueWan.Timetable ()
 import qualified Scraping.GovData.CentralYungShueWan.Metadata ()
-import qualified Scraping.GovData.PengChauHeiLingChau ()
+import qualified Scraping.GovData.PengChauHeiLingChau.Timetable ()
+import qualified Scraping.GovData.PengChauHeiLingChau.Metadata ()
 import qualified Scraping.GovData.AberdeenSokKwuWan.Timetable ()
 import qualified Scraping.GovData.AberdeenSokKwuWan.Metadata ()
-import qualified Scraping.GovData.CentralDiscoveryBay ()
-import qualified Scraping.GovData.MaWanTsuenWan ()
+import qualified Scraping.GovData.CentralDiscoveryBay.Timetable ()
+import qualified Scraping.GovData.MaWanTsuenWan.Timetable ()
+import qualified Scraping.GovData.MaWanTsuenWan.Metadata ()
 import qualified Scraping.NWFF.NorthPointHungHom.Timetable ()
 import qualified Scraping.NWFF.NorthPointHungHom.Metadata ()
-import qualified Scraping.NWFF.NorthPointKowloonCity ()
-import qualified Scraping.CoralSea.SaiWanHoKwunTong ()
-import qualified Scraping.CoralSea.SaiWanHoSamKaTsuen ()
-import qualified Scraping.CoralSea.SamKaTsuenTungLungIsland ()
+import qualified Scraping.NWFF.NorthPointKowloonCity.Timetable ()
+import qualified Scraping.NWFF.NorthPointKowloonCity.Metadata ()
+import qualified Scraping.CoralSea.SaiWanHoKwunTong.Timetable ()
+import qualified Scraping.CoralSea.SaiWanHoKwunTong.Metadata ()
+import qualified Scraping.CoralSea.SaiWanHoSamKaTsuen.Timetable ()
+import qualified Scraping.CoralSea.SaiWanHoSamKaTsuen.Metadata ()
+import qualified Scraping.CoralSea.SamKaTsuenTungLungIsland.Timetable ()
 
 type HasTimetables m =
     ( Monad m
@@ -83,13 +88,13 @@ type HasMetadatas m =
     , HasMetadata m CentralSokKwuWan
     , HasMetadata m CentralYungShueWan
     , HasMetadata m NorthPointHungHom
-    -- , HasMetadata m NorthPointKowloonCity
-    -- , HasMetadata m PengChauHeiLingChau
+    , HasMetadata m NorthPointKowloonCity
+    , HasMetadata m PengChauHeiLingChau
     , HasMetadata m AberdeenSokKwuWan
     -- , HasMetadata m CentralDiscoveryBay
-    -- , HasMetadata m MaWanTsuenWan
-    -- , HasMetadata m SaiWanHoKwunTong
-    -- , HasMetadata m SaiWanHoSamKaTsuen
+    , HasMetadata m MaWanTsuenWan
+    , HasMetadata m SaiWanHoKwunTong
+    , HasMetadata m SaiWanHoSamKaTsuen
     -- , HasMetadata m SamKaTsuenTungLungIsland
     )
 
@@ -101,7 +106,12 @@ metadatasRaw = Map.fromList <$> mapM (\i-> ((,) i) <$> metadataRaw i) islands
                     , CentralSokKwuWan
                     , CentralYungShueWan
                     , NorthPointHungHom
+                    , NorthPointKowloonCity
+                    , PengChauHeiLingChau
                     , AberdeenSokKwuWan
+                    , MaWanTsuenWan
+                    , SaiWanHoKwunTong
+                    , SaiWanHoSamKaTsuen
                     ]
 
 metadataRaw :: (HasMetadatas m)=> Island -> m Metadata
@@ -111,5 +121,10 @@ metadataRaw CentralPengChau = fetchMetadata (Proxy @CentralPengChau)
 metadataRaw CentralSokKwuWan = fetchMetadata (Proxy @CentralSokKwuWan)
 metadataRaw CentralYungShueWan = fetchMetadata (Proxy @CentralYungShueWan)
 metadataRaw NorthPointHungHom = fetchMetadata (Proxy @NorthPointHungHom)
+metadataRaw NorthPointKowloonCity = fetchMetadata (Proxy @NorthPointKowloonCity)
+metadataRaw PengChauHeiLingChau = fetchMetadata (Proxy @PengChauHeiLingChau)
 metadataRaw AberdeenSokKwuWan = fetchMetadata (Proxy @AberdeenSokKwuWan)
+metadataRaw MaWanTsuenWan = fetchMetadata (Proxy @MaWanTsuenWan)
+metadataRaw SaiWanHoKwunTong = fetchMetadata (Proxy @SaiWanHoKwunTong)
+metadataRaw SaiWanHoSamKaTsuen = fetchMetadata (Proxy @SaiWanHoSamKaTsuen)
 metadataRaw _ = error "not yet"

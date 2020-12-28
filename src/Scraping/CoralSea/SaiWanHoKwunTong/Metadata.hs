@@ -1,10 +1,11 @@
-module Scraping.NWFF.NorthPointHungHom.Metadata () where
+module Scraping.CoralSea.SaiWanHoKwunTong.Metadata () where
 
 import Control.Applicative ((<|>))
 import Control.Monad (mzero)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Cache (MonadCache, withCache)
 import Data.ByteString.Lazy (ByteString, fromStrict)
+import qualified Data.ByteString.Lazy.Char8 as B
 import Data.Csv (FromRecord(..), FromNamedRecord(..), FromField(..), decode, decodeByName, HasHeader(..), (.:), (.!))
 import Data.Maybe (mapMaybe)
 import Data.Set (Set, singleton, intersection)
@@ -15,22 +16,24 @@ import Data.Time.Clock (NominalDiffTime)
 import GHC.Exts (toList)
 import Network.HTTP.Conduit (simpleHttp)
 
-import Timetable (Day(..), Island(..), everyday)
+import Timetable (Day(..), Island(..), sunAndHoliday, weekdaysAndSat)
 import qualified Timetable as T
 import Timetable.Metadata (Metadata(..), Duration(..), FareType(..), Modifier(..), Fare(..))
 import Timetable.Class (HasMetadata(..))
 
 csv :: (MonadIO m, MonadCache m ByteString) => m ByteString
-csv = withCache "NWFF-NorthPointHungHom-Metadata-CSV" $
-    simpleHttp "https://www.td.gov.hk/filemanager/en/content_1408/opendata/ferry_np_hh_faretable_eng.csv"
+csv = withCache "CoralSea-SaiWanHoKwunTong-Metadata-CSV" $
+    simpleHttp "https://www.td.gov.hk/filemanager/en/content_1408/opendata/ferry_swh_kt_faretable_eng.csv"
 
-instance (MonadIO m, MonadCache m ByteString, MonadCache m Metadata) => HasMetadata m NorthPointHungHom where
-    fetchMetadata _ = withCache "NWFF-NorthPointHungHom-Metadata" $ do
+instance (MonadIO m, MonadCache m ByteString, MonadCache m Metadata) => HasMetadata m SaiWanHoKwunTong where
+    fetchMetadata _ = withCache "CoralSea-SaiWanHoKwunTong-Metadata" $ do
         res <- csv
-        metadata <- case parseCsv res of
+        metadata <- case parseCsv (removeStupidLines res) of
             Left err -> error err
             Right a -> pure a
         pure metadata
+        -- There are lines like ",,,"
+        where removeStupidLines = B.intercalate "\n" . filter (not . B.isPrefixOf ",") . B.split '\n'
 
 newtype Passenger' = Passenger' String
 newtype Days' = Days' (Set Day) deriving (Show)
@@ -54,17 +57,15 @@ instance FromField Passenger' where
     parseField = pure . Passenger' . unpack . decodeUtf8
 
 instance FromField Days' where
-    parseField "Daily" = pure $ Days' everyday
+    parseField "Daily" = pure $ Days' T.everyday
     parseField _ = fail "Cannot parse Days"
 
 instance FromField Fare' where
-    parseField = pure . Fare' . read . handleFree . removeBadCharacters . unpack . decodeUtf8
-        where removeBadCharacters = filter (\x -> x /= '$' && x /= ' ')
-              handleFree "Free" = "0"
-              handleFree x = x
+    parseField = pure . Fare' . read . unpack . decodeUtf8
 
 instance FromField Modifier' where
-    parseField _ = pure $ Modifier' mempty
+    parseField "" = pure $ Modifier' mempty
+    parseField _ = fail "Cannot parse remark"
 
 parseCsv :: ByteString -> Either String Metadata
 parseCsv bs = toMetadata <$> (parseWithHeader bs <|> parse bs)
@@ -88,5 +89,5 @@ toMetadata entries = Metadata { fares = fares, durations = durations }
             }
 
         durations =
-            [ Duration Nothing (8 * 60)
+            [ Duration Nothing (15 * 60)
             ]

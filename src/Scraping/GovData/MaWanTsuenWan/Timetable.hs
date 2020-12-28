@@ -1,18 +1,18 @@
-module Scraping.GovData.PengChauHeiLingChau
+module Scraping.GovData.MaWanTsuenWan.Timetable
 (
 ) where
 
-import Control.Applicative ((<|>))
 import Control.Monad (mzero)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Cache (MonadCache, withCache)
 import Data.ByteString.Lazy (ByteString, fromStrict)
-import Data.Csv (Parser, FromRecord(..), FromNamedRecord(..), FromField(..), (.:), (.!))
+import Data.Csv (FromRecord(..), FromNamedRecord(..), FromField(..), (.:), (.!))
 import Data.Set (Set, singleton, intersection)
 import Data.Text.Encoding (decodeUtf8)
 import Data.Time.Calendar (DayOfWeek(..))
 import Data.Time.Clock (NominalDiffTime)
 import Network.HTTP.Conduit (simpleHttp)
+
 
 import Timetable hiding (timetables)
 import Timetable.Class (HasTimetable(..))
@@ -20,24 +20,22 @@ import Scraping.GovData.Csv
 import Scraping.GovData.TimeString (parseTimeStr)
 
 csv :: (MonadIO m, MonadCache m ByteString) => m ByteString
-csv = withCache "GovData-CentralPengChau-CSV" $
-    simpleHttp "https://www.td.gov.hk/filemanager/en/content_1408/opendata/ferry_central_pc_timetable_eng.csv"
+csv = withCache "GovData-MaWanTsuenWan-CSV" $
+    simpleHttp "https://www.td.gov.hk/filemanager/en/content_1408/opendata/ferry_mawan_tw_timetable_eng.csv"
 
-instance (MonadIO m, MonadCache m ByteString, MonadCache m (Route NominalDiffTime)) => HasTimetable m PengChauHeiLingChau where
-    fetchTimetable _ = withCache "GovData-PengChauHeiLingChau" $ do
+instance (MonadIO m, MonadCache m ByteString, MonadCache m (Route NominalDiffTime)) => HasTimetable m MaWanTsuenWan where
+    fetchTimetable _ = withCache "GovData-MaWanTsuenWan" $ do
         res <- csv
-        timetables <- case parseCsv' @Entry' @EnumDays' (tryFirstAsDirection @Direction') res of
+        timetables <- case parseCsv @Entry' @EnumDays' res of
             Left err -> error err
             Right a -> pure a
-        pure $ Route PengChauHeiLingChau timetables
+        pure $ Route MaWanTsuenWan timetables
 
-data EnumDays' = MonToSat | SunAndHoliday
+data EnumDays' = Everyday
 
 instance EnumDays EnumDays' where
-    enumerated = [SunAndHoliday, MonToSat]
-    toDaySet SunAndHoliday = sunAndHoliday
-    toDaySet MonToSat = weekdaysAndSat
-
+    enumerated = [Everyday]
+    toDaySet Everyday = everyday
 
 newtype Direction' = Direction' Direction
 newtype Days' = Days' (Set Day) deriving (Show)
@@ -51,18 +49,22 @@ instance FromRecord Entry' where
         | length v == 4 = Entry <$> v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3
         | otherwise     = mzero
 
+instance FromNamedRecord Entry' where
+    parseNamedRecord m = Entry <$> m .: "Direction"
+                               <*> m .: "Service Date"
+                               <*> m .: "Service Hour"
+                               <*> m .: "Remark"
+
 instance FromField Direction' where
-    parseField "Peng Chau to Hei Ling Chau" = pure $ Direction' FromPrimary
-    parseField "Hei Ling Chau to Peng Chau" = pure $ Direction' ToPrimary
+    parseField "Ma Wan to Tsuen Wan" = pure $ Direction' FromPrimary
+    parseField "Tsuen Wan to Ma Wan" = pure $ Direction' ToPrimary
     parseField _ = fail "Cannot parse direction"
 
 instance FromField Time' where
     parseField = fmap Time' . parseTimeStr . decodeUtf8
 
 instance FromField Days' where
-    parseField "Mondays to Saturdays except public holidays" = pure $ Days' weekdaysAndSat
-    parseField "Sundays and public holidays" = pure $ Days' sunAndHoliday
-    parseField _ = fail "Cannot parse Days"
+    parseField _ = pure $ Days' everyday
 
 instance FromField Remark' where
     parseField _ = pure $ Remark' id

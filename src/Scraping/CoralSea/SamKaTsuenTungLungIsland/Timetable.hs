@@ -1,4 +1,4 @@
-module Scraping.CoralSea.SamKaTsuenTungLungIsland where
+module Scraping.CoralSea.SamKaTsuenTungLungIsland.Timetable where
 
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Cache (MonadCache, withCache)

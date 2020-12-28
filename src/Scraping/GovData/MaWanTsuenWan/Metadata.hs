@@ -1,4 +1,4 @@
-module Scraping.NWFF.NorthPointHungHom.Metadata () where
+module Scraping.GovData.MaWanTsuenWan.Metadata () where
 
 import Control.Applicative ((<|>))
 import Control.Monad (mzero)
@@ -19,13 +19,15 @@ import Timetable (Day(..), Island(..), everyday)
 import qualified Timetable as T
 import Timetable.Metadata (Metadata(..), Duration(..), FareType(..), Modifier(..), Fare(..))
 import Timetable.Class (HasMetadata(..))
+import Scraping.GovData.Csv (EnumDays(..))
+import Scraping.GovData.TimeString (parseTimeStr)
 
 csv :: (MonadIO m, MonadCache m ByteString) => m ByteString
-csv = withCache "NWFF-NorthPointHungHom-Metadata-CSV" $
-    simpleHttp "https://www.td.gov.hk/filemanager/en/content_1408/opendata/ferry_np_hh_faretable_eng.csv"
+csv = withCache "GovData-MaWanTsuenWan-Metadata-CSV" $
+    simpleHttp "https://www.td.gov.hk/filemanager/en/content_1408/opendata/ferry_mawan_tw_faretable_eng.csv"
 
-instance (MonadIO m, MonadCache m ByteString, MonadCache m Metadata) => HasMetadata m NorthPointHungHom where
-    fetchMetadata _ = withCache "NWFF-NorthPointHungHom-Metadata" $ do
+instance (MonadIO m, MonadCache m ByteString, MonadCache m Metadata) => HasMetadata m MaWanTsuenWan where
+    fetchMetadata _ = withCache "GovData-MaWanTsuenWan-Metadata" $ do
         res <- csv
         metadata <- case parseCsv res of
             Left err -> error err
@@ -41,7 +43,7 @@ data Entry = Entry Passenger' Days' Fare' Modifier'
 
 instance FromRecord Entry where
     parseRecord v
-        | length v == 4 = Entry <$> v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3
+        | length v >= 4 = Entry <$> v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3
         | otherwise     = mzero
 
 instance FromNamedRecord Entry where
@@ -64,7 +66,9 @@ instance FromField Fare' where
               handleFree x = x
 
 instance FromField Modifier' where
-    parseField _ = pure $ Modifier' mempty
+    parseField "1" = pure $ Modifier' $ singleton RegisteredUser
+    parseField "2" = pure $ Modifier' mempty
+    parseField _ = fail "Cannot parse remark"
 
 parseCsv :: ByteString -> Either String Metadata
 parseCsv bs = toMetadata <$> (parseWithHeader bs <|> parse bs)
@@ -88,5 +92,5 @@ toMetadata entries = Metadata { fares = fares, durations = durations }
             }
 
         durations =
-            [ Duration Nothing (8 * 60)
+            [ Duration Nothing (12 * 60)
             ]

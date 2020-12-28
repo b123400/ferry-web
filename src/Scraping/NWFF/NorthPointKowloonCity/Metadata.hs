@@ -1,4 +1,4 @@
-module Scraping.NWFF.NorthPointHungHom.Metadata () where
+module Scraping.NWFF.NorthPointKowloonCity.Metadata () where
 
 import Control.Applicative ((<|>))
 import Control.Monad (mzero)
@@ -21,11 +21,11 @@ import Timetable.Metadata (Metadata(..), Duration(..), FareType(..), Modifier(..
 import Timetable.Class (HasMetadata(..))
 
 csv :: (MonadIO m, MonadCache m ByteString) => m ByteString
-csv = withCache "NWFF-NorthPointHungHom-Metadata-CSV" $
-    simpleHttp "https://www.td.gov.hk/filemanager/en/content_1408/opendata/ferry_np_hh_faretable_eng.csv"
+csv = withCache "NWFF-NorthPointKowloonCity-Metadata-CSV" $
+    simpleHttp "https://www.td.gov.hk/filemanager/en/content_1408/opendata/ferry_np_klnc_faretable_eng.csv"
 
-instance (MonadIO m, MonadCache m ByteString, MonadCache m Metadata) => HasMetadata m NorthPointHungHom where
-    fetchMetadata _ = withCache "NWFF-NorthPointHungHom-Metadata" $ do
+instance (MonadIO m, MonadCache m ByteString, MonadCache m Metadata) => HasMetadata m NorthPointKowloonCity where
+    fetchMetadata _ = withCache "NWFF-NorthPointKowloonCity-Metadata" $ do
         res <- csv
         metadata <- case parseCsv res of
             Left err -> error err
@@ -88,5 +88,5 @@ toMetadata entries = Metadata { fares = fares, durations = durations }
             }
 
         durations =
-            [ Duration Nothing (8 * 60)
+            [ Duration Nothing (14 * 60)
             ]

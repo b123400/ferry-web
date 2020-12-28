@@ -54,7 +54,7 @@ library
                      , Scraping.GovData.Csv
                      , Scraping.GovData.CentralCheungChau.Timetable
                      , Scraping.GovData.CentralCheungChau.Metadata
-                     , Scraping.GovData.CentralDiscoveryBay
+                     , Scraping.GovData.CentralDiscoveryBay.Timetable
                      , Scraping.GovData.TimeString
                      , Scraping.GovData.CentralMuiWo.Timetable
                      , Scraping.GovData.CentralMuiWo.Metadata
@@ -64,18 +64,23 @@ library
                      , Scraping.GovData.CentralSokKwuWan.Metadata
                      , Scraping.GovData.CentralYungShueWan.Timetable
                      , Scraping.GovData.CentralYungShueWan.Metadata
-                     , Scraping.GovData.PengChauHeiLingChau
-                     , Scraping.GovData.MaWanTsuenWan
+                     , Scraping.GovData.PengChauHeiLingChau.Timetable
+                     , Scraping.GovData.PengChauHeiLingChau.Metadata
+                     , Scraping.GovData.MaWanTsuenWan.Timetable
+                     , Scraping.GovData.MaWanTsuenWan.Metadata
                      , Scraping.GovData.AberdeenSokKwuWan.Timetable
                      , Scraping.GovData.AberdeenSokKwuWan.Metadata
                      , Scraping.NWFF.RouteScript
                      , Scraping.NWFF.NorthPointHungHom.Timetable
                      , Scraping.NWFF.NorthPointHungHom.Metadata
-                     , Scraping.NWFF.NorthPointKowloonCity
+                     , Scraping.NWFF.NorthPointKowloonCity.Timetable
+                     , Scraping.NWFF.NorthPointKowloonCity.Metadata
                      , Scraping.CoralSea.Timetable
-                     , Scraping.CoralSea.SaiWanHoKwunTong
-                     , Scraping.CoralSea.SaiWanHoSamKaTsuen
-                     , Scraping.CoralSea.SamKaTsuenTungLungIsland
+                     , Scraping.CoralSea.SaiWanHoKwunTong.Timetable
+                     , Scraping.CoralSea.SaiWanHoKwunTong.Metadata
+                     , Scraping.CoralSea.SaiWanHoSamKaTsuen.Timetable
+                     , Scraping.CoralSea.SaiWanHoSamKaTsuen.Metadata
+                     , Scraping.CoralSea.SamKaTsuenTungLungIsland.Timetable
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , servant-server
