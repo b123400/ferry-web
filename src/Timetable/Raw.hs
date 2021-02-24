@@ -22,6 +22,7 @@ import qualified Scraping.GovData.CentralSokKwuWan.Metadata ()
 import qualified Scraping.GovData.CentralYungShueWan.Timetable ()
 import qualified Scraping.GovData.CentralYungShueWan.Metadata ()
 import qualified Scraping.GovData.CentralMaWan.Timetable ()
+import qualified Scraping.GovData.CentralMaWan.Metadata ()
 import qualified Scraping.GovData.PengChauHeiLingChau.Timetable ()
 import qualified Scraping.GovData.PengChauHeiLingChau.Metadata ()
 import qualified Scraping.GovData.AberdeenSokKwuWan.Timetable ()
@@ -90,6 +91,7 @@ type HasMetadatas m =
     , HasMetadata m CentralPengChau
     , HasMetadata m CentralSokKwuWan
     , HasMetadata m CentralYungShueWan
+    , HasMetadata m CentralMaWan
     , HasMetadata m NorthPointHungHom
     , HasMetadata m NorthPointKowloonCity
     , HasMetadata m PengChauHeiLingChau
@@ -108,6 +110,7 @@ metadatasRaw = Map.fromList <$> mapM (\i-> ((,) i) <$> metadataRaw i) islands
                     , CentralPengChau
                     , CentralSokKwuWan
                     , CentralYungShueWan
+                    , CentralMaWan
                     , NorthPointHungHom
                     , NorthPointKowloonCity
                     , PengChauHeiLingChau
@@ -123,6 +126,7 @@ metadataRaw CentralMuiWo = fetchMetadata (Proxy @CentralMuiWo)
 metadataRaw CentralPengChau = fetchMetadata (Proxy @CentralPengChau)
 metadataRaw CentralSokKwuWan = fetchMetadata (Proxy @CentralSokKwuWan)
 metadataRaw CentralYungShueWan = fetchMetadata (Proxy @CentralYungShueWan)
+metadataRaw CentralMaWan = fetchMetadata (Proxy @CentralMaWan)
 metadataRaw NorthPointHungHom = fetchMetadata (Proxy @NorthPointHungHom)
 metadataRaw NorthPointKowloonCity = fetchMetadata (Proxy @NorthPointKowloonCity)
 metadataRaw PengChauHeiLingChau = fetchMetadata (Proxy @PengChauHeiLingChau)

@@ -65,6 +65,7 @@ library
                      , Scraping.GovData.CentralYungShueWan.Timetable
                      , Scraping.GovData.CentralYungShueWan.Metadata
                      , Scraping.GovData.CentralMaWan.Timetable
+                     , Scraping.GovData.CentralMaWan.Metadata
                      , Scraping.GovData.PengChauHeiLingChau.Timetable
                      , Scraping.GovData.PengChauHeiLingChau.Metadata
                      , Scraping.GovData.MaWanTsuenWan.Timetable
