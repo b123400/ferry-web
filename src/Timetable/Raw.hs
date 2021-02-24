@@ -21,6 +21,7 @@ import qualified Scraping.GovData.CentralSokKwuWan.Timetable ()
 import qualified Scraping.GovData.CentralSokKwuWan.Metadata ()
 import qualified Scraping.GovData.CentralYungShueWan.Timetable ()
 import qualified Scraping.GovData.CentralYungShueWan.Metadata ()
+import qualified Scraping.GovData.CentralMaWan.Timetable ()
 import qualified Scraping.GovData.PengChauHeiLingChau.Timetable ()
 import qualified Scraping.GovData.PengChauHeiLingChau.Metadata ()
 import qualified Scraping.GovData.AberdeenSokKwuWan.Timetable ()
@@ -45,6 +46,7 @@ type HasTimetables m =
     , HasTimetable m CentralPengChau
     , HasTimetable m CentralSokKwuWan
     , HasTimetable m CentralYungShueWan
+    , HasTimetable m CentralMaWan
     , HasTimetable m NorthPointHungHom
     , HasTimetable m NorthPointKowloonCity
     , HasTimetable m PengChauHeiLingChau
@@ -70,6 +72,7 @@ islandRaw CentralMuiWo = fetchTimetable (Proxy @CentralMuiWo)
 islandRaw CentralPengChau = fetchTimetable (Proxy @CentralPengChau)
 islandRaw CentralSokKwuWan = fetchTimetable (Proxy @CentralSokKwuWan)
 islandRaw CentralYungShueWan = fetchTimetable (Proxy @CentralYungShueWan)
+islandRaw CentralMaWan = fetchTimetable (Proxy @CentralMaWan)
 islandRaw NorthPointHungHom = fetchTimetable (Proxy @NorthPointHungHom)
 islandRaw NorthPointKowloonCity = fetchTimetable (Proxy @NorthPointKowloonCity)
 islandRaw PengChauHeiLingChau = fetchTimetable (Proxy @PengChauHeiLingChau)

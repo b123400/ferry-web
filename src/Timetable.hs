@@ -34,6 +34,7 @@ data Island = CentralCheungChau
             | CentralPengChau
             | CentralYungShueWan
             | CentralSokKwuWan
+            | CentralMaWan
             | NorthPointHungHom
             | NorthPointKowloonCity
             | PengChauHeiLingChau
@@ -64,6 +65,7 @@ islands =
     , CentralPengChau
     , CentralSokKwuWan
     , CentralYungShueWan
+    , CentralMaWan
     , NorthPointHungHom
     , NorthPointKowloonCity
     , PengChauHeiLingChau
@@ -147,6 +149,7 @@ instance FromHttpApiData Island where
     parseUrlPiece "central-pengchau" = Right CentralPengChau
     parseUrlPiece "central-yungshuewan" = Right CentralYungShueWan
     parseUrlPiece "central-sokkwuwan" = Right CentralSokKwuWan
+    parseUrlPiece "central-mawan" = Right CentralMaWan
     parseUrlPiece "northpoint-hunghom" = Right NorthPointHungHom
     parseUrlPiece "northpoint-kowlooncity" = Right NorthPointKowloonCity
     parseUrlPiece "pengchau-heilingchau" = Right PengChauHeiLingChau
@@ -164,6 +167,7 @@ instance ToHttpApiData Island where
     toUrlPiece CentralPengChau = "central-pengchau"
     toUrlPiece CentralYungShueWan = "central-yungshuewan"
     toUrlPiece CentralSokKwuWan = "central-sokkwuwan"
+    toUrlPiece CentralMaWan = "central-mawan"
     toUrlPiece NorthPointHungHom = "northpoint-hunghom"
     toUrlPiece NorthPointKowloonCity  = "northpoint-kowlooncity"
     toUrlPiece PengChauHeiLingChau = "pengchau-heilingchau"
@@ -182,6 +186,7 @@ primaryName En i =
         CentralPengChau -> "Central"
         CentralYungShueWan -> "Central"
         CentralSokKwuWan -> "Central"
+        CentralMaWan -> "Central"
         NorthPointHungHom -> "NorthPoint"
         NorthPointKowloonCity -> "NorthPoint"
         PengChauHeiLingChau -> "PengChau"
@@ -198,6 +203,7 @@ primaryName Hk i =
         CentralPengChau -> "中環"
         CentralYungShueWan -> "中環"
         CentralSokKwuWan -> "中環"
+        CentralMaWan -> "中環"
         NorthPointHungHom -> "北角"
         NorthPointKowloonCity -> "北角"
         PengChauHeiLingChau -> "坪洲"
@@ -215,6 +221,7 @@ secondaryName En i =
         CentralPengChau -> "Peng Chau"
         CentralYungShueWan -> "Yung Shue Wan"
         CentralSokKwuWan -> "Sok Kwu Wan"
+        CentralMaWan -> "Ma Wan"
         NorthPointHungHom -> "Hung Hom"
         NorthPointKowloonCity -> "Kowloon City"
         PengChauHeiLingChau -> "Hei Ling Chau"
@@ -232,6 +239,7 @@ secondaryName Hk i =
         CentralPengChau -> "坪洲"
         CentralYungShueWan -> "榕樹灣"
         CentralSokKwuWan -> "索罟灣"
+        CentralMaWan -> "馬灣"
         NorthPointHungHom -> "紅磡"
         NorthPointKowloonCity -> "九龍城"
         PengChauHeiLingChau -> "喜靈洲"
@@ -318,6 +326,7 @@ dataSource CentralMuiWo = "https://www.td.gov.hk/en/transport_in_hong_kong/publi
 dataSource CentralPengChau = "https://www.td.gov.hk/en/transport_in_hong_kong/public_transport/ferries/service_details/index.html#o03"
 dataSource CentralYungShueWan = "https://www.td.gov.hk/en/transport_in_hong_kong/public_transport/ferries/service_details/index.html#o04"
 dataSource CentralSokKwuWan = "https://www.td.gov.hk/en/transport_in_hong_kong/public_transport/ferries/service_details/index.html#o05"
+dataSource CentralMaWan = "https://www.td.gov.hk/en/transport_in_hong_kong/public_transport/ferries/service_details/index.html#o16"
 dataSource NorthPointHungHom = "http://www.nwff.com.hk/route/get_route.php?id=1c87d6ed-4ace-464c-b24e-4db2b83ce902&route_id=5"
 dataSource NorthPointKowloonCity  = "http://www.nwff.com.hk/route/get_route.php?id=6662173e-a9ee-489b-aa36-8ce56dec0a6b&route_id=6&submenu_num=3"
 dataSource PengChauHeiLingChau = "https://www.td.gov.hk/en/transport_in_hong_kong/public_transport/ferries/service_details/index.html#o03"
@@ -329,17 +338,18 @@ dataSource SaiWanHoSamKaTsuen = "https://www.coralseaferryservice.com.hk/timetab
 dataSource SamKaTsuenTungLungIsland = "https://www.coralseaferryservice.com.hk/timetable"
 
 wikiLink :: IsString s => Island -> s
-wikiLink CentralCheungChau = "https://hkferry.fandom.com/zh/wiki/%E6%96%B0%E6%B8%A1%E8%BC%AA%E4%B8%AD%E7%92%B0%E8%87%B3%E9%95%B7%E6%B4%B2%E8%88%AA%E7%B7%9A"
-wikiLink CentralMuiWo = "https://hkferry.fandom.com/zh/wiki/%E6%96%B0%E6%B8%A1%E8%BC%AA%E4%B8%AD%E7%92%B0%E8%87%B3%E6%A2%85%E7%AA%A9%E8%88%AA%E7%B7%9A"
-wikiLink CentralPengChau = "https://hkferry.fandom.com/zh/wiki/%E6%B8%AF%E4%B9%9D%E5%B0%8F%E8%BC%AA%E4%B8%AD%E7%92%B0%E8%87%B3%E5%9D%AA%E6%B4%B2%E8%88%AA%E7%B7%9A"
-wikiLink CentralYungShueWan = "https://hkferry.fandom.com/zh/wiki/%E6%B8%AF%E4%B9%9D%E5%B0%8F%E8%BC%AA%E4%B8%AD%E7%92%B0%E8%87%B3%E5%8D%97%E4%B8%AB%E5%B3%B6_(%E6%A6%95%E6%A8%B9%E7%81%A3)_%E8%88%AA%E7%B7%9A"
-wikiLink CentralSokKwuWan = "https://hkferry.fandom.com/zh/wiki/%E6%B8%AF%E4%B9%9D%E5%B0%8F%E8%BC%AA%E4%B8%AD%E7%92%B0%E8%87%B3%E5%8D%97%E4%B8%AB%E5%B3%B6_(%E7%B4%A2%E7%BD%9F%E7%81%A3)_%E8%88%AA%E7%B7%9A"
-wikiLink NorthPointHungHom = "https://hkferry.fandom.com/zh/wiki/%E6%96%B0%E6%B8%A1%E8%BC%AA%E5%8C%97%E8%A7%92%E8%87%B3%E7%B4%85%E7%A3%A1%E8%88%AA%E7%B7%9A"
-wikiLink NorthPointKowloonCity  = "https://hkferry.fandom.com/zh/wiki/%E6%96%B0%E6%B8%A1%E8%BC%AA%E5%8C%97%E8%A7%92%E8%87%B3%E4%B9%9D%E9%BE%8D%E5%9F%8E%E8%88%AA%E7%B7%9A"
-wikiLink PengChauHeiLingChau = "https://hkferry.fandom.com/zh/wiki/%E6%B8%AF%E4%B9%9D%E5%B0%8F%E8%BC%AA%E5%9D%AA%E6%B4%B2%E8%87%B3%E5%96%9C%E9%9D%88%E6%B4%B2%E8%88%AA%E7%B7%9A"
-wikiLink AberdeenSokKwuWan = "https://hkferry.fandom.com/zh/wiki/%E5%85%A8%E8%A8%98%E6%B8%A1%E9%A6%99%E6%B8%AF%E4%BB%94%E8%87%B3%E5%8D%97%E4%B8%AB%E5%B3%B6_(%E7%B4%A2%E7%BD%9F%E7%81%A3)_%E8%88%AA%E7%B7%9A"
-wikiLink CentralDiscoveryBay = "https://hkferry.fandom.com/zh/wiki/%E6%84%89%E6%99%AF%E7%81%A3%E8%88%AA%E9%81%8B%E4%B8%AD%E7%92%B0%E8%87%B3%E6%84%89%E6%99%AF%E7%81%A3%E8%88%AA%E7%B7%9A"
-wikiLink MaWanTsuenWan = "https://hkferry.fandom.com/zh/wiki/%E7%8F%80%E9%BA%97%E7%81%A3%E5%AE%A2%E9%81%8B%E7%8F%80%E9%BA%97%E7%81%A3%E8%87%B3%E8%8D%83%E7%81%A3%E8%88%AA%E7%B7%9A"
-wikiLink SaiWanHoKwunTong = "https://hkferry.fandom.com/zh/wiki/%E7%8F%8A%E7%91%9A%E6%B5%B7%E8%88%B9%E5%8B%99%E8%A5%BF%E7%81%A3%E6%B2%B3%E8%87%B3%E8%A7%80%E5%A1%98%E8%88%AA%E7%B7%9A"
-wikiLink SaiWanHoSamKaTsuen = "https://hkferry.fandom.com/zh/wiki/%E7%8F%8A%E7%91%9A%E6%B5%B7%E8%88%B9%E5%8B%99%E8%A5%BF%E7%81%A3%E6%B2%B3%E8%87%B3%E4%B8%89%E5%AE%B6%E6%9D%91%E8%88%AA%E7%B7%9A"
-wikiLink SamKaTsuenTungLungIsland = "https://hkferry.fandom.com/zh/wiki/%E7%8F%8A%E7%91%9A%E6%B5%B7%E8%88%B9%E5%8B%99%E4%B8%89%E5%AE%B6%E6%9D%91%E8%87%B3%E6%9D%B1%E9%BE%8D%E5%B3%B6%E8%88%AA%E7%B7%9A"
+wikiLink CentralCheungChau = "https://hkferry.fandom.com/zh/wiki/%E6%96%B0%E6%B8%A1%E8%BC%AA%E4%B8%AD%E7%92%B0%E8%87%B3%E9%95%B7%E6%B4%B2%E8%88%AA%E7%B7%9A?variant=zh-hk"
+wikiLink CentralMuiWo = "https://hkferry.fandom.com/zh/wiki/%E6%96%B0%E6%B8%A1%E8%BC%AA%E4%B8%AD%E7%92%B0%E8%87%B3%E6%A2%85%E7%AA%A9%E8%88%AA%E7%B7%9A?variant=zh-hk"
+wikiLink CentralPengChau = "https://hkferry.fandom.com/zh/wiki/%E6%B8%AF%E4%B9%9D%E5%B0%8F%E8%BC%AA%E4%B8%AD%E7%92%B0%E8%87%B3%E5%9D%AA%E6%B4%B2%E8%88%AA%E7%B7%9A?variant=zh-hk"
+wikiLink CentralYungShueWan = "https://hkferry.fandom.com/zh/wiki/%E6%B8%AF%E4%B9%9D%E5%B0%8F%E8%BC%AA%E4%B8%AD%E7%92%B0%E8%87%B3%E5%8D%97%E4%B8%AB%E5%B3%B6_(%E6%A6%95%E6%A8%B9%E7%81%A3)_%E8%88%AA%E7%B7%9A?variant=zh-hk"
+wikiLink CentralSokKwuWan = "https://hkferry.fandom.com/zh/wiki/%E6%B8%AF%E4%B9%9D%E5%B0%8F%E8%BC%AA%E4%B8%AD%E7%92%B0%E8%87%B3%E5%8D%97%E4%B8%AB%E5%B3%B6_(%E7%B4%A2%E7%BD%9F%E7%81%A3)_%E8%88%AA%E7%B7%9A?variant=zh-hk"
+wikiLink CentralMaWan = "https://hkferry.fandom.com/zh/wiki/%E7%8F%80%E9%BA%97%E7%81%A3%E5%AE%A2%E9%81%8B%E7%8F%80%E9%BA%97%E7%81%A3%E8%87%B3%E4%B8%AD%E7%92%B0%E8%88%AA%E7%B7%9A?variant=zh-hk"
+wikiLink NorthPointHungHom = "https://hkferry.fandom.com/zh/wiki/%E6%96%B0%E6%B8%A1%E8%BC%AA%E5%8C%97%E8%A7%92%E8%87%B3%E7%B4%85%E7%A3%A1%E8%88%AA%E7%B7%9A?variant=zh-hk"
+wikiLink NorthPointKowloonCity  = "https://hkferry.fandom.com/zh/wiki/%E6%96%B0%E6%B8%A1%E8%BC%AA%E5%8C%97%E8%A7%92%E8%87%B3%E4%B9%9D%E9%BE%8D%E5%9F%8E%E8%88%AA%E7%B7%9A?variant=zh-hk"
+wikiLink PengChauHeiLingChau = "https://hkferry.fandom.com/zh/wiki/%E6%B8%AF%E4%B9%9D%E5%B0%8F%E8%BC%AA%E5%9D%AA%E6%B4%B2%E8%87%B3%E5%96%9C%E9%9D%88%E6%B4%B2%E8%88%AA%E7%B7%9A?variant=zh-hk"
+wikiLink AberdeenSokKwuWan = "https://hkferry.fandom.com/zh/wiki/%E5%85%A8%E8%A8%98%E6%B8%A1%E9%A6%99%E6%B8%AF%E4%BB%94%E8%87%B3%E5%8D%97%E4%B8%AB%E5%B3%B6_(%E7%B4%A2%E7%BD%9F%E7%81%A3)_%E8%88%AA%E7%B7%9A?variant=zh-hk"
+wikiLink CentralDiscoveryBay = "https://hkferry.fandom.com/zh/wiki/%E6%84%89%E6%99%AF%E7%81%A3%E8%88%AA%E9%81%8B%E4%B8%AD%E7%92%B0%E8%87%B3%E6%84%89%E6%99%AF%E7%81%A3%E8%88%AA%E7%B7%9A?variant=zh-hk"
+wikiLink MaWanTsuenWan = "https://hkferry.fandom.com/zh/wiki/%E7%8F%80%E9%BA%97%E7%81%A3%E5%AE%A2%E9%81%8B%E7%8F%80%E9%BA%97%E7%81%A3%E8%87%B3%E8%8D%83%E7%81%A3%E8%88%AA%E7%B7%9A?variant=zh-hk"
+wikiLink SaiWanHoKwunTong = "https://hkferry.fandom.com/zh/wiki/%E7%8F%8A%E7%91%9A%E6%B5%B7%E8%88%B9%E5%8B%99%E8%A5%BF%E7%81%A3%E6%B2%B3%E8%87%B3%E8%A7%80%E5%A1%98%E8%88%AA%E7%B7%9A?variant=zh-hk"
+wikiLink SaiWanHoSamKaTsuen = "https://hkferry.fandom.com/zh/wiki/%E7%8F%8A%E7%91%9A%E6%B5%B7%E8%88%B9%E5%8B%99%E8%A5%BF%E7%81%A3%E6%B2%B3%E8%87%B3%E4%B8%89%E5%AE%B6%E6%9D%91%E8%88%AA%E7%B7%9A?variant=zh-hk"
+wikiLink SamKaTsuenTungLungIsland = "https://hkferry.fandom.com/zh/wiki/%E7%8F%8A%E7%91%9A%E6%B5%B7%E8%88%B9%E5%8B%99%E4%B8%89%E5%AE%B6%E6%9D%91%E8%87%B3%E6%9D%B1%E9%BE%8D%E5%B3%B6%E8%88%AA%E7%B7%9A?variant=zh-hk"
