@@ -32,10 +32,11 @@ import Render.Html (HTMLLucid)
 import Render.Page.Index (Index(..))
 import Render.Page.Detail (Detail(..))
 import Render.Page.RawTimetable (RawTimetable(..))
+import Render.Page.Metadata (Metadata(..))
 import System.Environment (lookupEnv)
 import Web.Cookie (SetCookie, defaultSetCookie, setCookieName, setCookieValue, setCookieExpires, setCookiePath)
 
-import Timetable.Metadata (Metadata)
+import qualified Timetable.Metadata as Model (Metadata)
 
 import Debug.Trace
 
@@ -44,10 +45,10 @@ type WithLang a = Header "Accept-Language" Lang :> Header "Cookie" [SetCookie] :
 type API = "static" :> Raw
       :<|> WithLang (Capture "island" Island :> QueryParam "count" Int :> QueryParam "date" Text :> Get '[JSON, HTMLLucid] (Localised Detail))
       :<|> WithLang (Capture "island" Island :> "raw" :> Get '[JSON, HTMLLucid] (Localised RawTimetable))
-      :<|> Capture "island" Island :> "metadata" :> Get '[JSON] Metadata
+      :<|> WithLang (Capture "island" Island :> "metadata" :> Get '[JSON, HTMLLucid] (Localised Metadata))
       :<|> "lang" :> Capture "lang" Lang :> Header "Referer" String :> Get '[HTMLLucid] NoContent
       :<|> "raws" :> Get '[JSON] [Route NominalDiffTime]
-      :<|> "metadata" :> Get '[JSON] (Map Island Metadata)
+      :<|> "metadata" :> Get '[JSON] (Map Island Model.Metadata)
       :<|> "holidays" :> Get '[JSON] HolidayCalendar
       :<|> WithLang (QueryParam "count" Int :> Get '[JSON, HTMLLucid] (Localised Index))
 
@@ -68,7 +69,7 @@ server :: Cache String Dynamic -> Server API
 server c = (serveDirectoryWebApp "static")
       :<|> (withLang $ detail c)
       :<|> (withLang $ rawDetail c)
-      :<|> metadata c
+      :<|> (withLang $ metadata c)
       :<|> setLanguage
       :<|> raws c
       :<|> metadatas c
@@ -121,8 +122,8 @@ holidays :: Cache String Dynamic -> Handler HolidayCalendar
 holidays cache =
     liftIO $ flip evalStateT cache $ runDyn $ runLocal holidayCalendar
 
-metadata :: Cache String Dynamic -> Island -> Handler Metadata
-metadata cache island = liftIO $ flip evalStateT cache $ runDyn $ runLocal $ metadataRaw island
+metadata :: Cache String Dynamic -> Lang -> Island -> Handler (Localised Metadata)
+metadata cache lang island = liftIO $ Localised lang <$> (Metadata island) <$> (flip evalStateT cache $ runDyn $ runLocal $ metadataRaw island)
 
-metadatas :: Cache String Dynamic -> Handler (Map Island Metadata)
+metadatas :: Cache String Dynamic -> Handler (Map Island Model.Metadata)
 metadatas cache = liftIO $ flip evalStateT cache $ runDyn $ runLocal metadatasRaw

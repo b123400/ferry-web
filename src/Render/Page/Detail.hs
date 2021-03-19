@@ -2,7 +2,7 @@ module Render.Page.Detail where
 
 import Servant
 import Lucid
-import Control.Monad (forM_)
+import Control.Monad (forM_, when)
 import Data.Aeson (ToJSON(..))
 import Data.String (IsString(..))
 import Data.Text (pack)
@@ -11,7 +11,7 @@ import Data.Time.LocalTime (LocalTime)
 import Render.Lang (Localised(..), Syllabus(..), translate, lShow)
 import Render.Template.Wrapper (wrapper_)
 import Render.Template.Timetable (timetable_)
-import Timetable (Route(..), dataSource, wikiLink)
+import Timetable (Route(..), Island(..), dataSource, wikiLink)
 import Timetable.Local (addDiff)
 import Web.HttpApiData (toUrlPiece)
 
@@ -53,6 +53,9 @@ instance ToHtml (Localised Detail) where
             br_ []
             a_ [href_ $ "/" <> toUrlPiece island <> "/raw"] (t RawTimetable)
             br_ []
+            when (supportMetadata island) $ do
+                a_ [href_ $ "/" <> toUrlPiece island <> "/metadata"] (t Metadata)
+                br_ []
             a_ [href_ $ dataSource island, target_ "_blank", rel_ "noopener"] (t DataSource)
             br_ []
             a_ [href_ $ wikiLink island, target_ "_blank", rel_ "noopener"] (t Wiki)
@@ -66,3 +69,20 @@ instance ToHtml (Localised Detail) where
 
 instance ToJSON (Localised Detail) where
     toJSON (Localised l (Detail _ route _ _)) = toJSON route
+
+
+supportMetadata :: Island -> Bool
+supportMetadata CentralCheungChau = True
+supportMetadata CentralMuiWo = True
+supportMetadata CentralPengChau = True
+supportMetadata CentralSokKwuWan = True
+supportMetadata CentralYungShueWan = True
+supportMetadata CentralMaWan = True
+supportMetadata NorthPointHungHom = True
+supportMetadata NorthPointKowloonCity = True
+supportMetadata PengChauHeiLingChau = True
+supportMetadata AberdeenSokKwuWan = True
+supportMetadata MaWanTsuenWan = True
+supportMetadata SaiWanHoKwunTong = True
+supportMetadata SaiWanHoSamKaTsuen = True
+supportMetadata _ = False

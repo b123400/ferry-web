@@ -17,7 +17,7 @@ data Fare = Fare
     , fare :: Double
     , type_ :: FareType
     , modifiers :: Set Modifier
-    }
+    } deriving (Eq, Ord, Show)
 
 data FareType
     = SlowFerryOrdinaryClass
@@ -33,7 +33,7 @@ data Modifier
 data Duration = Duration
     { ferryType :: Maybe T.Modifier
     , duration :: NominalDiffTime
-    }
+    } deriving (Eq, Ord, Show)
 
 $(deriveJSON defaultOptions ''Metadata)
 
@@ -58,3 +58,8 @@ instance FromJSON Fare where
 $(deriveJSON defaultOptions ''Modifier)
 $(deriveJSON defaultOptions ''Duration)
 $(deriveJSON defaultOptions ''FareType)
+
+ferryTypeToTimetableModifier :: FareType -> T.Modifier
+ferryTypeToTimetableModifier SlowFerryOrdinaryClass = T.SlowFerry
+ferryTypeToTimetableModifier SlowFerryDeluxeClass = T.SlowFerry
+ferryTypeToTimetableModifier FastFerry = T.FastFerry

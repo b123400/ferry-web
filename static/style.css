@@ -134,14 +134,48 @@ time {
     left: 74%;
     margin-bottom: 50px;
 }
+
+.metadata table {
+    border-collapse: collapse;
+}
+
+.metadata th {
+    border-left: solid grey 1px;
+    padding-bottom: 10px;
+}
+
+.metadata td {
+    padding-left: 20px;
+    padding-right: 10px;
+    padding-bottom: 5px;
+    border-left: solid grey 1px;
+}
+
+.metadata span {
+    background: #d2d2d2;
+    padding: 3px;
+    border-radius: 5px;
+    margin: 3px;
+    font-size: 0.9em;
+    line-height: 2.0em;
+}
+
+.metadata span.--slow-ferry {
+    background: #c5ecbf;
+}
+
+.metadata span.--fast-ferry {
+    background: #f4bcc6;
+}
+
 .clearfix {
     clear: both;
 }
 .footer {
     flex-basis: 100%;
+    margin-top: 30px;
     margin-bottom: 30px;
     font-size: 0.8em;
-    text-align: center;
 }
 @media (max-width: 500px) {
     .sidebar {

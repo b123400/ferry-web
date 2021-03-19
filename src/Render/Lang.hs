@@ -54,12 +54,23 @@ data Syllabus
     | RawTimetable
     | DataSource
     | Wiki
+    | Metadata
     -- Raw timetable page
     | MondayToSaturday
     | MondayToFriday
     | Saturday
     | Sunday
     | Holiday
+    -- Metadata page
+    | DeluxeClass
+    | SlowFerry
+    | FastFerry
+    | Passenger
+    | Fare
+    | Type
+    | Extras
+    | Duration
+    | Minutes
 
 en :: IsString s => Syllabus -> s
 en Now = "Now"
@@ -74,6 +85,16 @@ en Sunday = "Sunday"
 en Holiday = "Holiday"
 en DataSource = "Data source"
 en Wiki = "EFHK"
+en Metadata = "Fares and Durations"
+en DeluxeClass = "Deluxe Class"
+en SlowFerry = "Slow Ferry"
+en FastFerry = "Fast Ferry"
+en Passenger = "Passenger"
+en Fare = "Fare"
+en Type = "Type"
+en Extras = "Extras"
+en Duration = "Duration"
+en Minutes = "Minutes"
 
 hk :: IsString s => Syllabus -> s
 hk Now = "現在"
@@ -88,3 +109,13 @@ hk Sunday = "星期日"
 hk Holiday = "假期"
 hk DataSource = "資料來源"
 hk Wiki = "香港渡輪大典"
+hk Metadata = "收費與船程"
+hk DeluxeClass = "豪華位"
+hk SlowFerry = "慢船"
+hk FastFerry = "快船"
+hk Passenger = "乘客"
+hk Fare = "船費"
+hk Type = "種類"
+hk Extras = "其他"
+hk Duration = "需時"
+hk Minutes = "分鐘"
