@@ -116,7 +116,8 @@ setLanguage lang from = do
 
 raws :: Cache String Dynamic -> Handler [Route NominalDiffTime]
 raws cache =
-    liftIO $ flip evalStateT cache $ runDyn $ runLocal allIslandsRaw
+    liftIO allIslandsRaw
+    -- liftIO $ flip evalStateT cache $ runDyn $ runLocal allIslandsRaw
 
 holidays :: Cache String Dynamic -> Handler HolidayCalendar
 holidays cache =

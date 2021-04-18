@@ -18,7 +18,6 @@ import Scraping.Utility
 
 import qualified Scraping.Gov as Gov (fetchCursor)
 
-
 fetch :: (MonadIO m, MonadCache m ByteString, MonadCache m (Route NominalDiffTime)) => m (Route NominalDiffTime)
 fetch = withCache "CentralMuiWo" $ do
     cursor <- Gov.fetchCursor
@@ -86,5 +85,6 @@ toFerry text = do
     Just (Ferry { time = diffTime
                 , modifiers = toModifiers modString
                 })
-    where toModifiers mods | elem '*' mods = singleton SlowFerry
+    where toModifiers mods | elem '@' mods = singleton FastFerry
+                           | elem '*' mods = singleton SlowFerry
                            | otherwise = singleton FastFerry
