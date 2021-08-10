@@ -9,5 +9,5 @@ import Schedule.Calendar (HolidayCalendar, parseICal)
 
 holidayCalendar :: (MonadIO m, MonadFail m, MonadCache m HolidayCalendar) => m HolidayCalendar
 holidayCalendar = withCache "HolidayCalendar" $ do
-    res <- liftIO $ simpleHttp "https://www.1823.gov.hk/common/ical/en.ics"
+    res <- liftIO $ simpleHttp "http://www.1823.gov.hk/common/ical/en.ics"
     parseICal res
