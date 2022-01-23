@@ -41,14 +41,15 @@ import qualified Scraping.CoralSea.SaiWanHoSamKaTsuen.Metadata ()
 import qualified Scraping.CoralSea.SamKaTsuenTungLungIsland.Timetable ()
 
 import qualified Scraping.Gov.CentralMuiWo as MuiWo
+import qualified Scraping.Gov.NorthPointHungHom as NorthPointHungHom
 
 type HasTimetables m =
     ( Monad m
 
     -- We need these only for the old MuiWo implementation
-    , MonadIO m, 
-    MonadCache m ByteString, 
-    MonadCache m (Route NominalDiffTime)
+    , MonadIO m
+    , MonadCache m ByteString
+    , MonadCache m (Route NominalDiffTime)
 
     , HasTimetable m CentralCheungChau
     , HasTimetable m CentralMuiWo
@@ -85,6 +86,7 @@ islandRaw CentralYungShueWan = fetchTimetable (Proxy @CentralYungShueWan)
 islandRaw CentralMaWan = fetchTimetable (Proxy @CentralMaWan)
 islandRaw NorthPointHungHom = fetchTimetable (Proxy @NorthPointHungHom)
 islandRaw NorthPointKowloonCity = fetchTimetable (Proxy @NorthPointKowloonCity)
+islandRaw NorthPointHungHom = NorthPointHungHom.fetch --fetchTimetable (Proxy @NorthPointHungHom)
 islandRaw PengChauHeiLingChau = fetchTimetable (Proxy @PengChauHeiLingChau)
 islandRaw AberdeenSokKwuWan = fetchTimetable (Proxy @AberdeenSokKwuWan)
 islandRaw CentralDiscoveryBay = fetchTimetable (Proxy @CentralDiscoveryBay)
