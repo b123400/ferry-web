@@ -52,6 +52,7 @@ library
                      , Scraping.Gov.AberdeenSokKwuWan
                      , Scraping.Gov.CentralDiscoveryBay
                      , Scraping.Gov.MaWanTsuenWan
+                     , Scraping.Gov.NorthPointHungHom.Timetable
                      , Scraping.GovData.Csv
                      , Scraping.GovData.CentralCheungChau.Timetable
                      , Scraping.GovData.CentralCheungChau.Metadata
