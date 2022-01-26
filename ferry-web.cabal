@@ -77,9 +77,9 @@ library
                      , Scraping.GovData.AberdeenSokKwuWan.Metadata
                      , Scraping.NWFF.RouteScript
                      , Scraping.NWFF.NorthPointHungHom.Timetable
-                     , Scraping.NWFF.NorthPointHungHom.Metadata
                      , Scraping.NWFF.NorthPointKowloonCity.Timetable
-                     , Scraping.NWFF.NorthPointKowloonCity.Metadata
+                     , Scraping.GovData.NorthPointHungHom.Metadata
+                     , Scraping.GovData.NorthPointKowloonCity.Metadata
                      , Scraping.CoralSea.Timetable
                      , Scraping.CoralSea.SaiWanHoKwunTong.Timetable
                      , Scraping.CoralSea.SaiWanHoKwunTong.Metadata
