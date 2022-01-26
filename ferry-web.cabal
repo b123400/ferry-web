@@ -19,7 +19,6 @@ library
                      , Timetable
                      , Scraping.CoralSea.TimeString
                      , Scraping.Gov.TimeString
-                     , Scraping.NWFF.TimeString
   other-modules:       Render.Html
                      , Render.Template.Wrapper
                      , Render.Template.Route
@@ -75,9 +74,6 @@ library
                      , Scraping.GovData.MaWanTsuenWan.Metadata
                      , Scraping.GovData.AberdeenSokKwuWan.Timetable
                      , Scraping.GovData.AberdeenSokKwuWan.Metadata
-                     , Scraping.NWFF.RouteScript
-                     , Scraping.NWFF.NorthPointHungHom.Timetable
-                     , Scraping.NWFF.NorthPointKowloonCity.Timetable
                      , Scraping.GovData.NorthPointHungHom.Metadata
                      , Scraping.GovData.NorthPointKowloonCity.Metadata
                      , Scraping.CoralSea.Timetable
@@ -149,7 +145,6 @@ test-suite ferry-web-test
                      , hspec
                      , aeson
   other-modules:       Scraping.CoralSea.TimeStringSpec
-                     , Scraping.NWFF.TimeStringSpec
                      , Scraping.Gov.TimeStringSpec
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
