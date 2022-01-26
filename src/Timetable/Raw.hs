@@ -30,10 +30,10 @@ import qualified Scraping.GovData.AberdeenSokKwuWan.Metadata ()
 import qualified Scraping.GovData.CentralDiscoveryBay.Timetable ()
 import qualified Scraping.GovData.MaWanTsuenWan.Timetable ()
 import qualified Scraping.GovData.MaWanTsuenWan.Metadata ()
-import qualified Scraping.NWFF.NorthPointHungHom.Timetable ()
-import qualified Scraping.NWFF.NorthPointHungHom.Metadata ()
-import qualified Scraping.NWFF.NorthPointKowloonCity.Timetable ()
-import qualified Scraping.NWFF.NorthPointKowloonCity.Metadata ()
+import qualified Scraping.Gov.NorthPointHungHom.Timetable ()
+import qualified Scraping.GovData.NorthPointHungHom.Metadata ()
+import qualified Scraping.Gov.NorthPointKowloonCity.Timetable ()
+import qualified Scraping.GovData.NorthPointKowloonCity.Metadata ()
 import qualified Scraping.CoralSea.SaiWanHoKwunTong.Timetable ()
 import qualified Scraping.CoralSea.SaiWanHoKwunTong.Metadata ()
 import qualified Scraping.CoralSea.SaiWanHoSamKaTsuen.Timetable ()
@@ -46,9 +46,9 @@ type HasTimetables m =
     ( Monad m
 
     -- We need these only for the old MuiWo implementation
-    , MonadIO m, 
-    MonadCache m ByteString, 
-    MonadCache m (Route NominalDiffTime)
+    , MonadIO m
+    , MonadCache m ByteString
+    , MonadCache m (Route NominalDiffTime)
 
     , HasTimetable m CentralCheungChau
     , HasTimetable m CentralMuiWo
