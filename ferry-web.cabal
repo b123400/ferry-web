@@ -53,6 +53,7 @@ library
                      , Scraping.Gov.CentralDiscoveryBay
                      , Scraping.Gov.MaWanTsuenWan
                      , Scraping.Gov.NorthPointHungHom.Timetable
+                     , Scraping.Gov.NorthPointKowloonCity.Timetable
                      , Scraping.GovData.Csv
                      , Scraping.GovData.CentralCheungChau.Timetable
                      , Scraping.GovData.CentralCheungChau.Metadata
